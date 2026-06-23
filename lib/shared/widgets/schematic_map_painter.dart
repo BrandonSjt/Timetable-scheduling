@@ -55,10 +55,10 @@ class SchematicMapPainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
 
     // ════════════════════════════════════════════════════════
-    // JALUR LRT (HIJAU): off-screen atas-kiri → Tanah Abang → Manggarai → Setiabudi → off-screen bawah
+    // JALUR KRL (HIJAU): off-screen atas-kiri → Tanah Abang → Manggarai → Setiabudi → off-screen bawah
     // Garis diagonal lalu melengkung menjadi vertikal ke bawah
     // ════════════════════════════════════════════════════════
-    final lrtPath = Path()
+    final krlPath = Path()
       // Mulai dari off-screen kiri atas
       ..moveTo(tanahAbang.dx - 40, tanahAbang.dy - 30)
       ..lineTo(tanahAbang.dx, tanahAbang.dy)
@@ -71,13 +71,13 @@ class SchematicMapPainter extends CustomPainter {
       )
       // Setiabudi → off-screen bawah: garis vertikal lurus ke bawah
       ..lineTo(setiabudi.dx, size.height + 20);
-    canvas.drawPath(lrtPath, lrtPaint);
+    canvas.drawPath(krlPath, krlPaint);
 
     // ════════════════════════════════════════════════════════
-    // JALUR KRL (ORANYE): off-screen kiri → Halim → Setiabudi → Cawang → off-screen kanan
+    // JALUR LRT (ORANYE): off-screen kiri → Halim → Setiabudi → Cawang → off-screen kanan
     // Garis horizontal lalu melengkung naik ke Setiabudi, lalu turun lagi ke Cawang
     // ════════════════════════════════════════════════════════
-    final krlPath = Path()
+    final lrtPath = Path()
       // Mulai dari off-screen kiri
       ..moveTo(-10, halim.dy)
       ..lineTo(halim.dx, halim.dy)
@@ -93,7 +93,7 @@ class SchematicMapPainter extends CustomPainter {
       )
       // Cawang → off-screen kanan
       ..lineTo(size.width + 10, cawang.dy);
-    canvas.drawPath(krlPath, krlPaint);
+    canvas.drawPath(lrtPath, lrtPaint);
 
     // ── Gambar node stasiun ──
     final stationPositions = {

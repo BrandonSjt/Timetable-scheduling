@@ -66,11 +66,18 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedStation = stationName;
     });
+    // Update URL query parameter to keep everything in sync
+    context.go('/?selected=$stationName');
   }
 
   @override
   Widget build(BuildContext context) {
-    final info = _stationInfoMap[_selectedStation]!;
+    final selectedParam = GoRouterState.of(context).uri.queryParameters['selected'];
+    final currentStation = (selectedParam != null && _stationInfoMap.containsKey(selectedParam))
+        ? selectedParam
+        : _selectedStation;
+
+    final info = _stationInfoMap[currentStation]!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -133,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                     // ── Peta Skematik (berwarna, interaktif) ──
                     MapView(
                       showColors: true,
-                      selectedStation: _selectedStation,
+                      selectedStation: currentStation,
                       onStationSelected: _onStationSelected,
                     ),
 
@@ -177,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               ElevatedButton(
-                                onPressed: () => context.go('/rute'),
+                                onPressed: () => context.go('/cari-stasiun?action=select_destination&from=$currentStation'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryBlue,
                                   foregroundColor: Colors.white,
@@ -206,7 +213,7 @@ class _HomePageState extends State<HomePage> {
                                   lineType: 'LRT',
                                   destination: info.lrtDest,
                                   duration: info.lrtDur,
-                                  lineColor: AppColors.lineLRT,
+                                  lineColor: AppColors.badgeLRT,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -215,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                                   lineType: 'KRL',
                                   destination: info.krlDest,
                                   duration: info.krlDur,
-                                  lineColor: AppColors.lineKRL,
+                                  lineColor: AppColors.badgeKRL,
                                 ),
                               ),
                             ],

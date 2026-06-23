@@ -23,10 +23,7 @@ class AppBottomNavBar extends StatelessWidget {
 
   void _onTap(BuildContext context, int index) {
     if (index == currentIndex) return; // Jangan navigasi ke halaman yang sama
-    if (index < 2) {
-      // Hanya Beranda dan Kereta yang sudah ada halamannya
-      context.go(_routes[index]);
-    }
+    context.go(_routes[index]);
   }
 
   @override

@@ -19,9 +19,12 @@ class AppColors {
   static const Color a11yBannerBg = Color(0xFFFFF8E1);
   static const Color a11yBannerText = Color(0xFFE65100);
 
-  // ── Transit Lines ──
-  static const Color lineKRL = Color(0xFFED6B23);   // Oranye
-  static const Color lineLRT = Color(0xFF16A34A);   // Hijau
+  // ── Transit Lines & Badges ──
+  static const Color lineKRL = Color(0xFF10B981);   // KRL Green (#10B981)
+  static const Color lineLRT = Color(0xFFF58220);   // LRT Map Line Orange (#F58220)
+  static const Color badgeLRT = Color(0xFF2563EB);  // LRT Badge Blue (#2563EB)
+  static const Color badgeKRL = Color(0xFF10B981);  // KRL Badge Green (#10B981)
+  static const Color kaiBlue = Color(0xFF005BAC);   // KAI Blue (#005BAC)
 
   // ── Neutral / Background ──
   static const Color background = Color(0xFFF8FAFC);

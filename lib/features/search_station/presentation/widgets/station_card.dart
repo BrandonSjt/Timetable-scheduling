@@ -7,6 +7,7 @@ class StationCard extends StatelessWidget {
   final String lineInfo;
   final String statusText;
   final Color statusColor;
+  final VoidCallback? onTap;
 
   const StationCard({
     super.key,
@@ -14,18 +15,21 @@ class StationCard extends StatelessWidget {
     required this.lineInfo,
     required this.statusText,
     this.statusColor = AppColors.primaryBlue,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
       child: Row(
         children: [
           // ── Dot icon ──
@@ -86,38 +90,44 @@ class StationCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 /// Filter chip untuk filter layanan: Semua, LRT, KRL, Aksesibel
 class ServiceFilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
+  final VoidCallback? onTap;
 
   const ServiceFilterChip({
     super.key,
     required this.label,
     this.isSelected = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.primaryBlue : AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryBlue : AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder,
+          ),
         ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : AppColors.primaryBlue,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppColors.primaryBlue,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
