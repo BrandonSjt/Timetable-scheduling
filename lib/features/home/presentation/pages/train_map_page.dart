@@ -72,12 +72,15 @@ class _TrainMapPageState extends State<TrainMapPage> {
                     ),
 
                     // ── Peta Skematik (warna pudar, interaktif) ──
-                    MapView(
-                      showColors: false,
-                      selectedStation: _selectedStation,
-                      onStationSelected: (name) {
-                        setState(() => _selectedStation = name);
-                      },
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.45,
+                      child: MapView(
+                        showColors: false,
+                        selectedStation: _selectedStation,
+                        onStationSelected: (name) {
+                          setState(() => _selectedStation = name);
+                        },
+                      ),
                     ),
 
                     // ── Tombol Aksi Stasiun (Dari, Lewat, Ke, Info) ──

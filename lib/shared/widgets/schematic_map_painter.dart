@@ -105,7 +105,7 @@ class SchematicMapPainter extends CustomPainter {
     };
 
     for (final entry in stationPositions.entries) {
-      final isSelected = entry.key == (selectedStation ?? 'Setiabudi');
+      final isSelected = selectedStation != null && entry.key == selectedStation;
       _drawStation(canvas, entry.value, isSelected: isSelected);
     }
 
