@@ -17,7 +17,7 @@ class AppBottomNavBar extends StatelessWidget {
 
   static const List<String> _routes = [
     '/',       // 0: Beranda
-    '/kereta', // 1: Kereta
+    '/timetable', // 1: Jadwal
     '/tiket',  // 2: Tiket Saya
     '/promo',  // 3: Promo
     '/akun',   // 4: Akun
@@ -81,9 +81,9 @@ class AppBottomNavBar extends StatelessWidget {
                   // ── 2 tab kiri ──
                   Expanded(
                     child: _NavItem(
-                      icon: Icons.train_outlined,
-                      activeIcon: Icons.train,
-                      label: 'Kereta',
+                      icon: Icons.calendar_month_outlined,
+                      activeIcon: Icons.calendar_month,
+                      label: 'Jadwal',
                       isActive: currentIndex == 1,
                       onTap: () => _onTap(context, 1),
                     ),

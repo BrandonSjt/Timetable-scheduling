@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/home/presentation/pages/train_map_page.dart';
 import '../../features/search_station/presentation/pages/search_station_page.dart';
 import '../../features/route_result/presentation/pages/route_result_page.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
@@ -23,11 +22,11 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Tab 1: Kereta
+    // Tab 1: Jadwal (Timetable)
     GoRoute(
-      path: '/kereta',
+      path: '/timetable',
       pageBuilder: (context, state) => const NoTransitionPage(
-        child: TrainMapPage(),
+        child: TimetablePage(),
       ),
     ),
 
@@ -82,10 +81,5 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const RouteResultPage(),
     ),
 
-    // Timetable
-    GoRoute(
-      path: '/timetable',
-      builder: (context, state) => const TimetablePage(),
-    ),
   ],
 );
