@@ -11,6 +11,7 @@ class _StationItem {
   final Color statusColor;
   final bool isLrt;
   final bool isKrl;
+  final bool isMrt;
   final bool isAccessible;
 
   const _StationItem({
@@ -20,6 +21,7 @@ class _StationItem {
     required this.statusColor,
     required this.isLrt,
     required this.isKrl,
+    required this.isMrt,
     required this.isAccessible,
   });
 }
@@ -27,11 +29,12 @@ class _StationItem {
 const List<_StationItem> _allStations = [
   _StationItem(
     name: 'Setiabudi',
-    lineInfo: 'LRT Jabodebek (Jalur Hijau)',
-    statusText: 'Lift tersedia · 3 menit',
+    lineInfo: 'LRT Jabodebek, KRL, & MRT Jakarta',
+    statusText: 'Transit Utama · 3 menit',
     statusColor: AppColors.statusGreen,
     isLrt: true,
-    isKrl: false,
+    isKrl: true,
+    isMrt: true,
     isAccessible: true,
   ),
   _StationItem(
@@ -41,6 +44,7 @@ const List<_StationItem> _allStations = [
     statusColor: AppColors.statusAmber,
     isLrt: false,
     isKrl: true,
+    isMrt: false,
     isAccessible: true,
   ),
   _StationItem(
@@ -50,6 +54,7 @@ const List<_StationItem> _allStations = [
     statusColor: AppColors.primaryBlue,
     isLrt: true,
     isKrl: true,
+    isMrt: false,
     isAccessible: true,
   ),
   _StationItem(
@@ -59,6 +64,7 @@ const List<_StationItem> _allStations = [
     statusColor: AppColors.statusAmber,
     isLrt: false,
     isKrl: true,
+    isMrt: false,
     isAccessible: false,
   ),
   _StationItem(
@@ -68,6 +74,27 @@ const List<_StationItem> _allStations = [
     statusColor: AppColors.statusGreen,
     isLrt: true,
     isKrl: false,
+    isMrt: false,
+    isAccessible: true,
+  ),
+  _StationItem(
+    name: 'Bundaran HI',
+    lineInfo: 'MRT Jakarta (Jalur Biru)',
+    statusText: 'Lift & Eskalator',
+    statusColor: AppColors.statusGreen,
+    isLrt: false,
+    isKrl: false,
+    isMrt: true,
+    isAccessible: true,
+  ),
+  _StationItem(
+    name: 'Blok M',
+    lineInfo: 'MRT Jakarta (Jalur Biru)',
+    statusText: 'Lift tersedia',
+    statusColor: AppColors.statusGreen,
+    isLrt: false,
+    isKrl: false,
+    isMrt: true,
     isAccessible: true,
   ),
 ];
@@ -116,6 +143,7 @@ class _SearchStationPageState extends State<SearchStationPage> {
       final matchesFilter = _selectedFilter == 'Semua' ||
                             (_selectedFilter == 'LRT' && station.isLrt) ||
                             (_selectedFilter == 'KRL' && station.isKrl) ||
+                            (_selectedFilter == 'MRT' && station.isMrt) ||
                             (_selectedFilter == 'Aksesibel' && station.isAccessible);
 
       return matchesSearch && matchesFilter;
@@ -211,10 +239,10 @@ class _SearchStationPageState extends State<SearchStationPage> {
                         },
                         decoration: InputDecoration(
                           hintText: 'Ketik nama stasiun, jalur, atau area',
-                          prefixIcon: const Icon(Icons.search),
+                          prefixIcon: const Icon(Icons.search_rounded),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear),
+                                  icon: const Icon(Icons.clear_rounded),
                                   onPressed: () {
                                     _searchController.clear();
                                     setState(() {
@@ -262,6 +290,8 @@ class _SearchStationPageState extends State<SearchStationPage> {
                           const SizedBox(width: 8),
                           _buildFilterChip('KRL'),
                           const SizedBox(width: 8),
+                          _buildFilterChip('MRT'),
+                          const SizedBox(width: 8),
                           _buildFilterChip('Aksesibel'),
                         ],
                       ),
@@ -304,13 +334,8 @@ class _SearchStationPageState extends State<SearchStationPage> {
                                   statusText: station.statusText,
                                   statusColor: station.statusColor,
                                   onTap: () {
-                                    if (isSelectingDestination && fromStation != null) {
-                                      // Rute Tercepat
-                                      context.go('/rute?from=$fromStation&to=${station.name}');
-                                    } else {
-                                      // Pilih di Peta Utama
-                                      context.go('/?selected=${station.name}');
-                                    }
+                                    final fromQuery = fromStation != null ? '&from=$fromStation' : '';
+                                    context.go('/?selected=${station.name}$fromQuery');
                                   },
                                 );
                               }).toList(),

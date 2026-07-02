@@ -82,7 +82,7 @@ class AppBottomNavBar extends StatelessWidget {
                   Expanded(
                     child: _NavItem(
                       icon: Icons.calendar_month_outlined,
-                      activeIcon: Icons.calendar_month,
+                      activeIcon: Icons.calendar_month_rounded,
                       label: 'Jadwal',
                       isActive: currentIndex == 1,
                       onTap: () => _onTap(context, 1),
@@ -90,8 +90,8 @@ class AppBottomNavBar extends StatelessWidget {
                   ),
                   Expanded(
                     child: _NavItem(
-                      icon: Icons.confirmation_number_outlined,
-                      activeIcon: Icons.confirmation_number,
+                      icon: Icons.confirmation_num_outlined,
+                      activeIcon: Icons.confirmation_num_rounded,
                       label: 'Tiket',
                       isActive: currentIndex == 2,
                       onTap: () => _onTap(context, 2),
@@ -105,7 +105,7 @@ class AppBottomNavBar extends StatelessWidget {
                   Expanded(
                     child: _NavItem(
                       icon: Icons.local_offer_outlined,
-                      activeIcon: Icons.local_offer,
+                      activeIcon: Icons.local_offer_rounded,
                       label: 'Promo',
                       isActive: currentIndex == 3,
                       onTap: () => _onTap(context, 3),
@@ -113,8 +113,8 @@ class AppBottomNavBar extends StatelessWidget {
                   ),
                   Expanded(
                     child: _NavItem(
-                      icon: Icons.person_outline,
-                      activeIcon: Icons.person,
+                      icon: Icons.person_outline_rounded,
+                      activeIcon: Icons.person_rounded,
                       label: 'Akun',
                       isActive: currentIndex == 4,
                       onTap: () => _onTap(context, 4),
@@ -170,7 +170,7 @@ class AppBottomNavBar extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        currentIndex == 0 ? Icons.home : Icons.home_outlined,
+                        currentIndex == 0 ? Icons.home_rounded : Icons.home_outlined,
                         color: Colors.white,
                         size: 26,
                       ),
