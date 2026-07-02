@@ -6,6 +6,7 @@ import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
 import '../../features/promo/presentation/pages/promo_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/home/presentation/pages/departure_detail_page.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
 /// Semua rute halaman didefinisikan di sini.
@@ -81,5 +82,21 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const RouteResultPage(),
     ),
 
+    // Detail Keberangkatan
+    GoRoute(
+      path: '/departure-detail',
+      builder: (context, state) {
+        final lineType = state.uri.queryParameters['lineType'] ?? '';
+        final destination = state.uri.queryParameters['destination'] ?? '';
+        final duration = state.uri.queryParameters['duration'] ?? '';
+        final platform = state.uri.queryParameters['platform'] ?? '';
+        return DepartureDetailPage(
+          lineType: lineType,
+          destination: destination,
+          duration: duration,
+          platform: platform,
+        );
+      },
+    ),
   ],
 );
