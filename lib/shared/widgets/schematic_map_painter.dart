@@ -12,10 +12,12 @@ class StationData {
 /// Daftar stasiun yang ditampilkan di peta skematik
 const List<StationData> stations = [
   StationData(name: 'Tanah Abang', relativePosition: Offset(0.15, 0.10)),
+  StationData(name: 'Bundaran HI', relativePosition: Offset(0.46, 0.20)),
   StationData(name: 'Manggarai', relativePosition: Offset(0.30, 0.32)),
   StationData(name: 'Setiabudi', relativePosition: Offset(0.46, 0.56)),
   StationData(name: 'Halim', relativePosition: Offset(0.12, 0.64)),
   StationData(name: 'Cawang', relativePosition: Offset(0.85, 0.64)),
+  StationData(name: 'Blok M', relativePosition: Offset(0.46, 0.85)),
 ];
 
 /// CustomPainter untuk menggambar peta skematik jalur KRL dan LRT
@@ -23,20 +25,24 @@ const List<StationData> stations = [
 class SchematicMapPainter extends CustomPainter {
   final bool showColors;
   final String? selectedStation;
+  final String? fromStation;
 
   SchematicMapPainter({
     this.showColors = false,
     this.selectedStation,
+    this.fromStation,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     // ── Posisi stasiun berdasarkan ukuran canvas ──
     final tanahAbang = Offset(size.width * 0.15, size.height * 0.10);
+    final bundaranHI = Offset(size.width * 0.46, size.height * 0.20);
     final manggarai = Offset(size.width * 0.30, size.height * 0.32);
     final setiabudi = Offset(size.width * 0.46, size.height * 0.56);
     final halim = Offset(size.width * 0.12, size.height * 0.64);
     final cawang = Offset(size.width * 0.85, size.height * 0.64);
+    final blokM = Offset(size.width * 0.46, size.height * 0.85);
 
     // ── Paint untuk garis LRT (Hijau) ──
     final lrtPaint = Paint()
@@ -49,6 +55,14 @@ class SchematicMapPainter extends CustomPainter {
     // ── Paint untuk garis KRL (Oranye) ──
     final krlPaint = Paint()
       ..color = showColors ? AppColors.lineKRL : AppColors.lineKRL.withValues(alpha: 0.20)
+      ..strokeWidth = 3.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    // ── Paint untuk garis MRT (Biru) ──
+    final mrtPaint = Paint()
+      ..color = showColors ? AppColors.lineMRT : AppColors.lineMRT.withValues(alpha: 0.20)
       ..strokeWidth = 3.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -95,46 +109,76 @@ class SchematicMapPainter extends CustomPainter {
       ..lineTo(size.width + 10, cawang.dy);
     canvas.drawPath(lrtPath, lrtPaint);
 
+    // ════════════════════════════════════════════════════════
+    // JALUR MRT (BIRU): Vertikal lurus dari atas ke bawah (Bundaran HI -> Setiabudi -> Blok M)
+    // ════════════════════════════════════════════════════════
+    final mrtPath = Path()
+      ..moveTo(bundaranHI.dx, -20)
+      ..lineTo(bundaranHI.dx, bundaranHI.dy)
+      ..lineTo(setiabudi.dx, setiabudi.dy)
+      ..lineTo(blokM.dx, blokM.dy)
+      ..lineTo(blokM.dx, size.height + 20);
+    canvas.drawPath(mrtPath, mrtPaint);
+
     // ── Gambar node stasiun ──
     final stationPositions = {
       'Tanah Abang': tanahAbang,
+      'Bundaran HI': bundaranHI,
       'Manggarai': manggarai,
       'Setiabudi': setiabudi,
       'Halim': halim,
       'Cawang': cawang,
+      'Blok M': blokM,
     };
 
     for (final entry in stationPositions.entries) {
       final isSelected = selectedStation != null && entry.key == selectedStation;
-      _drawStation(canvas, entry.value, isSelected: isSelected);
+      final isFrom = fromStation != null && entry.key == fromStation;
+      _drawStation(canvas, entry.value, isSelected: isSelected, isFrom: isFrom);
     }
 
     // ── Gambar label stasiun ──
     _drawLabel(canvas, tanahAbang, 'Tanah Abang', dx: 14, dy: -6);
+    _drawLabel(canvas, bundaranHI, 'Bundaran HI', dx: 14, dy: -6);
     _drawLabel(canvas, manggarai, 'Manggarai', dx: 14, dy: -6);
-    _drawLabel(canvas, setiabudi, 'Setiabudi', dx: 16, dy: -22, isBold: true, fontSize: 16);
+    _drawLabel(canvas, setiabudi, 'Setiabudi (Transit MRT/LRT/KRL)', dx: 16, dy: -22, isBold: true, fontSize: 13);
     _drawLabel(canvas, halim, 'Halim', dx: -8, dy: 16, alignRight: true);
     _drawLabel(canvas, cawang, 'Cawang', dx: -8, dy: -22, alignRight: true);
+    _drawLabel(canvas, blokM, 'Blok M', dx: 14, dy: -6);
   }
 
-  void _drawStation(Canvas canvas, Offset position, {bool isSelected = false}) {
+  void _drawStation(Canvas canvas, Offset position, {bool isSelected = false, bool isFrom = false}) {
+    // Highlight "Dari" station with a larger glowing circle
+    if (isFrom) {
+      final highlightPaint = Paint()
+        ..color = AppColors.primaryBlue.withValues(alpha: 0.3)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(position, 16, highlightPaint);
+
+      final highlightBorder = Paint()
+        ..color = AppColors.primaryBlue
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      canvas.drawCircle(position, 16, highlightBorder);
+    }
+
     // White fill
     final outerPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(position, isSelected ? 9 : 5, outerPaint);
+    canvas.drawCircle(position, isSelected || isFrom ? 9 : 5, outerPaint);
 
     // Border
     final borderPaint = Paint()
-      ..color = isSelected ? AppColors.textPrimary : AppColors.textSecondary
+      ..color = isSelected || isFrom ? AppColors.textPrimary : AppColors.textSecondary
       ..style = PaintingStyle.stroke
-      ..strokeWidth = isSelected ? 2.5 : 1.5;
-    canvas.drawCircle(position, isSelected ? 9 : 5, borderPaint);
+      ..strokeWidth = isSelected || isFrom ? 2.5 : 1.5;
+    canvas.drawCircle(position, isSelected || isFrom ? 9 : 5, borderPaint);
 
-    // Inner dot for selected
-    if (isSelected) {
+    // Inner dot for selected or from
+    if (isSelected || isFrom) {
       final dotPaint = Paint()
-        ..color = AppColors.textPrimary
+        ..color = isFrom ? AppColors.primaryBlue : AppColors.textPrimary
         ..style = PaintingStyle.fill;
       canvas.drawCircle(position, 3, dotPaint);
     }
@@ -177,6 +221,7 @@ class SchematicMapPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant SchematicMapPainter oldDelegate) {
     return oldDelegate.showColors != showColors ||
-        oldDelegate.selectedStation != selectedStation;
+        oldDelegate.selectedStation != selectedStation ||
+        oldDelegate.fromStation != fromStation;
   }
 }

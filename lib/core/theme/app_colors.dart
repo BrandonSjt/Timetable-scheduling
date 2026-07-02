@@ -22,8 +22,10 @@ class AppColors {
   // ── Transit Lines & Badges ──
   static const Color lineKRL = Color(0xFF10B981);   // KRL Green (#10B981)
   static const Color lineLRT = Color(0xFFF58220);   // LRT Map Line Orange (#F58220)
+  static const Color lineMRT = Color(0xFF1E3A8A);   // MRT Map Line Dark Blue
   static const Color badgeLRT = Color(0xFF2563EB);  // LRT Badge Blue (#2563EB)
   static const Color badgeKRL = Color(0xFF10B981);  // KRL Badge Green (#10B981)
+  static const Color badgeMRT = Color(0xFF1E3A8A);  // MRT Badge Dark Blue
   static const Color kaiBlue = Color(0xFF005BAC);   // KAI Blue (#005BAC)
 
   // ── Neutral / Background ──

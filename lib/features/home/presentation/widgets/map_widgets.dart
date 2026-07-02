@@ -7,12 +7,14 @@ import '../../../../shared/widgets/schematic_map_painter.dart';
 class MapView extends StatefulWidget {
   final bool showColors;
   final String? selectedStation;
+  final String? fromStation;
   final ValueChanged<String>? onStationSelected;
 
   const MapView({
     super.key,
     this.showColors = false,
     this.selectedStation,
+    this.fromStation,
     this.onStationSelected,
   });
 
@@ -218,6 +220,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     painter: SchematicMapPainter(
                       showColors: widget.showColors,
                       selectedStation: widget.selectedStation,
+                      fromStation: widget.fromStation,
                     ),
                   ),
                 ),
