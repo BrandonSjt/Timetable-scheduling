@@ -30,13 +30,17 @@ RoutePlan _calculateRoute(String from, String to) {
   final fromNorm = from.trim();
   final toNorm = to.trim();
 
-  final lrtStations = ['Tanah Abang', 'Manggarai', 'Setiabudi'];
-  final krlStations = ['Halim', 'Setiabudi', 'Cawang'];
+  final lrtStations = ['Halim', 'Cawang', 'Setiabudi'];
+  final krlStations = ['Tanah Abang', 'Manggarai', 'Setiabudi', 'Cawang'];
+  final mrtStations = ['Bundaran HI', 'Setiabudi', 'Blok M'];
 
-  final isFromLrt = lrtStations.contains(fromNorm);
-  final isFromKrl = krlStations.contains(fromNorm);
-  final isToLrt = lrtStations.contains(toNorm);
-  final isToKrl = krlStations.contains(toNorm);
+  bool isFromLrt = lrtStations.contains(fromNorm);
+  bool isFromKrl = krlStations.contains(fromNorm);
+  bool isFromMrt = mrtStations.contains(fromNorm);
+
+  bool isToLrt = lrtStations.contains(toNorm);
+  bool isToKrl = krlStations.contains(toNorm);
+  bool isToMrt = mrtStations.contains(toNorm);
 
   if (fromNorm == toNorm) {
     return RoutePlan(
@@ -51,68 +55,66 @@ RoutePlan _calculateRoute(String from, String to) {
     );
   }
 
-  // Kasus 1: Keduanya berada di jalur LRT
-  if (isFromLrt && isToLrt) {
-    final stopsCount = (lrtStations.indexOf(toNorm) - lrtStations.indexOf(fromNorm)).abs();
-    final duration = stopsCount * 4;
-    final price = 3000 + (stopsCount * 1000);
-    return RoutePlan(
-      from: fromNorm,
-      to: toNorm,
-      travelTime: duration,
-      fare: price,
-      stops: stopsCount,
-      serviceInfo: 'LRT Jabodebek · Tanpa transit',
-      hasTransit: false,
-      steps: [
-        'Naik LRT Jabodebek (Jalur Hijau) dari Stasiun $fromNorm.',
-        'Lewati $stopsCount stasiun perhentian.',
-        'Tiba di Stasiun tujuan $toNorm.',
-      ],
-    );
+  // Helper untuk direct route
+  RoutePlan? checkDirect(List<String> line, String lineName, bool isFrom, bool isTo) {
+    if (isFrom && isTo) {
+      final stopsCount = (line.indexOf(toNorm) - line.indexOf(fromNorm)).abs();
+      final duration = stopsCount * 4;
+      final price = 3000 + (stopsCount * 1000);
+      return RoutePlan(
+        from: fromNorm,
+        to: toNorm,
+        travelTime: duration,
+        fare: price,
+        stops: stopsCount,
+        serviceInfo: '$lineName · Tanpa transit',
+        hasTransit: false,
+        steps: [
+          'Naik $lineName dari Stasiun $fromNorm.',
+          'Lewati $stopsCount stasiun perhentian.',
+          'Tiba di Stasiun tujuan $toNorm.',
+        ],
+      );
+    }
+    return null;
   }
 
-  // Kasus 2: Keduanya berada di jalur KRL
-  if (isFromKrl && isToKrl) {
-    final stopsCount = (krlStations.indexOf(toNorm) - krlStations.indexOf(fromNorm)).abs();
-    final duration = stopsCount * 4;
-    final price = 3000 + (stopsCount * 1000);
-    return RoutePlan(
-      from: fromNorm,
-      to: toNorm,
-      travelTime: duration,
-      fare: price,
-      stops: stopsCount,
-      serviceInfo: 'KRL Jabodetabek · Tanpa transit',
-      hasTransit: false,
-      steps: [
-        'Naik KRL Jabodetabek (Jalur Oranye) dari Stasiun $fromNorm.',
-        'Lewati $stopsCount stasiun perhentian.',
-        'Tiba di Stasiun tujuan $toNorm.',
-      ],
-    );
-  }
+  // Cek direct route
+  final mrtRoute = checkDirect(mrtStations, 'MRT Jakarta (Jalur Biru)', isFromMrt, isToMrt);
+  if (mrtRoute != null) return mrtRoute;
 
-  // Kasus 3: Butuh transit di Setiabudi (LRT ⇄ KRL)
+  final krlRoute = checkDirect(krlStations, 'KRL Jabodetabek (Jalur Oranye)', isFromKrl, isToKrl);
+  if (krlRoute != null) return krlRoute;
+
+  final lrtRoute = checkDirect(lrtStations, 'LRT Jabodebek (Jalur Hijau)', isFromLrt, isToLrt);
+  if (lrtRoute != null) return lrtRoute;
+
+  // Kasus Transit di Setiabudi
   int stops1 = 0;
   int stops2 = 0;
   String line1 = '';
   String line2 = '';
 
-  if (isFromLrt) {
-    stops1 = (lrtStations.indexOf(fromNorm) - lrtStations.indexOf('Setiabudi')).abs();
-    line1 = 'LRT Jabodebek (Jalur Hijau)';
-  } else {
+  if (isFromMrt) {
+    stops1 = (mrtStations.indexOf(fromNorm) - mrtStations.indexOf('Setiabudi')).abs();
+    line1 = 'MRT Jakarta (Jalur Biru)';
+  } else if (isFromKrl) {
     stops1 = (krlStations.indexOf(fromNorm) - krlStations.indexOf('Setiabudi')).abs();
     line1 = 'KRL Jabodetabek (Jalur Oranye)';
+  } else {
+    stops1 = (lrtStations.indexOf(fromNorm) - lrtStations.indexOf('Setiabudi')).abs();
+    line1 = 'LRT Jabodebek (Jalur Hijau)';
   }
 
-  if (isToLrt) {
-    stops2 = (lrtStations.indexOf(toNorm) - lrtStations.indexOf('Setiabudi')).abs();
-    line2 = 'LRT Jabodebek (Jalur Hijau)';
-  } else {
+  if (isToMrt) {
+    stops2 = (mrtStations.indexOf(toNorm) - mrtStations.indexOf('Setiabudi')).abs();
+    line2 = 'MRT Jakarta (Jalur Biru)';
+  } else if (isToKrl) {
     stops2 = (krlStations.indexOf(toNorm) - krlStations.indexOf('Setiabudi')).abs();
     line2 = 'KRL Jabodetabek (Jalur Oranye)';
+  } else {
+    stops2 = (lrtStations.indexOf(toNorm) - lrtStations.indexOf('Setiabudi')).abs();
+    line2 = 'LRT Jabodebek (Jalur Hijau)';
   }
 
   final totalStops = stops1 + stops2;
@@ -181,16 +183,11 @@ class _RouteResultPageState extends State<RouteResultPage> {
                       ),
                       child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: () => context.go('/?selected=$from'),
-                            child: const Text(
-                              'Back',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.primaryBlue,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                          IconButton(
+                            onPressed: () => context.go('/?selected=$from'),
+                            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 22),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
                           ),
                           const Expanded(
                             child: Text(
@@ -242,70 +239,96 @@ class _RouteResultPageState extends State<RouteResultPage> {
 
                     const SizedBox(height: 20),
 
-                    // ── Travel Time Info ──
+                    // ── Travel Time Info Card ──
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Estimasi Perjalanan',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '${route.travelTime}',
-                                style: const TextStyle(
-                                  fontSize: 48,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
-                                  height: 1.0,
-                                ),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.kaiBlue,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.kaiBlue.withValues(alpha: 0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            )
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Estimasi Perjalanan',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textOnPrimary,
+                                fontWeight: FontWeight.w500,
                               ),
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 6, left: 4),
-                                child: Text(
-                                  'menit',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          '${route.travelTime}',
+                                          style: const TextStyle(
+                                            fontSize: 42,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white,
+                                            height: 1.0,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.only(bottom: 4, left: 6),
+                                        child: Text(
+                                          'menit',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white70,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 16),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      route.serviceInfo,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.textSecondary,
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 4, left: 8),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        route.serviceInfo,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white70,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      formattedFare,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        formattedFare,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -334,7 +357,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: ElevatedButton.icon(
                           onPressed: () {
                             context.go(
                               '/tiket?from=${Uri.encodeComponent(route.from)}'
@@ -344,6 +367,14 @@ class _RouteResultPageState extends State<RouteResultPage> {
                               '&transit=${route.hasTransit ? "1" : "0"}',
                             );
                           },
+                          icon: const Icon(Icons.confirmation_num_rounded, size: 20),
+                          label: const Text(
+                            'Beli tiket tanpa login',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.buttonOrange,
                             foregroundColor: Colors.white,
@@ -351,13 +382,8 @@ class _RouteResultPageState extends State<RouteResultPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
-                          ),
-                          child: const Text(
-                            'Beli tiket tanpa login',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            elevation: 4,
+                            shadowColor: AppColors.buttonOrange.withValues(alpha: 0.4),
                           ),
                         ),
                       ),
@@ -371,7 +397,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: ElevatedButton(
+                            child: ElevatedButton.icon(
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -379,6 +405,14 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                   ),
                                 );
                               },
+                              icon: const Icon(Icons.volume_up_rounded, size: 18),
+                              label: const Text(
+                                'Bacakan',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.buttonDark,
                                 foregroundColor: Colors.white,
@@ -386,20 +420,22 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                              ),
-                              child: const Text(
-                                'Bacakan rute',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                elevation: 2,
                               ),
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: ElevatedButton(
+                            child: ElevatedButton.icon(
                               onPressed: () => context.go('/'),
+                              icon: const Icon(Icons.map_rounded, size: 18),
+                              label: const Text(
+                                'Lihat peta',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primaryBlue,
                                 foregroundColor: Colors.white,
@@ -407,13 +443,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                              ),
-                              child: const Text(
-                                'Lihat peta',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                elevation: 2,
                               ),
                             ),
                           ),
@@ -459,6 +489,11 @@ class _RouteResultPageState extends State<RouteResultPage> {
   }
 
   Widget _buildFilterChip(String label) {
+    IconData? iconData;
+    if (label == 'Tercepat') iconData = Icons.bolt_rounded;
+    if (label == 'Minim transit') iconData = Icons.sync_alt_rounded;
+    if (label == 'Aksesibel') iconData = Icons.accessible_rounded;
+
     final isSelected = _selectedFilter == label;
     return GestureDetector(
       onTap: () {
@@ -466,22 +501,43 @@ class _RouteResultPageState extends State<RouteResultPage> {
           _selectedFilter = label;
         });
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primaryBlue : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder,
           ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: AppColors.primaryBlue.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            )
+          ] : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.primaryBlue,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (iconData != null) ...[
+              Icon(
+                iconData,
+                size: 16,
+                color: isSelected ? Colors.white : AppColors.primaryBlue,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textPrimary,
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -513,42 +569,83 @@ class _RouteResultPageState extends State<RouteResultPage> {
             final step = entry.value;
             final isLast = idx == route.steps.length - 1;
 
+            Color dotColor = AppColors.statusAmber;
+            if (isLast) {
+              dotColor = AppColors.statusGreen;
+            } else if (idx == 0) {
+              dotColor = AppColors.primaryBlue;
+            } else if (step.contains('MRT')) {
+              dotColor = AppColors.badgeMRT;
+            } else if (step.contains('LRT')) {
+              dotColor = AppColors.badgeLRT;
+            } else if (step.contains('KRL')) {
+              dotColor = AppColors.badgeKRL;
+            }
+
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Column(
                   children: [
-                    Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: idx == 0
-                            ? AppColors.primaryBlue
-                            : isLast
-                                ? AppColors.statusGreen
-                                : AppColors.statusAmber,
-                        shape: BoxShape.circle,
+                    if (idx == 0)
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: dotColor.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.trip_origin, size: 16, color: dotColor),
+                      )
+                    else if (isLast)
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: dotColor.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.place, size: 16, color: dotColor),
+                      )
+                    else
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: dotColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: dotColor.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                            )
+                          ],
+                        ),
                       ),
-                    ),
+                    
                     if (!isLast)
                       Container(
-                        width: 2,
-                        height: 44,
-                        color: AppColors.cardBorder,
+                        width: 3,
+                        height: 40,
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.divider,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                   ],
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.only(bottom: 16, top: 2),
                     child: Text(
                       step,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: (idx == 0 || isLast)
-                            ? FontWeight.w600
-                            : FontWeight.w400,
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: AppColors.textPrimary,
                       ),
                     ),
