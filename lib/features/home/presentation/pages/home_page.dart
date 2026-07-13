@@ -9,63 +9,59 @@ class _DepartureInfo {
   final String destination;
   final String duration;
   final String platform;
-  const _DepartureInfo(this.lineType, this.destination, this.duration, [this.platform = '1']);
+  final String travelDuration;
+  const _DepartureInfo(
+    this.lineType,
+    this.destination,
+    this.duration, [
+    this.platform = '1',
+    this.travelDuration = '',
+  ]);
 }
 
 class _StationInfo {
   final String name;
   final List<_DepartureInfo> departures;
 
-  const _StationInfo({
-    required this.name,
-    required this.departures,
-  });
+  const _StationInfo({required this.name, required this.departures});
 }
 
 const Map<String, _StationInfo> _stationInfoMap = {
   'Setiabudi': _StationInfo(
     name: 'Setiabudi',
     departures: [
-      _DepartureInfo('KRL', 'Manggarai', '3 menit', '1'),
-      _DepartureInfo('MRT', 'Bundaran HI', '5 menit', '2'),
-      _DepartureInfo('LRT', 'Cawang', '8 menit', '3'),
+      _DepartureInfo('KRL', 'Manggarai', '3 menit', '1', '7 menit'),
+      _DepartureInfo('MRT', 'Bundaran HI', '5 menit', '2', '5 menit'),
+      _DepartureInfo('LRT', 'Cawang', '8 menit', '3', '4 menit'),
     ],
   ),
   'Cawang': _StationInfo(
     name: 'Cawang',
-    departures: [
-      _DepartureInfo('LRT', 'Setiabudi', '4 menit', '1'),
-    ],
+    departures: [_DepartureInfo('LRT', 'Setiabudi', '4 menit', '1', '5 menit')],
   ),
   'Manggarai': _StationInfo(
     name: 'Manggarai',
     departures: [
-      _DepartureInfo('KRL', 'Tanah Abang', '5 menit', '2'),
-      _DepartureInfo('KRL', 'Setiabudi', '3 menit', '3'),
+      _DepartureInfo('KRL', 'Tanah Abang', '5 menit', '2', '6 menit'),
+      _DepartureInfo('KRL', 'Setiabudi', '3 menit', '3', '7 menit'),
     ],
   ),
   'Tanah Abang': _StationInfo(
     name: 'Tanah Abang',
-    departures: [
-      _DepartureInfo('KRL', 'Manggarai', '4 menit', '1'),
-    ],
+    departures: [_DepartureInfo('KRL', 'Manggarai', '4 menit', '1', '6 menit')],
   ),
   'Halim': _StationInfo(
     name: 'Halim',
-    departures: [
-      _DepartureInfo('LRT', 'Setiabudi', '7 menit', '2'),
-    ],
+    departures: [_DepartureInfo('LRT', 'Setiabudi', '7 menit', '2', '8 menit')],
   ),
   'Bundaran HI': _StationInfo(
     name: 'Bundaran HI',
-    departures: [
-      _DepartureInfo('MRT', 'Setiabudi', '6 menit', '1'),
-    ],
+    departures: [_DepartureInfo('MRT', 'Setiabudi', '6 menit', '1', '5 menit')],
   ),
   'Blok M': _StationInfo(
     name: 'Blok M',
     departures: [
-      _DepartureInfo('MRT', 'Setiabudi', '4 menit', '2'),
+      _DepartureInfo('MRT', 'Setiabudi', '4 menit', '2', '10 menit'),
     ],
   ),
 };
@@ -142,7 +138,6 @@ class _HomePageState extends State<HomePage> {
     final selectedParam = uri.queryParameters['selected'];
     final fromParam = uri.queryParameters['from'];
 
-    
     // Jika parameter URL dibersihkan, sinkronkan state lokal ke null agar pop-up tertutup
     if (selectedParam == null && _selectedStation != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -161,11 +156,14 @@ class _HomePageState extends State<HomePage> {
       });
     }
 
-    final currentStation = (selectedParam != null && _stationInfoMap.containsKey(selectedParam))
+    final currentStation =
+        (selectedParam != null && _stationInfoMap.containsKey(selectedParam))
         ? selectedParam
         : _selectedStation;
 
-    final info = currentStation != null ? _stationInfoMap[currentStation] : null;
+    final info = currentStation != null
+        ? _stationInfoMap[currentStation]
+        : null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -174,7 +172,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             // ── Header fixed: Search Bar + Filter Chips ──
             const SizedBox(height: 16),
-            
+
             // ── Top Banner (Dari) ──
             if (_fromStation != null)
               Padding(
@@ -196,7 +194,10 @@ class _HomePageState extends State<HomePage> {
                         setState(() => _fromStation = null);
                         context.go('/');
                       },
-                      child: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -206,11 +207,16 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: GestureDetector(
                 onTap: () {
-                  final fromQuery = _fromStation != null ? '?from=$_fromStation' : '';
+                  final fromQuery = _fromStation != null
+                      ? '?from=$_fromStation'
+                      : '';
                   context.go('/cari-stasiun$fromQuery');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(12),
@@ -256,34 +262,11 @@ class _HomePageState extends State<HomePage> {
                     child: MapView(
                       showColors: true,
                       selectedStation: currentStation,
-                      fromStation: _fromStation, // Pass the fromStation to highlight it
+                      fromStation:
+                          _fromStation, // Pass the fromStation to highlight it
                       onStationSelected: _onStationSelected,
                     ),
                   ),
-
-                  // ── A11Y Banner (tampil saat belum ada stasiun diklik) ──
-                  if (info == null)
-                    Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.a11yBannerBg,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          'A11Y: Ada daftar rute dan tombol bacakan, peta bukan satu-satunya navigasi.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.a11yBannerText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
 
                   // ── Panel Info Stasiun (muncul dari bawah saat stasiun diklik) ──
                   if (info != null)
@@ -316,7 +299,10 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.primaryBlueLight,
                                     borderRadius: BorderRadius.circular(6),
@@ -340,7 +326,11 @@ class _HomePageState extends State<HomePage> {
                                     });
                                     context.go('/');
                                   },
-                                  icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary, size: 20),
+                                  icon: const Icon(
+                                    Icons.close_rounded,
+                                    color: AppColors.textSecondary,
+                                    size: 20,
+                                  ),
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                 ),
@@ -357,7 +347,8 @@ class _HomePageState extends State<HomePage> {
                                       Container(
                                         padding: const EdgeInsets.all(6),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                                          color: AppColors.primaryBlue
+                                              .withValues(alpha: 0.1),
                                           shape: BoxShape.circle,
                                         ),
                                         child: const Icon(
@@ -393,23 +384,43 @@ class _HomePageState extends State<HomePage> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.surface,
                                         foregroundColor: AppColors.primaryBlue,
-                                        side: const BorderSide(color: AppColors.primaryBlue),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                        side: const BorderSide(
+                                          color: AppColors.primaryBlue,
                                         ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 12,
+                                        ),
                                       ),
-                                      child: const Text('Dari', style: TextStyle(fontWeight: FontWeight.w700)),
+                                      child: const Text(
+                                        'Dari',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(width: 8),
                                     ElevatedButton(
                                       onPressed: () {
                                         if (_fromStation != null) {
-                                          context.go('/rute?from=$_fromStation&to=$currentStation');
+                                          context.go(
+                                            '/rute?from=$_fromStation&to=$currentStation',
+                                          );
                                         } else {
                                           // Opsional: beritahu user untuk set 'Dari' dulu
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Pilih stasiun asal (Dari) terlebih dahulu!')),
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Pilih stasiun asal (Dari) terlebih dahulu!',
+                                              ),
+                                            ),
                                           );
                                         }
                                       },
@@ -417,11 +428,21 @@ class _HomePageState extends State<HomePage> {
                                         backgroundColor: AppColors.primaryBlue,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 12,
+                                        ),
                                       ),
-                                      child: const Text('Ke', style: TextStyle(fontWeight: FontWeight.w700)),
+                                      child: const Text(
+                                        'Ke',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -433,66 +454,37 @@ class _HomePageState extends State<HomePage> {
                             const Divider(color: AppColors.cardBorder),
                             const SizedBox(height: 12),
 
-                            // ── Live ETA (Jadwal Kereta) ──
-                            Row(
-                              children: [
-                                const Icon(Icons.schedule_rounded, size: 16, color: AppColors.textSecondary),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  'Jadwal Berikutnya',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: info.departures.map((dep) {
-                                  Color badgeColor = AppColors.badgeLRT;
-                                  if (dep.lineType == 'KRL') badgeColor = AppColors.badgeKRL;
-                                  if (dep.lineType == 'MRT') badgeColor = AppColors.badgeMRT;
-                                  
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 12),
-                                    child: SizedBox(
-                                      width: 160,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          final uri = Uri(
-                                            path: '/departure-detail',
-                                            queryParameters: {
-                                              'lineType': dep.lineType,
-                                              'destination': dep.destination,
-                                              'duration': dep.duration,
-                                              'platform': dep.platform,
-                                            },
-                                          );
-                                          context.push(uri.toString());
-                                        },
-                                        child: TransitChip(
-                                          lineType: dep.lineType,
-                                          destination: dep.destination,
-                                          duration: dep.duration,
-                                          lineColor: badgeColor,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                            _NextTrainBoard(
+                              stationName: info.name,
+                              departures: info.departures,
+                              onDepartureTap: (dep) {
+                                final uri = Uri(
+                                  path: '/departure-detail',
+                                  queryParameters: {
+                                    'lineType': dep.lineType,
+                                    'destination': dep.destination,
+                                    'duration': dep.duration,
+                                    'platform': dep.platform,
+                                  },
+                                );
+                                context.push(uri.toString());
+                              },
                             ),
 
                             // ── Stasiun Terdekat & Sekitar ──
-                            if (_nearbyStationsMap.containsKey(currentStation) && _nearbyStationsMap[currentStation]!.isNotEmpty) ...[
+                            if (_nearbyStationsMap.containsKey(
+                                  currentStation,
+                                ) &&
+                                _nearbyStationsMap[currentStation]!
+                                    .isNotEmpty) ...[
                               const SizedBox(height: 16),
                               Row(
                                 children: [
-                                  const Icon(Icons.near_me_rounded, size: 16, color: AppColors.textSecondary),
+                                  const Icon(
+                                    Icons.near_me_rounded,
+                                    size: 16,
+                                    color: AppColors.textSecondary,
+                                  ),
                                   const SizedBox(width: 6),
                                   const Text(
                                     'Stasiun Sekitar',
@@ -508,7 +500,9 @@ class _HomePageState extends State<HomePage> {
                               SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  children: _nearbyStationsMap[currentStation]!.map((nearby) {
+                                  children: _nearbyStationsMap[currentStation]!.map((
+                                    nearby,
+                                  ) {
                                     return Container(
                                       width: 150,
                                       margin: const EdgeInsets.only(right: 12),
@@ -516,11 +510,15 @@ class _HomePageState extends State<HomePage> {
                                       decoration: BoxDecoration(
                                         color: AppColors.background,
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: AppColors.cardBorder),
+                                        border: Border.all(
+                                          color: AppColors.cardBorder,
+                                        ),
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             nearby.name,
@@ -535,28 +533,58 @@ class _HomePageState extends State<HomePage> {
                                           const SizedBox(height: 4),
                                           Row(
                                             children: [
-                                              const Icon(Icons.location_on_rounded, size: 10, color: AppColors.textSecondary),
+                                              const Icon(
+                                                Icons.location_on_rounded,
+                                                size: 10,
+                                                color: AppColors.textSecondary,
+                                              ),
                                               const SizedBox(width: 2),
                                               Text(
                                                 nearby.distance,
-                                                style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
                                               ),
                                               const Spacer(),
                                               Row(
-                                                children: nearby.lines.map((line) {
-                                                  final color = line == 'KRL' 
-                                                      ? AppColors.badgeKRL 
-                                                      : (line == 'MRT' ? AppColors.badgeMRT : AppColors.badgeLRT);
+                                                children: nearby.lines.map((
+                                                  line,
+                                                ) {
+                                                  final color = line == 'KRL'
+                                                      ? AppColors.badgeKRL
+                                                      : (line == 'MRT'
+                                                            ? AppColors.badgeMRT
+                                                            : AppColors
+                                                                  .badgeLRT);
                                                   return Container(
-                                                    margin: const EdgeInsets.only(left: 2),
-                                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                          left: 2,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                          vertical: 2,
+                                                        ),
                                                     decoration: BoxDecoration(
-                                                      color: color.withValues(alpha: 0.15),
-                                                      borderRadius: BorderRadius.circular(4),
+                                                      color: color.withValues(
+                                                        alpha: 0.15,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
                                                     ),
                                                     child: Text(
                                                       line,
-                                                      style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: color),
+                                                      style: TextStyle(
+                                                        fontSize: 8,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: color,
+                                                      ),
                                                     ),
                                                   );
                                                 }).toList(),
@@ -582,6 +610,208 @@ class _HomePageState extends State<HomePage> {
             const AppBottomNavBar(currentIndex: 0),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _NextTrainBoard extends StatelessWidget {
+  final String stationName;
+  final List<_DepartureInfo> departures;
+  final ValueChanged<_DepartureInfo> onDepartureTap;
+
+  const _NextTrainBoard({
+    required this.stationName,
+    required this.departures,
+    required this.onDepartureTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFF),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 7,
+                height: 7,
+                decoration: const BoxDecoration(
+                  color: AppColors.statusGreen,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Kereta berikutnya dari $stationName',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...departures.map((departure) {
+            final isLast = departure == departures.last;
+            return _NextTrainRow(
+              departure: departure,
+              showDivider: !isLast,
+              onTap: () => onDepartureTap(departure),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _NextTrainRow extends StatelessWidget {
+  final _DepartureInfo departure;
+  final bool showDivider;
+  final VoidCallback onTap;
+
+  const _NextTrainRow({
+    required this.departure,
+    required this.showDivider,
+    required this.onTap,
+  });
+
+  Color get _badgeColor {
+    if (departure.lineType == 'KRL') {
+      return AppColors.badgeKRL;
+    }
+    if (departure.lineType == 'MRT') {
+      return AppColors.badgeMRT;
+    }
+    return AppColors.badgeLRT;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 9),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: _badgeColor,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    departure.lineType,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        departure.destination,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      if (departure.travelDuration.isNotEmpty) ...[
+                        Text(
+                          'Perjalanan ${departure.travelDuration}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                      ],
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 2,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            'Peron ${departure.platform}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            'Tujuan ${departure.destination}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textHint,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Datang ${departure.duration} lagi',
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    const Text(
+                      'di stasiun',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textHint,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (showDivider)
+            const Divider(height: 1, color: AppColors.cardBorder),
+        ],
       ),
     );
   }
