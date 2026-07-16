@@ -9,6 +9,7 @@ class MapView extends StatefulWidget {
   final String? selectedStation;
   final String? fromStation;
   final ValueChanged<String>? onStationSelected;
+  final Set<String>? visibleLineIds;
 
   const MapView({
     super.key,
@@ -16,6 +17,7 @@ class MapView extends StatefulWidget {
     this.selectedStation,
     this.fromStation,
     this.onStationSelected,
+    this.visibleLineIds,
   });
 
   @override
@@ -98,14 +100,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     final inverseMatrix = Matrix4.inverted(matrix);
     final canvasPos = MatrixUtils.transformPoint(inverseMatrix, localPos);
 
-    // Cek jarak tap ke setiap stasiun (threshold 30px di koordinat canvas)
+    // Cek jarak tap ke setiap stasiun (threshold 25px di koordinat canvas)
     for (final station in stations) {
-      final stationPos = Offset(
-        canvasSize.width * station.relativePosition.dx,
-        canvasSize.height * station.relativePosition.dy,
-      );
-      final d = (canvasPos - stationPos).distance;
-      if (d < 30) {
+      final d = (canvasPos - station.position).distance;
+      if (d < 25) {
         widget.onStationSelected?.call(station.name);
         return;
       }
@@ -113,24 +111,22 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   /// Menganimasikan InteractiveViewer agar terfokus di stasiun tertentu
-  void _centerOnStation(String stationName, Size canvasSize, {bool animate = true}) {
+  void _centerOnStation(String stationName, Size viewportSize, {bool animate = true}) {
     final station = stations.firstWhere(
       (s) => s.name.toLowerCase() == stationName.toLowerCase(),
       orElse: () => stations.first,
     );
 
-    final targetX = canvasSize.width * station.relativePosition.dx;
-    final targetY = canvasSize.height * station.relativePosition.dy;
+    final targetX = station.position.dx;
+    final targetY = station.position.dy;
 
     // Tentukan zoom scale saat memfokuskan stasiun
-    const double targetScale = 1.4;
+    const double targetScale = 1.8;
 
-    // Hitung pergeseran (translation) agar target berada tepat di tengah area yang terlihat
-    // (di atas panel stasiun terpilih dengan menggesernya ke atas sebesar 130px)
-    final double viewportWidth = canvasSize.width;
-    final double viewportHeight = canvasSize.height;
-    final double translationX = (viewportWidth / 2) - (targetX * targetScale);
-    final double translationY = (viewportHeight / 2) - (targetY * targetScale) - 130;
+    // Hitung pergeseran (translation) agar target berada tepat di tengah viewport
+    final double translationX = (viewportSize.width / 2) - (targetX * targetScale);
+    // Geser titik tengah ke atas (- 160) agar stasiun tidak tertutup bottom sheet
+    final double translationY = (viewportSize.height / 2) - (targetY * targetScale) - 160;
 
     final Matrix4 targetMatrix = Matrix4.translationValues(translationX, translationY, 0.0)
         * Matrix4.diagonal3Values(targetScale, targetScale, 1.0);
@@ -153,7 +149,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   void _zoom(double factor) {
     final currentMatrix = _transformController.value.clone();
     final currentScale = currentMatrix.getMaxScaleOnAxis();
-    final newScale = (currentScale * factor).clamp(0.8, 4.0);
+    final newScale = (currentScale * factor).clamp(0.15, 4.0);
     final scaleChange = newScale / currentScale;
 
     final RenderBox? box =
@@ -182,9 +178,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // Canvas size tetap besar untuk menampung semua jalur
+    const mapCanvas = Size(kMapWidth, kMapHeight);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
+        final viewportSize = Size(constraints.maxWidth, constraints.maxHeight);
 
         // Pantau perubahan stasiun terpilih untuk digeser ke tengah layar
         if (widget.selectedStation != _prevSelectedStation) {
@@ -194,7 +193,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _centerOnStation(
                 widget.selectedStation!,
-                canvasSize,
+                viewportSize,
                 animate: tempPrev != null && _hasInitialized,
               );
               _hasInitialized = true;
@@ -207,20 +206,26 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
           children: [
             Listener(
               onPointerDown: _onPointerDown,
-              onPointerUp: (event) => _onPointerUp(event, canvasSize),
+              onPointerUp: (event) => _onPointerUp(event, mapCanvas),
               child: SizedBox.expand(
                 child: InteractiveViewer(
                   key: _viewerKey,
                   transformationController: _transformController,
-                  minScale: 0.8,
+                  minScale: 0.15,
                   maxScale: 4.0,
-                  boundaryMargin: const EdgeInsets.all(60),
-                  child: CustomPaint(
-                    size: canvasSize,
-                    painter: SchematicMapPainter(
-                      showColors: widget.showColors,
-                      selectedStation: widget.selectedStation,
-                      fromStation: widget.fromStation,
+                  constrained: false,
+                  boundaryMargin: const EdgeInsets.all(200),
+                  child: SizedBox(
+                    width: kMapWidth,
+                    height: kMapHeight,
+                    child: CustomPaint(
+                      size: mapCanvas,
+                      painter: SchematicMapPainter(
+                        showColors: widget.showColors,
+                        selectedStation: widget.selectedStation,
+                        fromStation: widget.fromStation,
+                        visibleLineIds: widget.visibleLineIds,
+                      ),
                     ),
                   ),
                 ),
