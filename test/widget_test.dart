@@ -151,6 +151,37 @@ void main() {
     expect(find.text('English applied.'), findsOneWidget);
   });
 
+  testWidgets('Account opens searchable help center without bottom nav', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/akun');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Pusat Bantuan'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -120));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pusat Bantuan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Aksi cepat'), findsOneWidget);
+    expect(find.text('Chat petugas'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'jadwal');
+    await tester.pumpAndSettle();
+    expect(find.text('Jadwal atau ETA tidak sesuai'), findsOneWidget);
+    expect(find.text('Masalah pembayaran'), findsNothing);
+
+    await tester.tap(find.text('Chat petugas'));
+    await tester.pump();
+    expect(find.text('Menghubungkan ke chat petugas.'), findsOneWidget);
+  });
+
   testWidgets('Ticket tab shows ticket list before payment methods', (
     WidgetTester tester,
   ) async {

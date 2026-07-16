@@ -197,6 +197,7 @@ class ProfilePage extends StatelessWidget {
                   _buildMenuTile(
                     title: 'Pusat Bantuan',
                     subtitle: 'Kontak petugas dan laporan info salah',
+                    onTap: () => context.push('/pusat-bantuan'),
                   ),
                 ],
               ),

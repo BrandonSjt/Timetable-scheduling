@@ -9,6 +9,7 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
 import '../../features/profile/presentation/pages/language_page.dart';
+import '../../features/profile/presentation/pages/help_center_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
@@ -87,6 +88,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/bahasa',
       builder: (context, state) => const LanguagePage(),
+    ),
+
+    // Pusat Bantuan
+    GoRoute(
+      path: '/pusat-bantuan',
+      builder: (context, state) => const HelpCenterPage(),
     ),
 
     // ── Halaman Detail (Menggunakan transisi bawaan slide standar) ──
