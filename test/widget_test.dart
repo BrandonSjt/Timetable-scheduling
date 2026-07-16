@@ -32,7 +32,7 @@ void main() {
 
     expect(find.text('Kereta berikutnya dari Setiabudi'), findsOneWidget);
     expect(find.text('Datang 3 menit lagi'), findsOneWidget);
-    expect(find.text('Perjalanan 7 menit'), findsOneWidget);
+    expect(find.text('Perjalanan 5 menit'), findsOneWidget);
     expect(find.text('Peron 1'), findsOneWidget);
   });
 
