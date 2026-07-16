@@ -13,8 +13,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Cari stasiun LRT atau KRL'), findsOneWidget);
-    expect(find.text('LRT Jabodebek'), findsOneWidget);
-    expect(find.text('KRL Jabodetabek'), findsOneWidget);
+    expect(find.byIcon(Icons.menu_rounded), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.menu_rounded));
+    await tester.pump();
+    expect(find.text('Filter map akan segera hadir!'), findsOneWidget);
     expect(
       find.text(
         'A11Y: Ada daftar rute dan tombol bacakan, peta bukan satu-satunya navigasi.',
@@ -32,7 +35,7 @@ void main() {
 
     expect(find.text('Kereta berikutnya dari Setiabudi'), findsOneWidget);
     expect(find.text('Datang 3 menit lagi'), findsOneWidget);
-    expect(find.text('Perjalanan 7 menit'), findsOneWidget);
+    expect(find.text('Perjalanan 5 menit'), findsOneWidget);
     expect(find.text('Peron 1'), findsOneWidget);
   });
 
