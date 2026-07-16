@@ -86,6 +86,37 @@ void main() {
     expect(find.text('Mode tamu aktif'), findsOneWidget);
   });
 
+  testWidgets('Account opens filterable ticket history without bottom nav', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/akun');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Riwayat tiket lokal'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Riwayat tiket lokal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Riwayat tiket'), findsOneWidget);
+    expect(find.text('Tiket terakhir'), findsOneWidget);
+    expect(find.text('Bogor → Jakarta Kota'), findsOneWidget);
+    expect(find.text('Dukuh Atas → Harjamukti'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Aktif'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bogor → Jakarta Kota'), findsOneWidget);
+    expect(find.text('Dukuh Atas → Harjamukti'), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.chevron_left_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Mode tamu aktif'), findsOneWidget);
+  });
+
   testWidgets('Ticket tab shows ticket list before payment methods', (
     WidgetTester tester,
   ) async {

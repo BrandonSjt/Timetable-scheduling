@@ -179,6 +179,7 @@ class ProfilePage extends StatelessWidget {
                   _buildMenuTile(
                     title: 'Riwayat tiket lokal',
                     subtitle: 'Tersimpan di perangkat ini',
+                    onTap: () => context.push('/riwayat-tiket'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(
