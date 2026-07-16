@@ -185,6 +185,7 @@ class ProfilePage extends StatelessWidget {
                   _buildMenuTile(
                     title: 'Bahasa',
                     subtitle: 'Indonesia',
+                    onTap: () => context.push('/bahasa'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(

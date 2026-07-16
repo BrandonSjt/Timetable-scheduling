@@ -117,6 +117,40 @@ void main() {
     expect(find.text('Mode tamu aktif'), findsOneWidget);
   });
 
+  testWidgets('Account opens language page and updates its preview', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/akun');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Bahasa'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Bahasa'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bahasa aplikasi'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+    expect(find.text('Mode tamu aktif'), findsOneWidget);
+
+    await tester.tap(find.text('English'));
+    await tester.pumpAndSettle();
+    expect(find.text('Account'), findsOneWidget);
+    expect(find.text('Guest mode active'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Terapkan bahasa'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Terapkan bahasa'));
+    await tester.pump();
+    expect(find.text('English applied.'), findsOneWidget);
+  });
+
   testWidgets('Ticket tab shows ticket list before payment methods', (
     WidgetTester tester,
   ) async {

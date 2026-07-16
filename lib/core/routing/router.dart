@@ -8,6 +8,7 @@ import '../../features/promo/presentation/pages/promo_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
+import '../../features/profile/presentation/pages/language_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
@@ -80,6 +81,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/riwayat-tiket',
       builder: (context, state) => const TicketHistoryPage(),
+    ),
+
+    // Bahasa
+    GoRoute(
+      path: '/bahasa',
+      builder: (context, state) => const LanguagePage(),
     ),
 
     // ── Halaman Detail (Menggunakan transisi bawaan slide standar) ──
