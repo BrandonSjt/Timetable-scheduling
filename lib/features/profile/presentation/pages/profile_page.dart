@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 
@@ -188,6 +189,7 @@ class ProfilePage extends StatelessWidget {
                   _buildMenuTile(
                     title: 'Aksesibilitas',
                     subtitle: 'Kontras tinggi, teks besar, bacakan rute',
+                    onTap: () => context.push('/aksesibilitas'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(

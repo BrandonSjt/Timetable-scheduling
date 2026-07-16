@@ -36,6 +36,56 @@ void main() {
     expect(find.text('Peron 1'), findsOneWidget);
   });
 
+  testWidgets('Account opens interactive accessibility settings', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/akun');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Aksesibilitas'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Aksesibilitas'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pengaturan tampilan'), findsOneWidget);
+    expect(find.text('Kontras, teks, dan suara'), findsOneWidget);
+    expect(find.byType(Switch), findsNWidgets(4));
+
+    var switches = tester.widgetList<Switch>(find.byType(Switch)).toList();
+    expect(switches.map((item) => item.value), [true, false, true, false]);
+
+    await tester.tap(find.text('Teks besar'));
+    await tester.pumpAndSettle();
+    switches = tester.widgetList<Switch>(find.byType(Switch)).toList();
+    expect(switches[1].value, isTrue);
+
+    await tester.scrollUntilVisible(
+      find.text('Baca'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Baca'));
+    await tester.pump();
+    expect(
+      find.text(
+        'Membacakan: Dukuh Atas ke Harjamukti, Peron 2, tiba 4 menit lagi.',
+      ),
+      findsOneWidget,
+    );
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .clearSnackBars();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.chevron_left_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Mode tamu aktif'), findsOneWidget);
+  });
+
   testWidgets('Ticket tab shows ticket list before payment methods', (
     WidgetTester tester,
   ) async {

@@ -6,6 +6,7 @@ import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
 import '../../features/promo/presentation/pages/promo_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
@@ -66,6 +67,12 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => const NoTransitionPage(
         child: ProfilePage(),
       ),
+    ),
+
+    // Pengaturan Aksesibilitas
+    GoRoute(
+      path: '/aksesibilitas',
+      builder: (context, state) => const AccessibilityPage(),
     ),
 
     // ── Halaman Detail (Menggunakan transisi bawaan slide standar) ──
