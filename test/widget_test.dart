@@ -216,6 +216,41 @@ void main() {
     expect(find.text('Menghubungkan ke chat petugas.'), findsOneWidget);
   });
 
+  testWidgets('Completed history opens completed ticket detail and actions', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/riwayat-tiket');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Selesai'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Detail'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Detail tiket selesai'), findsOneWidget);
+    expect(find.text('Ringkasan perjalanan'), findsOneWidget);
+    expect(find.text('Durasi 44 menit'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+
+    await tester.scrollUntilVisible(
+      find.text('Unduh bukti'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Unduh bukti'));
+    await tester.pump();
+    expect(find.text('Bukti perjalanan berhasil disiapkan.'), findsOneWidget);
+
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .clearSnackBars();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Laporkan masalah'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pusat Bantuan'), findsOneWidget);
+  });
+
   testWidgets('Ticket tab shows ticket list before payment methods', (
     WidgetTester tester,
   ) async {

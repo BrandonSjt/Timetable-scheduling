@@ -24,12 +24,6 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
   bool get _showCompleted =>
       _filter == _TicketFilter.all || _filter == _TicketFilter.completed;
 
-  void _showPendingDetail(String status) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('Membuka detail tiket $status.')));
-  }
-
   void _clearHistory() {
     setState(() => _showHistory = false);
     ScaffoldMessenger.of(context)
@@ -89,7 +83,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
               accentColor: AppColors.accentOrange,
               badgeColor: const Color(0xFFF1F5F9),
               badgeTextColor: AppColors.textSecondary,
-              onTap: () => _showPendingDetail('selesai'),
+              onTap: () => context.push('/detail-tiket-selesai'),
             ),
         ],
         const SizedBox(height: 28),
