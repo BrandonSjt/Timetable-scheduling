@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/profile_detail_scaffold.dart';
@@ -76,7 +77,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
               accentColor: AppColors.primaryBlue,
               badgeColor: const Color(0xFFECFDF3),
               badgeTextColor: const Color(0xFF16A34A),
-              onTap: () => _showPendingDetail('aktif'),
+              onTap: () => context.push('/detail-tiket-aktif'),
             ),
           if (_showActive && _showCompleted) const SizedBox(height: 12),
           if (_showCompleted)

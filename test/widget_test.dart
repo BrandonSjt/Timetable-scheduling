@@ -151,6 +151,40 @@ void main() {
     expect(find.text('English applied.'), findsOneWidget);
   });
 
+  testWidgets('Active history opens active ticket detail without bottom nav', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/riwayat-tiket');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Aktif'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Detail'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Detail tiket aktif'), findsOneWidget);
+    expect(find.text('Kode tiket aktif'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+
+    await tester.scrollUntilVisible(
+      find.text('Tiket aktif'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    expect(find.text('Tiket aktif'), findsOneWidget);
+    expect(find.textContaining('lokal'), findsNothing);
+
+    await tester.scrollUntilVisible(
+      find.text('Bagikan kode'),
+      120,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Bagikan kode'));
+    await tester.pump();
+    expect(find.text('Kode tiket aktif siap dibagikan.'), findsOneWidget);
+  });
+
   testWidgets('Account opens searchable help center without bottom nav', (
     WidgetTester tester,
   ) async {
