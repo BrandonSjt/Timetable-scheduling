@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/home/presentation/pages/train_map_page.dart';
 import '../../features/search_station/presentation/pages/search_station_page.dart';
 import '../../features/route_result/presentation/pages/route_result_page.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
 import '../../features/promo/presentation/pages/promo_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/home/presentation/pages/departure_detail_page.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
 /// Semua rute halaman didefinisikan di sini.
@@ -24,11 +23,11 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Tab 1: Kereta
+    // Tab 1: Jadwal (Timetable)
     GoRoute(
-      path: '/kereta',
+      path: '/timetable',
       pageBuilder: (context, state) => const NoTransitionPage(
-        child: TrainMapPage(),
+        child: TimetablePage(),
       ),
     ),
 
@@ -83,10 +82,21 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const RouteResultPage(),
     ),
 
-    // Timetable
+    // Detail Keberangkatan
     GoRoute(
-      path: '/timetable',
-      builder: (context, state) => const TimetablePage(),
+      path: '/departure-detail',
+      builder: (context, state) {
+        final lineType = state.uri.queryParameters['lineType'] ?? '';
+        final destination = state.uri.queryParameters['destination'] ?? '';
+        final duration = state.uri.queryParameters['duration'] ?? '';
+        final platform = state.uri.queryParameters['platform'] ?? '';
+        return DepartureDetailPage(
+          lineType: lineType,
+          destination: destination,
+          duration: duration,
+          platform: platform,
+        );
+      },
     ),
   ],
 );

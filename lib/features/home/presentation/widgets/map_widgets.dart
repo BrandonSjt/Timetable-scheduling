@@ -7,12 +7,14 @@ import '../../../../shared/widgets/schematic_map_painter.dart';
 class MapView extends StatefulWidget {
   final bool showColors;
   final String? selectedStation;
+  final String? fromStation;
   final ValueChanged<String>? onStationSelected;
 
   const MapView({
     super.key,
     this.showColors = false,
     this.selectedStation,
+    this.fromStation,
     this.onStationSelected,
   });
 
@@ -20,22 +22,81 @@ class MapView extends StatefulWidget {
   State<MapView> createState() => _MapViewState();
 }
 
-class _MapViewState extends State<MapView> {
+class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   final TransformationController _transformController = TransformationController();
+
+  // ── State untuk deteksi tap manual via Listener ──
+  // Listener menangkap raw pointer events SEBELUM gesture arena,
+  // sehingga tidak terblokir oleh InteractiveViewer.
+  Offset? _pointerDownPos;
+  DateTime? _pointerDownTime;
+
+  // RenderBox key untuk mendapatkan posisi lokal relatif terhadap InteractiveViewer
+  final GlobalKey _viewerKey = GlobalKey();
+
+  // ── State untuk Animasi Kamera / Viewport ──
+  late AnimationController _animationController;
+  Animation<Matrix4>? _animationMatrix;
+  String? _prevSelectedStation;
+  bool _hasInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    )..addListener(() {
+        if (_animationMatrix != null) {
+          _transformController.value = _animationMatrix!.value;
+        }
+      });
+  }
 
   @override
   void dispose() {
+    _animationController.dispose();
     _transformController.dispose();
     super.dispose();
   }
 
-  /// Mendeteksi stasiun mana yang diklik berdasarkan posisi tap.
-  /// Posisi tap dikoreksi menggunakan inverse matrix agar akurat saat di-zoom.
-  void _handleTap(TapUpDetails details, Size canvasSize) {
-    // Konversi posisi tap dari layar ke koordinat canvas (memperhitungkan zoom/pan)
+  /// Dipanggil saat pointer turun (sebelum gesture arena memutuskan pan vs tap)
+  void _onPointerDown(PointerDownEvent event) {
+    _pointerDownPos = event.position; // posisi global
+    _pointerDownTime = DateTime.now();
+  }
+
+  /// Dipanggil saat pointer naik. Cek apakah ini "tap":
+  /// - Jarak geser < 18 logical pixels (toleransi jari)
+  /// - Durasi tekan < 300ms
+  void _onPointerUp(PointerUpEvent event, Size canvasSize) {
+    if (_pointerDownPos == null || _pointerDownTime == null) return;
+
+    final distance = (event.position - _pointerDownPos!).distance;
+    final duration = DateTime.now().difference(_pointerDownTime!);
+
+    // Threshold: gerakan kecil + durasi pendek = ini tap, bukan pan
+    if (distance < 18 && duration.inMilliseconds < 300) {
+      _detectStation(event.position, canvasSize);
+    }
+
+    _pointerDownPos = null;
+    _pointerDownTime = null;
+  }
+
+  /// Konversi posisi global tap → koordinat canvas (memperhitungkan zoom/pan),
+  /// lalu cek jarak ke setiap stasiun.
+  void _detectStation(Offset globalPos, Size canvasSize) {
+    // Dapatkan posisi lokal relatif terhadap widget InteractiveViewer
+    final RenderBox? box =
+        _viewerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final localPos = box.globalToLocal(globalPos);
+
+    // Terapkan inverse transformation matrix untuk mendapatkan koordinat canvas asli
     final matrix = _transformController.value;
     final inverseMatrix = Matrix4.inverted(matrix);
-    final localTap = MatrixUtils.transformPoint(inverseMatrix, details.localPosition);
+    final canvasPos = MatrixUtils.transformPoint(inverseMatrix, localPos);
 
     // Cek jarak tap ke setiap stasiun (threshold 30px di koordinat canvas)
     for (final station in stations) {
@@ -43,43 +104,185 @@ class _MapViewState extends State<MapView> {
         canvasSize.width * station.relativePosition.dx,
         canvasSize.height * station.relativePosition.dy,
       );
-      final distance = (localTap - stationPos).distance;
-      if (distance < 30) {
+      final d = (canvasPos - stationPos).distance;
+      if (d < 30) {
         widget.onStationSelected?.call(station.name);
         return;
       }
     }
   }
 
+  /// Menganimasikan InteractiveViewer agar terfokus di stasiun tertentu
+  void _centerOnStation(String stationName, Size canvasSize, {bool animate = true}) {
+    final station = stations.firstWhere(
+      (s) => s.name.toLowerCase() == stationName.toLowerCase(),
+      orElse: () => stations.first,
+    );
+
+    final targetX = canvasSize.width * station.relativePosition.dx;
+    final targetY = canvasSize.height * station.relativePosition.dy;
+
+    // Tentukan zoom scale saat memfokuskan stasiun
+    const double targetScale = 1.4;
+
+    // Hitung pergeseran (translation) agar target berada tepat di tengah area yang terlihat
+    // (di atas panel stasiun terpilih dengan menggesernya ke atas sebesar 130px)
+    final double viewportWidth = canvasSize.width;
+    final double viewportHeight = canvasSize.height;
+    final double translationX = (viewportWidth / 2) - (targetX * targetScale);
+    final double translationY = (viewportHeight / 2) - (targetY * targetScale) - 130;
+
+    final Matrix4 targetMatrix = Matrix4.translationValues(translationX, translationY, 0.0)
+        * Matrix4.diagonal3Values(targetScale, targetScale, 1.0);
+
+    if (animate) {
+      _animationMatrix = Matrix4Tween(
+        begin: _transformController.value,
+        end: targetMatrix,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ));
+      _animationController.forward(from: 0.0);
+    } else {
+      _transformController.value = targetMatrix;
+    }
+  }
+
+  /// Zoom in/out relatif terhadap tengah viewport
+  void _zoom(double factor) {
+    final currentMatrix = _transformController.value.clone();
+    final currentScale = currentMatrix.getMaxScaleOnAxis();
+    final newScale = (currentScale * factor).clamp(0.8, 4.0);
+    final scaleChange = newScale / currentScale;
+
+    final RenderBox? box =
+        _viewerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final center = Offset(box.size.width / 2, box.size.height / 2);
+
+    final tx = currentMatrix.getTranslation().x;
+    final ty = currentMatrix.getTranslation().y;
+
+    final newTx = center.dx - (center.dx - tx) * scaleChange;
+    final newTy = center.dy - (center.dy - ty) * scaleChange;
+
+    final targetMatrix = Matrix4.translationValues(newTx, newTy, 0.0)
+        * Matrix4.diagonal3Values(newScale, newScale, 1.0);
+
+    _animationMatrix = Matrix4Tween(
+      begin: _transformController.value,
+      end: targetMatrix,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    _animationController.forward(from: 0.0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const double mapHeight = 360;
-        final canvasSize = Size(constraints.maxWidth, mapHeight);
+        final canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
 
-        return SizedBox(
-          width: double.infinity,
-          height: mapHeight,
-          child: InteractiveViewer(
-            transformationController: _transformController,
-            minScale: 0.8,
-            maxScale: 4.0,
-            boundaryMargin: const EdgeInsets.all(60),
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTapUp: (details) => _handleTap(details, canvasSize),
-              child: CustomPaint(
-                size: canvasSize,
-                painter: SchematicMapPainter(
-                  showColors: widget.showColors,
-                  selectedStation: widget.selectedStation,
+        // Pantau perubahan stasiun terpilih untuk digeser ke tengah layar
+        if (widget.selectedStation != _prevSelectedStation) {
+          final tempPrev = _prevSelectedStation;
+          _prevSelectedStation = widget.selectedStation;
+          if (widget.selectedStation != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _centerOnStation(
+                widget.selectedStation!,
+                canvasSize,
+                animate: tempPrev != null && _hasInitialized,
+              );
+              _hasInitialized = true;
+            });
+          }
+        }
+
+        // Listener menangkap raw pointer events di luar gesture arena.
+        return Stack(
+          children: [
+            Listener(
+              onPointerDown: _onPointerDown,
+              onPointerUp: (event) => _onPointerUp(event, canvasSize),
+              child: SizedBox.expand(
+                child: InteractiveViewer(
+                  key: _viewerKey,
+                  transformationController: _transformController,
+                  minScale: 0.8,
+                  maxScale: 4.0,
+                  boundaryMargin: const EdgeInsets.all(60),
+                  child: CustomPaint(
+                    size: canvasSize,
+                    painter: SchematicMapPainter(
+                      showColors: widget.showColors,
+                      selectedStation: widget.selectedStation,
+                      fromStation: widget.fromStation,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+
+            // ── Tombol Zoom 🔍+ / 🔍- ──
+            Positioned(
+              right: 12,
+              top: 12,
+              child: Column(
+                children: [
+                  _ZoomButton(
+                    icon: Icons.zoom_in,
+                    onTap: () => _zoom(1.4),
+                  ),
+                  const SizedBox(height: 8),
+                  _ZoomButton(
+                    icon: Icons.zoom_out,
+                    onTap: () => _zoom(0.7),
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+}
+
+/// Tombol zoom bulat dengan ikon magnifier glass
+class _ZoomButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ZoomButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: AppColors.textPrimary,
+          size: 22,
+        ),
+      ),
     );
   }
 }
