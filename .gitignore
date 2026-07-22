@@ -46,3 +46,4 @@ app.*.map.json
 
 # AI Agent tracking
 .agents/
+docs/superpowers/
