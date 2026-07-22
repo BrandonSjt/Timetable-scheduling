@@ -8,6 +8,7 @@ import 'package:timetable/core/theme/app_colors.dart';
 import 'package:timetable/features/assistant/presentation/controllers/assistant_controller.dart';
 import 'package:timetable/features/assistant/presentation/pages/assistant_page.dart';
 import 'package:timetable/features/tickets/presentation/pages/tickets_page.dart';
+import 'package:timetable/features/travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
 import 'package:timetable/main.dart';
 
@@ -315,6 +316,69 @@ void main() {
     expect(find.text('Dukuh Atas -> Setiabudi'), findsOneWidget);
     expect(find.text('Sudah digunakan'), findsOneWidget);
     expect(find.text('Bayar sekarang'), findsNothing);
+  });
+
+  testWidgets('payment opens travel alarm setup before active ticket', (
+    WidgetTester tester,
+  ) async {
+    final alarms = TravelAlarmController();
+    addTearDown(alarms.dispose);
+    await tester.pumpWidget(
+      MaterialApp(home: TicketsPage(alarmController: alarms)),
+    );
+
+    await tester.tap(find.text('Bayar sekarang'));
+    await tester.pump();
+    final payButton = find.text('Bayar Rp7.800');
+    await tester.ensureVisible(payButton);
+    await tester.tap(payButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Aktifkan pengingat perjalanan?'), findsOneWidget);
+    expect(alarms.state.hasActiveTicket, isTrue);
+    expect(alarms.state.hasAnyAlarm, isFalse);
+
+    await tester.tap(find.text('Aktifkan alarm'));
+    await tester.pumpAndSettle();
+
+    expect(alarms.state.departureAlarmEnabled, isTrue);
+    expect(alarms.state.destinationAlarmEnabled, isTrue);
+    expect(find.text('Alarm perjalanan diaktifkan'), findsOneWidget);
+  });
+
+  testWidgets('active ticket confirms before disabling travel alarms', (
+    WidgetTester tester,
+  ) async {
+    final alarms = TravelAlarmController();
+    addTearDown(alarms.dispose);
+    await tester.pumpWidget(
+      MaterialApp(home: TicketsPage(alarmController: alarms)),
+    );
+
+    await tester.tap(find.text('Bayar sekarang'));
+    await tester.pump();
+    final payButton = find.text('Bayar Rp7.800');
+    await tester.ensureVisible(payButton);
+    await tester.tap(payButton);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aktifkan alarm'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.bySemanticsLabel(
+        'Alarm perjalanan aktif, ketuk untuk menonaktifkan',
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Matikan alarm perjalanan?'), findsOneWidget);
+    expect(alarms.state.hasAnyAlarm, isTrue);
+
+    await tester.tap(find.text('Matikan alarm'));
+    await tester.pumpAndSettle();
+
+    expect(alarms.state.hasAnyAlarm, isFalse);
+    expect(find.text('Alarm perjalanan dinonaktifkan'), findsOneWidget);
   });
 
   testWidgets('Assistant page exposes accessible voice-first controls', (
