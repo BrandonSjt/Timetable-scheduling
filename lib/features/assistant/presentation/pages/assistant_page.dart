@@ -3,15 +3,17 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../controllers/assistant_controller.dart';
 import '../widgets/assistant_quick_actions.dart';
 import '../widgets/assistant_response_panel.dart';
 import '../widgets/assistant_voice_panel.dart';
 
 class AssistantPage extends StatefulWidget {
-  const AssistantPage({super.key, this.controller});
+  const AssistantPage({super.key, this.controller, this.alarmController});
 
   final AssistantController? controller;
+  final TravelAlarmController? alarmController;
 
   @override
   State<AssistantPage> createState() => _AssistantPageState();

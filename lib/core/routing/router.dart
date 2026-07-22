@@ -13,6 +13,7 @@ import '../../features/profile/presentation/pages/help_center_page.dart';
 import '../../features/profile/presentation/pages/active_ticket_detail_page.dart';
 import '../../features/profile/presentation/pages/completed_ticket_detail_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
+import '../../features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
 /// Semua rute halaman didefinisikan di sini.
@@ -46,6 +47,7 @@ final GoRouter appRouter = GoRouter(
         final transit = state.uri.queryParameters['transit'];
         return NoTransitionPage(
           child: TicketsPage(
+            alarmController: TravelAlarmScope.of(context),
             from: from,
             to: to,
             fare: fare,
@@ -59,8 +61,9 @@ final GoRouter appRouter = GoRouter(
     // Tab 3: Asisten
     GoRoute(
       path: '/asisten',
-      pageBuilder: (context, state) =>
-          const NoTransitionPage(child: AssistantPage()),
+      pageBuilder: (context, state) => NoTransitionPage(
+        child: AssistantPage(alarmController: TravelAlarmScope.of(context)),
+      ),
     ),
 
     // Tautan lama tetap menuju tab Asisten.

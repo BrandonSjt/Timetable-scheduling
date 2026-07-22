@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 
 enum _TicketViewMode { list, checkout, active }
 
@@ -28,6 +29,7 @@ class _TicketItem {
 /// Halaman Tiket Saya (Screen 09 di Figma)
 /// Menampilkan alur checkout tiket dan tiket QR aktif dengan simulasi pembayaran.
 class TicketsPage extends StatefulWidget {
+  final TravelAlarmController? alarmController;
   final String? from;
   final String? to;
   final String? fare;
@@ -36,6 +38,7 @@ class TicketsPage extends StatefulWidget {
 
   const TicketsPage({
     super.key,
+    this.alarmController,
     this.from,
     this.to,
     this.fare,

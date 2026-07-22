@@ -7,9 +7,28 @@ import 'package:timetable/core/routing/router.dart';
 import 'package:timetable/core/theme/app_colors.dart';
 import 'package:timetable/features/assistant/presentation/controllers/assistant_controller.dart';
 import 'package:timetable/features/assistant/presentation/pages/assistant_page.dart';
+import 'package:timetable/features/tickets/presentation/pages/tickets_page.dart';
+import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
 import 'package:timetable/main.dart';
 
 void main() {
+  testWidgets('Tickets and Assistant share one travel alarm controller', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/tiket');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    final ticketContext = tester.element(find.byType(TicketsPage));
+    final ticketController = TravelAlarmScope.of(ticketContext);
+
+    appRouter.go('/asisten');
+    await tester.pumpAndSettle();
+    final assistantContext = tester.element(find.byType(AssistantPage));
+
+    expect(TravelAlarmScope.of(assistantContext), same(ticketController));
+  });
+
   testWidgets('Home screen renders merged route search entry points', (
     WidgetTester tester,
   ) async {
@@ -392,10 +411,7 @@ void main() {
         .getSemantics(find.bySemanticsLabel('Asisten'))
         .getSemanticsData();
     expect(assistantTabSemantics.hasAction(SemanticsAction.tap), isTrue);
-    expect(
-      assistantTabSemantics.flagsCollection.isSelected,
-      Tristate.isTrue,
-    );
+    expect(assistantTabSemantics.flagsCollection.isSelected, Tristate.isTrue);
   });
 
   testWidgets('Assistant navigation redirects the legacy Promo route', (
