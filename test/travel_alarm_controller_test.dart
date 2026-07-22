@@ -4,6 +4,7 @@ import 'package:timetable/features/travel_alarm/presentation/controllers/travel_
 void main() {
   test('new purchase starts with both alarms unconfirmed', () {
     final controller = TravelAlarmController();
+    addTearDown(controller.dispose);
 
     controller.completePurchase(from: 'Setiabudi', to: 'Manggarai');
 
@@ -11,12 +12,13 @@ void main() {
     expect(controller.state.departureAlarmEnabled, isFalse);
     expect(controller.state.destinationAlarmEnabled, isFalse);
     expect(controller.state.minutesUntilTrain, 5);
-    expect(controller.state.stationsUntilDestination, 1);
+    expect(controller.state.stationsUntilDestination, 2);
   });
 
   test('selected alarm categories can be activated independently', () {
     final controller = TravelAlarmController()
       ..completePurchase(from: 'Setiabudi', to: 'Manggarai');
+    addTearDown(controller.dispose);
 
     controller.configureAlarms(departure: true, destination: false);
 
@@ -29,6 +31,7 @@ void main() {
     final controller = TravelAlarmController()
       ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
       ..configureAlarms(departure: true, destination: true);
+    addTearDown(controller.dispose);
 
     controller.disableDestinationAlarm();
     expect(controller.state.departureAlarmEnabled, isTrue);
@@ -42,6 +45,7 @@ void main() {
     final controller = TravelAlarmController()
       ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
       ..configureAlarms(departure: true, destination: true);
+    addTearDown(controller.dispose);
 
     expect(controller.nextAlarmDescription, 'Kereta datang 5 menit lagi');
 
@@ -49,14 +53,76 @@ void main() {
     expect(controller.nextAlarmDescription, 'Kereta datang 1 menit lagi');
 
     controller.disableDepartureAlarm();
+    controller.advanceDestinationDemo();
     expect(
       controller.nextAlarmDescription,
       'Turun di Manggarai, 1 stasiun lagi',
     );
   });
 
+  test('active alarms advance to urgent in-app reminders', () async {
+    final controller =
+        TravelAlarmController(
+            departureUrgentDelay: const Duration(milliseconds: 1),
+            destinationWarningDelay: const Duration(milliseconds: 2),
+          )
+          ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
+          ..configureAlarms(departure: true, destination: true);
+    addTearDown(controller.dispose);
+
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    expect(controller.state.minutesUntilTrain, 1);
+    expect(controller.state.stationsUntilDestination, 1);
+    expect(
+      controller.reminder.value?.message,
+      'Turun di Manggarai, 1 stasiun lagi',
+    );
+  });
+
+  test('transfer trip produces a transfer reminder', () {
+    final controller = TravelAlarmController()
+      ..completePurchase(
+        from: 'Halim',
+        to: 'Bundaran HI',
+        transferStation: 'Setiabudi',
+      )
+      ..configureAlarms(departure: false, destination: true);
+    addTearDown(controller.dispose);
+
+    controller.advanceDestinationDemo();
+
+    expect(controller.state.activeTrip?.transferStation, 'Setiabudi');
+    expect(
+      controller.destinationDescription,
+      'Transit di Setiabudi, 1 stasiun lagi',
+    );
+    expect(
+      controller.reminder.value?.message,
+      'Transit di Setiabudi, 1 stasiun lagi',
+    );
+  });
+
+  test('cancelling alarms stops pending reminder transitions', () async {
+    final controller =
+        TravelAlarmController(
+            departureUrgentDelay: const Duration(milliseconds: 1),
+            destinationWarningDelay: const Duration(milliseconds: 2),
+          )
+          ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
+          ..configureAlarms(departure: true, destination: true)
+          ..cancelAllAlarms();
+    addTearDown(controller.dispose);
+
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    expect(controller.state.minutesUntilTrain, 5);
+    expect(controller.state.stationsUntilDestination, 2);
+  });
+
   test('repeated alarm operations do not emit duplicate changes', () {
     final controller = TravelAlarmController();
+    addTearDown(controller.dispose);
     var notifications = 0;
     controller.addListener(() => notifications++);
 

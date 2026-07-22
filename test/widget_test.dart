@@ -31,6 +31,26 @@ void main() {
     expect(TravelAlarmScope.of(assistantContext), same(ticketController));
   });
 
+  testWidgets('travel reminder is shown while another app page is open', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    final context = tester.element(find.text('Cari stasiun LRT atau KRL'));
+    final alarms = TravelAlarmScope.of(context);
+    alarms.completePurchase(from: 'Setiabudi', to: 'Manggarai');
+    alarms.configureAlarms(departure: true, destination: false);
+
+    alarms.advanceDepartureDemo();
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Kereta datang 1 menit lagi'), findsOneWidget);
+    alarms.cancelAllAlarms();
+  });
+
   testWidgets('Home screen renders merged route search entry points', (
     WidgetTester tester,
   ) async {
@@ -345,6 +365,7 @@ void main() {
     expect(alarms.state.departureAlarmEnabled, isTrue);
     expect(alarms.state.destinationAlarmEnabled, isTrue);
     expect(find.text('Alarm perjalanan diaktifkan'), findsOneWidget);
+    alarms.cancelAllAlarms();
   });
 
   testWidgets('active ticket confirms before disabling travel alarms', (
@@ -382,6 +403,130 @@ void main() {
     expect(find.text('Alarm perjalanan dinonaktifkan'), findsOneWidget);
   });
 
+  testWidgets('purchased ticket keeps its alarm control after page rebuild', (
+    WidgetTester tester,
+  ) async {
+    final alarms = TravelAlarmController();
+    addTearDown(alarms.dispose);
+    alarms.completePurchase(from: 'Setiabudi', to: 'Pancoran Bank BJB');
+    alarms.configureAlarms(departure: true, destination: true);
+
+    await tester.pumpWidget(
+      MaterialApp(home: TicketsPage(alarmController: alarms)),
+    );
+
+    expect(find.text('Setiabudi -> Pancoran Bank BJB'), findsOneWidget);
+    expect(find.text('Bayar sekarang'), findsNothing);
+
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Lihat QR').first);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.bySemanticsLabel(
+        'Alarm perjalanan aktif, ketuk untuk menonaktifkan',
+      ),
+      findsOneWidget,
+    );
+    expect(alarms.state.hasAnyAlarm, isTrue);
+    alarms.cancelAllAlarms();
+  });
+
+  testWidgets('viewing another ticket does not replace the active alarm trip', (
+    WidgetTester tester,
+  ) async {
+    final alarms = TravelAlarmController()
+      ..completePurchase(from: 'Setiabudi', to: 'Pancoran Bank BJB')
+      ..configureAlarms(departure: true, destination: true);
+    addTearDown(alarms.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(home: TicketsPage(alarmController: alarms)),
+    );
+    await tester.tap(
+      find.byKey(const Key('ticket-action-Manggarai-Tanah Abang')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(alarms.state.activeTrip?.from, 'Setiabudi');
+    expect(alarms.state.hasAnyAlarm, isTrue);
+    expect(find.bySemanticsLabel('Aktifkan alarm perjalanan'), findsOneWidget);
+    alarms.cancelAllAlarms();
+  });
+
+  testWidgets('active ticket announces the one-minute train reminder', (
+    WidgetTester tester,
+  ) async {
+    final alarms = TravelAlarmController(
+      departureUrgentDelay: const Duration(seconds: 1),
+      destinationWarningDelay: const Duration(seconds: 10),
+    );
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      alarms.dispose();
+    });
+    await tester.pumpWidget(
+      MaterialApp(home: TicketsPage(alarmController: alarms)),
+    );
+
+    await tester.tap(find.text('Bayar sekarang'));
+    await tester.pump();
+    final payButton = find.text('Bayar Rp7.800');
+    await tester.ensureVisible(payButton);
+    await tester.tap(payButton);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aktifkan alarm'));
+    await tester.pumpAndSettle();
+
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(alarms.state.minutesUntilTrain, 1);
+    expect(alarms.reminder.value?.message, 'Kereta datang 1 menit lagi');
+    alarms.cancelAllAlarms();
+  });
+
+  testWidgets('ticket alarm can be inspected and cancelled through chat', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/tiket');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    final ticketContext = tester.element(find.byType(TicketsPage));
+    final alarms = TravelAlarmScope.of(ticketContext);
+
+    await tester.tap(find.text('Bayar sekarang'));
+    await tester.pump();
+    final payButton = find.text('Bayar Rp7.800');
+    await tester.ensureVisible(payButton);
+    await tester.tap(payButton);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aktifkan alarm'));
+    await tester.pumpAndSettle();
+    expect(alarms.state.hasAnyAlarm, isTrue);
+
+    appRouter.go('/asisten');
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('assistant-message-field')),
+      'Alarm berikutnya kapan?',
+    );
+    await tester.tap(find.bySemanticsLabel('Kirim pesan'));
+    await tester.pump();
+    expect(find.text('Kereta datang 5 menit lagi'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('assistant-message-field')),
+      'Batalkan semua alarm',
+    );
+    await tester.tap(find.bySemanticsLabel('Kirim pesan'));
+    await tester.pump();
+
+    expect(alarms.state.hasAnyAlarm, isFalse);
+    expect(find.text('Semua alarm perjalanan dibatalkan.'), findsOneWidget);
+  });
+
   testWidgets('Assistant page exposes accessible voice-first controls', (
     WidgetTester tester,
   ) async {
@@ -413,6 +558,13 @@ void main() {
     expect(wakeWordSemantics.hasAction(SemanticsAction.tap), isTrue);
     expect(quickActionSemantics.hasAction(SemanticsAction.tap), isTrue);
 
+    await tester.tap(find.byKey(const Key('assistant-microphone-button')));
+    await tester.pump();
+    expect(
+      find.bySemanticsLabel('Hentikan percakapan suara'),
+      findsNWidgets(2),
+    );
+
     await tester.tap(find.byKey(const Key('wake-word-switch')));
     await tester.pump();
 
@@ -421,6 +573,50 @@ void main() {
       find.text('Kata pemicu aktif'),
     );
     expect(activeWakeWordText.style?.color, AppColors.textPrimary);
+  });
+
+  testWidgets('Assistant keeps the latest conversation visible', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final alarms = TravelAlarmController()
+      ..completePurchase(from: 'Setiabudi', to: 'Manggarai');
+    final conversation = AssistantConversationController(
+      alarmController: alarms,
+    );
+    addTearDown(conversation.dispose);
+    addTearDown(alarms.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AssistantPage(
+          alarmController: alarms,
+          conversationController: conversation,
+        ),
+      ),
+    );
+
+    conversation.submitText('Pesan pertama');
+    await tester.pumpAndSettle();
+    for (var index = 0; index < 5; index++) {
+      conversation.submitText('Pesan lanjutan $index');
+      await tester.pumpAndSettle();
+    }
+
+    final scrollable = tester.state<ScrollableState>(
+      find
+          .descendant(
+            of: find.byKey(const Key('assistant-conversation-scroll')),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(scrollable.position.extentAfter, lessThan(1));
+    expect(find.text('Pesan lanjutan 4'), findsOneWidget);
   });
 
   testWidgets('Assistant voice and text share one conversation timeline', (
@@ -480,7 +676,33 @@ void main() {
     );
     expect(find.text('Pakai rute ini'), findsOneWidget);
 
+    alarms.cancelAllAlarms();
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('Assistant announces an urgent shared travel alarm', (
+    WidgetTester tester,
+  ) async {
+    final alarms =
+        TravelAlarmController(
+            departureUrgentDelay: const Duration(seconds: 1),
+            destinationWarningDelay: const Duration(seconds: 10),
+          )
+          ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
+          ..configureAlarms(departure: true, destination: true);
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      alarms.dispose();
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(home: AssistantPage(alarmController: alarms)),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+
+    expect(alarms.reminder.value?.message, 'Kereta datang 1 menit lagi');
+    alarms.cancelAllAlarms();
   });
 
   testWidgets('Assistant page simulates a trip and requests confirmation', (
@@ -683,6 +905,28 @@ void main() {
     await tester.pump(const Duration(milliseconds: 2));
 
     expect(find.text('Pakai rute ini'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Assistant composer remains visible above the keyboard', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(const MaterialApp(home: AssistantPage()));
+
+    final field = find.byKey(const Key('assistant-message-field'));
+    await tester.tap(field);
+    await tester.showKeyboard(field);
+
+    const keyboardHeight = 300.0;
+    tester.view.viewInsets = const FakeViewPadding(bottom: keyboardHeight);
+    await tester.pumpAndSettle();
+
+    final keyboardTop = tester.view.physicalSize.height - keyboardHeight;
+    expect(tester.getRect(field).bottom, lessThanOrEqualTo(keyboardTop));
     expect(tester.takeException(), isNull);
   });
 }

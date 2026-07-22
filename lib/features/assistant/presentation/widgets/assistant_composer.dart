@@ -7,10 +7,12 @@ class AssistantComposer extends StatefulWidget {
     super.key,
     required this.onSubmit,
     required this.onMicrophoneTap,
+    this.microphoneSemanticsLabel = 'Mulai percakapan suara',
   });
 
   final ValueChanged<String> onSubmit;
   final VoidCallback? onMicrophoneTap;
+  final String microphoneSemanticsLabel;
 
   @override
   State<AssistantComposer> createState() => _AssistantComposerState();
@@ -84,7 +86,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
               ),
               const SizedBox(width: 8),
               _ComposerIconButton(
-                semanticsLabel: 'Mulai percakapan suara',
+                semanticsLabel: widget.microphoneSemanticsLabel,
                 icon: Icons.mic_rounded,
                 onPressed: widget.onMicrophoneTap,
                 foregroundColor: AppColors.primaryBlue,

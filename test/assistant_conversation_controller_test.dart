@@ -8,6 +8,8 @@ void main() {
     final alarms = TravelAlarmController()
       ..completePurchase(from: 'Setiabudi', to: 'Manggarai');
     final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
 
     chat.submitText('Aktifkan semua alarm tiket saya');
 
@@ -23,6 +25,8 @@ void main() {
       ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
       ..configureAlarms(departure: true, destination: true);
     final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
 
     chat.submitText('Kereta saya datang berapa menit lagi?');
     expect(chat.items.last.text, 'Kereta datang 5 menit lagi');
@@ -32,11 +36,26 @@ void main() {
     expect(chat.items.last.kind, AssistantConversationItemKind.alarmStatus);
   });
 
+  test('arrival question is independent from enabled alarm categories', () {
+    final alarms = TravelAlarmController()
+      ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
+      ..configureAlarms(departure: false, destination: true);
+    final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
+
+    chat.submitText('Kereta saya datang berapa menit lagi?');
+
+    expect(chat.items.last.text, 'Kereta datang 5 menit lagi');
+  });
+
   test('destination and all alarms can be cancelled through chat', () {
     final alarms = TravelAlarmController()
       ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
       ..configureAlarms(departure: true, destination: true);
     final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
 
     chat.submitText('Matikan alarm tujuan');
     expect(alarms.state.destinationAlarmEnabled, isFalse);
@@ -48,9 +67,10 @@ void main() {
   });
 
   test('unknown command returns concise command examples', () {
-    final chat = AssistantConversationController(
-      alarmController: TravelAlarmController(),
-    );
+    final alarms = TravelAlarmController();
+    final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
 
     chat.submitText('Pesan yang tidak dikenali');
 
@@ -59,9 +79,10 @@ void main() {
   });
 
   test('alarm command without a ticket adds an empty-ticket item', () {
-    final chat = AssistantConversationController(
-      alarmController: TravelAlarmController(),
-    );
+    final alarms = TravelAlarmController();
+    final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
 
     chat.submitText('Aktifkan semua alarm tiket saya');
 
@@ -70,9 +91,10 @@ void main() {
   });
 
   test('empty messages are ignored and voice uses the same timeline', () {
-    final chat = AssistantConversationController(
-      alarmController: TravelAlarmController(),
-    );
+    final alarms = TravelAlarmController();
+    final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
 
     chat.submitText('   ');
     expect(chat.items, isEmpty);
@@ -85,5 +107,38 @@ void main() {
     expect(chat.items, hasLength(2));
     expect(chat.items.first.author, AssistantMessageAuthor.user);
     expect(chat.items.last.author, AssistantMessageAuthor.assistant);
+  });
+
+  test('spoken alarm commands use the same intent handler as text', () {
+    final alarms = TravelAlarmController()
+      ..completePurchase(from: 'Setiabudi', to: 'Manggarai');
+    final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
+
+    chat.addVoiceExchange(
+      transcript: 'Aktifkan semua alarm tiket saya',
+      response: 'Respons rute yang tidak boleh dipakai.',
+    );
+
+    expect(alarms.state.hasAnyAlarm, isTrue);
+    expect(chat.items.last.kind, AssistantConversationItemKind.alarmStatus);
+    expect(chat.items.last.text, 'Semua alarm perjalanan aktif.');
+  });
+
+  test('alarm status items retain their state snapshot', () {
+    final alarms = TravelAlarmController()
+      ..completePurchase(from: 'Setiabudi', to: 'Manggarai');
+    final chat = AssistantConversationController(alarmController: alarms);
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
+
+    chat.submitText('Aktifkan semua alarm tiket saya');
+    final activation = chat.items.last;
+    chat.submitText('Batalkan semua alarm');
+
+    expect(activation.alarmSnapshot?.departureAlarmEnabled, isTrue);
+    expect(activation.alarmSnapshot?.destinationAlarmEnabled, isTrue);
+    expect(alarms.state.hasAnyAlarm, isFalse);
   });
 }

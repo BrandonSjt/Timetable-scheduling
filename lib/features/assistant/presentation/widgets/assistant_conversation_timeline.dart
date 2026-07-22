@@ -70,9 +70,10 @@ class AssistantConversationTimeline extends StatelessWidget {
           switch (item.kind) {
             AssistantConversationItemKind.alarmStatus => TravelAlarmStatusCard(
               message: item.text,
-              state: alarmState,
+              state: item.alarmSnapshot ?? alarmState,
               onViewTicket: onViewTicket,
               onCancelAlarm: onCancelAlarm,
+              canCancelAlarm: alarmState.hasAnyAlarm,
             ),
             AssistantConversationItemKind.noActiveTicket =>
               _NoActiveTicketMessage(

@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../travel_alarm/domain/entities/travel_alarm_state.dart';
 import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../../domain/entities/assistant_conversation_item.dart';
 
@@ -32,16 +33,21 @@ class AssistantConversationController extends ChangeNotifier {
     required String transcript,
     required String response,
   }) {
+    final normalized = transcript.trim().toLowerCase();
     _append(
       author: AssistantMessageAuthor.user,
       kind: AssistantConversationItemKind.message,
       text: transcript,
     );
-    _append(
-      author: AssistantMessageAuthor.assistant,
-      kind: AssistantConversationItemKind.routeSuggestion,
-      text: response,
-    );
+    if (_isAlarmCommand(normalized)) {
+      _handleCommand(normalized);
+    } else {
+      _append(
+        author: AssistantMessageAuthor.assistant,
+        kind: AssistantConversationItemKind.routeSuggestion,
+        text: response,
+      );
+    }
     notifyListeners();
   }
 
@@ -87,7 +93,9 @@ class AssistantConversationController extends ChangeNotifier {
     }
 
     if (normalized.contains('datang') || normalized.contains('berapa menit')) {
-      _appendAssistant(alarmController.nextAlarmDescription);
+      _appendAssistant(
+        'Kereta datang ${alarmController.state.minutesUntilTrain} menit lagi',
+      );
       return;
     }
 
@@ -100,6 +108,12 @@ class AssistantConversationController extends ChangeNotifier {
     return text.contains('alarm') ||
         text.contains('kereta') ||
         text.contains('berapa menit');
+  }
+
+  bool _isAlarmCommand(String text) {
+    return text.contains('alarm') ||
+        text.contains('berapa menit') ||
+        text.contains('kereta saya datang');
   }
 
   void _appendAssistant(String text) {
@@ -115,6 +129,7 @@ class AssistantConversationController extends ChangeNotifier {
       author: AssistantMessageAuthor.assistant,
       kind: AssistantConversationItemKind.alarmStatus,
       text: text,
+      alarmSnapshot: alarmController.state,
     );
   }
 
@@ -122,6 +137,7 @@ class AssistantConversationController extends ChangeNotifier {
     required AssistantMessageAuthor author,
     required AssistantConversationItemKind kind,
     required String text,
+    TravelAlarmState? alarmSnapshot,
   }) {
     _items.add(
       AssistantConversationItem(
@@ -129,6 +145,7 @@ class AssistantConversationController extends ChangeNotifier {
         author: author,
         kind: kind,
         text: text,
+        alarmSnapshot: alarmSnapshot,
       ),
     );
   }

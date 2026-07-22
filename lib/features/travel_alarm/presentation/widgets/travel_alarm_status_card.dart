@@ -10,12 +10,14 @@ class TravelAlarmStatusCard extends StatelessWidget {
     required this.state,
     required this.onViewTicket,
     required this.onCancelAlarm,
+    this.canCancelAlarm,
   });
 
   final String message;
   final TravelAlarmState state;
   final VoidCallback onViewTicket;
   final VoidCallback onCancelAlarm;
+  final bool? canCancelAlarm;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +91,7 @@ class TravelAlarmStatusCard extends StatelessWidget {
                 icon: const Icon(Icons.confirmation_num_outlined, size: 18),
                 label: const Text('Lihat tiket'),
               ),
-              if (state.hasAnyAlarm)
+              if (canCancelAlarm ?? state.hasAnyAlarm)
                 TextButton.icon(
                   onPressed: onCancelAlarm,
                   icon: const Icon(Icons.alarm_off_rounded, size: 18),

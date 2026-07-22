@@ -96,7 +96,8 @@ class _TicketsPageState extends State<TicketsPage> {
   }
 
   void _handleAlarmChange() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
   }
 
   void _showAlarmMessage(String message) {
@@ -109,7 +110,11 @@ class _TicketsPageState extends State<TicketsPage> {
     required String from,
     required String to,
   }) async {
-    _alarmController.completePurchase(from: from, to: to);
+    _alarmController.completePurchase(
+      from: from,
+      to: to,
+      transferStation: widget.transit == '1' ? 'Setiabudi' : null,
+    );
     setState(() => _viewMode = _TicketViewMode.active);
     await _openAlarmSetup(from: from, to: to);
   }
@@ -117,6 +122,7 @@ class _TicketsPageState extends State<TicketsPage> {
   Future<void> _openAlarmSetup({
     required String from,
     required String to,
+    String? transferStation,
   }) async {
     final selection = await showTravelAlarmSetupSheet(
       context,
@@ -124,6 +130,14 @@ class _TicketsPageState extends State<TicketsPage> {
       to: to,
     );
     if (selection == null || !mounted) return;
+
+    if (!_isCurrentAlarmTrip(from, to)) {
+      _alarmController.completePurchase(
+        from: from,
+        to: to,
+        transferStation: transferStation,
+      );
+    }
 
     _alarmController.configureAlarms(
       departure: selection.departure,
@@ -133,16 +147,30 @@ class _TicketsPageState extends State<TicketsPage> {
   }
 
   Future<void> _handleAlarmButton(String from, String to) async {
-    if (!_alarmController.state.hasAnyAlarm) {
-      await _openAlarmSetup(from: from, to: to);
+    final controlsCurrentTrip = _isCurrentAlarmTrip(from, to);
+    if (!controlsCurrentTrip || !_alarmController.state.hasAnyAlarm) {
+      await _openAlarmSetup(
+        from: from,
+        to: to,
+        transferStation: widget.transit == '1' ? 'Setiabudi' : null,
+      );
       return;
     }
 
-    final shouldDisable = await showTravelAlarmDisableDialog(context);
+    final shouldDisable = await showTravelAlarmDisableDialog(
+      context,
+      departureEnabled: _alarmController.state.departureAlarmEnabled,
+      destinationEnabled: _alarmController.state.destinationAlarmEnabled,
+    );
     if (!shouldDisable || !mounted) return;
 
     _alarmController.cancelAllAlarms();
     _showAlarmMessage('Alarm perjalanan dinonaktifkan');
+  }
+
+  bool _isCurrentAlarmTrip(String from, String to) {
+    final activeTrip = _alarmController.state.activeTrip;
+    return activeTrip?.from == from && activeTrip?.to == to;
   }
 
   @override
@@ -250,14 +278,22 @@ class _TicketsPageState extends State<TicketsPage> {
     String fare,
     String serviceInfo,
   ) {
+    final activeTrip = _alarmController.state.activeTrip;
+    final purchasedTicketIsActive =
+        activeTrip?.from == from && activeTrip?.to == to;
+
     return [
       _TicketItem(
         from: from,
         to: to,
         fare: fare,
         serviceInfo: serviceInfo,
-        validityText: 'Bayar sebelum 23:59',
-        status: _TicketStatus.pending,
+        validityText: purchasedTicketIsActive
+            ? 'Berlaku sampai 23:59'
+            : 'Bayar sebelum 23:59',
+        status: purchasedTicketIsActive
+            ? _TicketStatus.active
+            : _TicketStatus.pending,
       ),
       const _TicketItem(
         from: 'Manggarai',
@@ -544,6 +580,7 @@ class _TicketsPageState extends State<TicketsPage> {
               SizedBox(
                 height: 40,
                 child: ElevatedButton(
+                  key: Key('ticket-action-${ticket.from}-${ticket.to}'),
                   onPressed: () {
                     if (isCompleted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -559,12 +596,6 @@ class _TicketsPageState extends State<TicketsPage> {
                           ? _TicketViewMode.checkout
                           : _TicketViewMode.active;
                     });
-                    if (!isPending) {
-                      _alarmController.completePurchase(
-                        from: ticket.from,
-                        to: ticket.to,
-                      );
-                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isPending
@@ -1136,7 +1167,9 @@ class _TicketsPageState extends State<TicketsPage> {
           right: 20,
           bottom: 16,
           child: TravelAlarmButton(
-            isActive: _alarmController.state.hasAnyAlarm,
+            isActive:
+                _isCurrentAlarmTrip(from, to) &&
+                _alarmController.state.hasAnyAlarm,
             onPressed: () => _handleAlarmButton(from, to),
           ),
         ),

@@ -2,18 +2,34 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class ActiveTrip {
-  const ActiveTrip({required this.from, required this.to});
+  const ActiveTrip({
+    required this.from,
+    required this.to,
+    this.transferStation,
+  });
 
   final String from;
   final String to;
+  final String? transferStation;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ActiveTrip && other.from == from && other.to == to;
+      other is ActiveTrip &&
+          other.from == from &&
+          other.to == to &&
+          other.transferStation == transferStation;
 
   @override
-  int get hashCode => Object.hash(from, to);
+  int get hashCode => Object.hash(from, to, transferStation);
+}
+
+@immutable
+class TravelAlarmReminder {
+  const TravelAlarmReminder({required this.id, required this.message});
+
+  final int id;
+  final String message;
 }
 
 @immutable
@@ -23,7 +39,7 @@ class TravelAlarmState {
     this.departureAlarmEnabled = false,
     this.destinationAlarmEnabled = false,
     this.minutesUntilTrain = 5,
-    this.stationsUntilDestination = 1,
+    this.stationsUntilDestination = 2,
   });
 
   final ActiveTrip? activeTrip;

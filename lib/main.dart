@@ -21,15 +21,30 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final TravelAlarmController _travelAlarmController;
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     _travelAlarmController = TravelAlarmController();
+    _travelAlarmController.reminder.addListener(_handleTravelReminder);
+  }
+
+  void _handleTravelReminder() {
+    final reminder = _travelAlarmController.reminder.value;
+    if (reminder == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final messenger = _scaffoldMessengerKey.currentState;
+      if (messenger == null) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(reminder.message)));
+    });
   }
 
   @override
   void dispose() {
+    _travelAlarmController.reminder.removeListener(_handleTravelReminder);
     _travelAlarmController.dispose();
     super.dispose();
   }
@@ -39,6 +54,7 @@ class _MyAppState extends State<MyApp> {
     return TravelAlarmScope(
       controller: _travelAlarmController,
       child: MaterialApp.router(
+        scaffoldMessengerKey: _scaffoldMessengerKey,
         title: 'KAI Access Prototype',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,

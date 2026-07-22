@@ -27,14 +27,17 @@ class AssistantPage extends StatefulWidget {
   State<AssistantPage> createState() => _AssistantPageState();
 }
 
-class _AssistantPageState extends State<AssistantPage> {
+class _AssistantPageState extends State<AssistantPage>
+    with WidgetsBindingObserver {
   late final AssistantController _controller;
   late final bool _ownsController;
   late final TravelAlarmController _alarmController;
   late final bool _ownsAlarmController;
   late final AssistantConversationController _conversationController;
   late final bool _ownsConversationController;
+  final ScrollController _scrollController = ScrollController();
   int _lastConsumedExchangeId = 0;
+  int _lastConversationItemCount = 0;
 
   @override
   void initState() {
@@ -48,6 +51,8 @@ class _AssistantPageState extends State<AssistantPage> {
         widget.conversationController ??
         AssistantConversationController(alarmController: _alarmController);
     _lastConsumedExchangeId = _controller.completedExchangeId;
+    _lastConversationItemCount = _conversationController.items.length;
+    WidgetsBinding.instance.addObserver(this);
     _controller.addListener(_handleVoiceControllerChange);
     _conversationController.addListener(_handleConversationChange);
     _alarmController.addListener(_handleAlarmChange);
@@ -55,6 +60,7 @@ class _AssistantPageState extends State<AssistantPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.removeListener(_handleVoiceControllerChange);
     _conversationController.removeListener(_handleConversationChange);
     _alarmController.removeListener(_handleAlarmChange);
@@ -71,6 +77,7 @@ class _AssistantPageState extends State<AssistantPage> {
     if (_ownsAlarmController) {
       _alarmController.dispose();
     }
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -88,11 +95,41 @@ class _AssistantPageState extends State<AssistantPage> {
   }
 
   void _handleConversationChange() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final isFirstExchange =
+        _lastConversationItemCount == 0 &&
+        _conversationController.items.isNotEmpty;
+    _lastConversationItemCount = _conversationController.items.length;
+    final shouldFollowLatest =
+        isFirstExchange ||
+        !_scrollController.hasClients ||
+        _scrollController.position.extentAfter < 120;
+    setState(() {});
+    if (shouldFollowLatest) _scheduleScrollToLatest();
+  }
+
+  @override
+  void didChangeMetrics() {
+    _scheduleScrollToLatest(onlyWhenNearBottom: true);
+  }
+
+  void _scheduleScrollToLatest({bool onlyWhenNearBottom = false}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      if (onlyWhenNearBottom && _scrollController.position.extentAfter >= 120) {
+        return;
+      }
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   void _handleAlarmChange() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
   }
 
   void _confirmRoute() {
@@ -148,6 +185,17 @@ class _AssistantPageState extends State<AssistantPage> {
     };
   }
 
+  String get _voiceSemanticsLabel {
+    return switch (_controller.state) {
+      AssistantInteractionState.ready => 'Mulai percakapan suara',
+      AssistantInteractionState.listening => 'Hentikan percakapan suara',
+      AssistantInteractionState.processing => 'Permintaan sedang diproses',
+      AssistantInteractionState.speaking => 'Hentikan suara asisten',
+      AssistantInteractionState.confirmation => 'Mulai percakapan baru',
+      AssistantInteractionState.error => 'Coba percakapan suara lagi',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,6 +205,8 @@ class _AssistantPageState extends State<AssistantPage> {
           children: [
             Expanded(
               child: SingleChildScrollView(
+                key: const Key('assistant-conversation-scroll'),
+                controller: _scrollController,
                 padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,6 +273,7 @@ class _AssistantPageState extends State<AssistantPage> {
             AssistantComposer(
               onSubmit: _conversationController.submitText,
               onMicrophoneTap: _voiceAction,
+              microphoneSemanticsLabel: _voiceSemanticsLabel,
             ),
             const AppBottomNavBar(currentIndex: 3),
           ],
