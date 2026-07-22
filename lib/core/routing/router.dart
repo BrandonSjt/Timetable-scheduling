@@ -4,7 +4,7 @@ import '../../features/search_station/presentation/pages/search_station_page.dar
 import '../../features/route_result/presentation/pages/route_result_page.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
-import '../../features/promo/presentation/pages/promo_page.dart';
+import '../../features/assistant/presentation/pages/assistant_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
@@ -24,17 +24,15 @@ final GoRouter appRouter = GoRouter(
     // Tab 0: Beranda
     GoRoute(
       path: '/',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: HomePage(),
-      ),
+      pageBuilder: (context, state) =>
+          const NoTransitionPage(child: HomePage()),
     ),
 
     // Tab 1: Jadwal (Timetable)
     GoRoute(
       path: '/timetable',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: TimetablePage(),
-      ),
+      pageBuilder: (context, state) =>
+          const NoTransitionPage(child: TimetablePage()),
     ),
 
     // Tab 2: Tiket Saya - Tiket QR (dengan opsi parameter query)
@@ -58,20 +56,21 @@ final GoRouter appRouter = GoRouter(
       },
     ),
 
-    // Tab 3: Promo
+    // Tab 3: Asisten
     GoRoute(
-      path: '/promo',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: PromoPage(),
-      ),
+      path: '/asisten',
+      pageBuilder: (context, state) =>
+          const NoTransitionPage(child: AssistantPage()),
     ),
+
+    // Tautan lama tetap menuju tab Asisten.
+    GoRoute(path: '/promo', redirect: (context, state) => '/asisten'),
 
     // Tab 4: Akun
     GoRoute(
       path: '/akun',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: ProfilePage(),
-      ),
+      pageBuilder: (context, state) =>
+          const NoTransitionPage(child: ProfilePage()),
     ),
 
     // Pengaturan Aksesibilitas
@@ -87,10 +86,7 @@ final GoRouter appRouter = GoRouter(
     ),
 
     // Bahasa
-    GoRoute(
-      path: '/bahasa',
-      builder: (context, state) => const LanguagePage(),
-    ),
+    GoRoute(path: '/bahasa', builder: (context, state) => const LanguagePage()),
 
     // Pusat Bantuan
     GoRoute(

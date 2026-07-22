@@ -3,24 +3,21 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 
 /// Bottom Navigation Bar premium dengan tombol Home bulat besar di tengah.
-/// Layout: Kereta | Tiket | 🏠 HOME (FAB) | Promo | Akun
+/// Layout: Kereta | Tiket | Home | Asisten | Akun
 ///
 /// Index mapping (tetap sama agar tidak break halaman lain):
-///   0 = Beranda, 1 = Kereta, 2 = Tiket, 3 = Promo, 4 = Akun
+///   0 = Beranda, 1 = Kereta, 2 = Tiket, 3 = Asisten, 4 = Akun
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
 
-  const AppBottomNavBar({
-    super.key,
-    this.currentIndex = 0,
-  });
+  const AppBottomNavBar({super.key, this.currentIndex = 0});
 
   static const List<String> _routes = [
-    '/',       // 0: Beranda
+    '/', // 0: Beranda
     '/timetable', // 1: Jadwal
-    '/tiket',  // 2: Tiket Saya
-    '/promo',  // 3: Promo
-    '/akun',   // 4: Akun
+    '/tiket', // 2: Tiket Saya
+    '/asisten', // 3: Asisten
+    '/akun', // 4: Akun
   ];
 
   void _onTap(BuildContext context, int index) {
@@ -37,9 +34,13 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final scaleProgress = ((textScale - 1) / 1).clamp(0.0, 1.0);
+    final navHeight = 64.0 + (52 * scaleProgress);
+    final homeSize = 60.0 + (24 * scaleProgress);
 
     return SizedBox(
-      height: 80 + bottomPadding,
+      height: navHeight + 16 + bottomPadding,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -49,7 +50,7 @@ class AppBottomNavBar extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: Container(
-              height: 64 + bottomPadding,
+              height: navHeight + bottomPadding,
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 boxShadow: [
@@ -61,10 +62,8 @@ class AppBottomNavBar extends StatelessWidget {
                 ],
               ),
               child: ClipPath(
-                clipper: _NavBarNotchClipper(),
-                child: Container(
-                  color: AppColors.surface,
-                ),
+                clipper: _NavBarNotchClipper(notchRadius: homeSize / 2 + 6),
+                child: Container(color: AppColors.surface),
               ),
             ),
           ),
@@ -75,7 +74,7 @@ class AppBottomNavBar extends StatelessWidget {
             right: 0,
             bottom: bottomPadding,
             child: SizedBox(
-              height: 64,
+              height: navHeight,
               child: Row(
                 children: [
                   // ── 2 tab kiri ──
@@ -99,14 +98,14 @@ class AppBottomNavBar extends StatelessWidget {
                   ),
 
                   // ── Ruang kosong untuk FAB di tengah ──
-                  const SizedBox(width: 72),
+                  SizedBox(width: homeSize + 12),
 
                   // ── 2 tab kanan ──
                   Expanded(
                     child: _NavItem(
-                      icon: Icons.local_offer_outlined,
-                      activeIcon: Icons.local_offer_rounded,
-                      label: 'Promo',
+                      icon: Icons.headset_mic_outlined,
+                      activeIcon: Icons.headset_mic_rounded,
+                      label: 'Asisten',
                       isActive: currentIndex == 3,
                       onTap: () => _onTap(context, 3),
                     ),
@@ -131,60 +130,76 @@ class AppBottomNavBar extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: GestureDetector(
+              child: Semantics(
+                button: true,
+                selected: currentIndex == 0,
+                label: 'Home',
                 onTap: () => _onTap(context, 0),
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: currentIndex == 0
-                          ? [
-                              AppColors.primaryBlue,
-                              AppColors.primaryBlueDark,
-                            ]
-                          : [
-                              AppColors.primaryBlue.withValues(alpha: 0.85),
-                              AppColors.primaryBlueDark.withValues(alpha: 0.85),
-                            ],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.40),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.15),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                        spreadRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        currentIndex == 0 ? Icons.home_rounded : Icons.home_outlined,
-                        color: Colors.white,
-                        size: 26,
-                      ),
-                      const SizedBox(height: 1),
-                      const Text(
-                        'Home',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.3,
+                child: ExcludeSemantics(
+                  child: GestureDetector(
+                    onTap: () => _onTap(context, 0),
+                    child: Container(
+                      width: homeSize,
+                      height: homeSize,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: currentIndex == 0
+                              ? [
+                                  AppColors.primaryBlue,
+                                  AppColors.primaryBlueDark,
+                                ]
+                              : [
+                                  AppColors.primaryBlue.withValues(alpha: 0.85),
+                                  AppColors.primaryBlueDark.withValues(
+                                    alpha: 0.85,
+                                  ),
+                                ],
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryBlue.withValues(
+                              alpha: 0.40,
+                            ),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                            spreadRadius: 0,
+                          ),
+                          BoxShadow(
+                            color: AppColors.primaryBlue.withValues(
+                              alpha: 0.15,
+                            ),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                            spreadRadius: 0,
+                          ),
+                        ],
                       ),
-                    ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            currentIndex == 0
+                                ? Icons.home_rounded
+                                : Icons.home_outlined,
+                            color: Colors.white,
+                            size: 26,
+                          ),
+                          const SizedBox(height: 1),
+                          const Text(
+                            'Home',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -214,28 +229,36 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      selected: isActive,
+      label: label,
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            isActive ? activeIcon : icon,
-            color: isActive ? AppColors.primaryBlue : AppColors.textHint,
-            size: 22,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                isActive ? activeIcon : icon,
+                color: isActive ? AppColors.primaryBlue : AppColors.textHint,
+                size: 22,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                  color: isActive ? AppColors.primaryBlue : AppColors.textHint,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 3),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-              color: isActive ? AppColors.primaryBlue : AppColors.textHint,
-              letterSpacing: 0.1,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -244,9 +267,12 @@ class _NavItem extends StatelessWidget {
 /// Custom clipper untuk membuat cekungan/notch di tengah navbar
 /// agar tombol Home bulat terlihat "duduk" di atas bar.
 class _NavBarNotchClipper extends CustomClipper<Path> {
+  final double notchRadius;
+
+  const _NavBarNotchClipper({required this.notchRadius});
+
   @override
   Path getClip(Size size) {
-    const double notchRadius = 36;
     const double notchMargin = 6;
     final double centerX = size.width / 2;
 
@@ -259,7 +285,7 @@ class _NavBarNotchClipper extends CustomClipper<Path> {
     // Kurva cekungan (notch) untuk tempat FAB
     path.arcToPoint(
       Offset(centerX + notchRadius + notchMargin, 0),
-      radius: const Radius.circular(notchRadius),
+      radius: Radius.circular(notchRadius),
       clockwise: false,
     );
 
@@ -275,5 +301,6 @@ class _NavBarNotchClipper extends CustomClipper<Path> {
   }
 
   @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+  bool shouldReclip(covariant _NavBarNotchClipper oldClipper) =>
+      oldClipper.notchRadius != notchRadius;
 }

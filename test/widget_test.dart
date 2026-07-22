@@ -1,7 +1,12 @@
+import 'dart:ui' show SemanticsAction, Tristate;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:timetable/core/routing/router.dart';
+import 'package:timetable/core/theme/app_colors.dart';
+import 'package:timetable/features/assistant/presentation/controllers/assistant_controller.dart';
+import 'package:timetable/features/assistant/presentation/pages/assistant_page.dart';
 import 'package:timetable/main.dart';
 
 void main() {
@@ -291,5 +296,252 @@ void main() {
     expect(find.text('Dukuh Atas -> Setiabudi'), findsOneWidget);
     expect(find.text('Sudah digunakan'), findsOneWidget);
     expect(find.text('Bayar sekarang'), findsNothing);
+  });
+
+  testWidgets('Assistant page exposes accessible voice-first controls', (
+    WidgetTester tester,
+  ) async {
+    final controller = AssistantController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(home: AssistantPage(controller: controller)),
+    );
+
+    expect(find.text('Asisten Perjalanan'), findsOneWidget);
+    expect(find.text('Dengarkan "Halo Asisten"'), findsOneWidget);
+    expect(find.bySemanticsLabel('Mulai percakapan suara'), findsOneWidget);
+    expect(find.text('Rencanakan perjalanan'), findsOneWidget);
+    expect(find.text('Bantuan petugas'), findsOneWidget);
+
+    final microphoneSemantics = tester
+        .getSemantics(find.bySemanticsLabel('Mulai percakapan suara'))
+        .getSemanticsData();
+    final wakeWordSemantics = tester
+        .getSemantics(
+          find.bySemanticsLabel(RegExp('Mode kata pemicu Halo Asisten')),
+        )
+        .getSemanticsData();
+    final quickActionSemantics = tester
+        .getSemantics(find.bySemanticsLabel('Buka Rencanakan perjalanan'))
+        .getSemanticsData();
+    expect(microphoneSemantics.hasAction(SemanticsAction.tap), isTrue);
+    expect(wakeWordSemantics.hasAction(SemanticsAction.tap), isTrue);
+    expect(quickActionSemantics.hasAction(SemanticsAction.tap), isTrue);
+
+    await tester.tap(find.byKey(const Key('wake-word-switch')));
+    await tester.pump();
+
+    expect(find.text('Kata pemicu aktif'), findsOneWidget);
+    final activeWakeWordText = tester.widget<Text>(
+      find.text('Kata pemicu aktif'),
+    );
+    expect(activeWakeWordText.style?.color, AppColors.textPrimary);
+  });
+
+  testWidgets('Assistant page simulates a trip and requests confirmation', (
+    WidgetTester tester,
+  ) async {
+    final controller = AssistantController(
+      listeningDuration: const Duration(milliseconds: 1),
+      processingDuration: const Duration(milliseconds: 1),
+      speakingDuration: const Duration(milliseconds: 1),
+    );
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(home: AssistantPage(controller: controller)),
+    );
+
+    await tester.tap(find.byKey(const Key('assistant-microphone-button')));
+    await tester.pump();
+    expect(find.text('Mendengarkan'), findsWidgets);
+
+    await tester.pump(const Duration(milliseconds: 2));
+    await tester.pump(const Duration(milliseconds: 2));
+    await tester.pump(const Duration(milliseconds: 2));
+
+    expect(
+      find.text('Saya ingin ke Manggarai dari Setiabudi.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Rute tercepat membutuhkan 7 menit. Kereta tiba 5 menit lagi.'),
+      findsOneWidget,
+    );
+    expect(find.text('Pakai rute ini'), findsOneWidget);
+    expect(find.text('Ulangi'), findsOneWidget);
+    expect(find.text('Batalkan'), findsOneWidget);
+  });
+
+  testWidgets('Assistant navigation replaces Promo and opens the new tab', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Asisten'), findsOneWidget);
+    expect(find.text('Promo'), findsNothing);
+
+    await tester.tap(find.text('Asisten'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Asisten Perjalanan'), findsOneWidget);
+    final assistantTabSemantics = tester
+        .getSemantics(find.bySemanticsLabel('Asisten'))
+        .getSemanticsData();
+    expect(assistantTabSemantics.hasAction(SemanticsAction.tap), isTrue);
+    expect(
+      assistantTabSemantics.flagsCollection.isSelected,
+      Tristate.isTrue,
+    );
+  });
+
+  testWidgets('Assistant navigation redirects the legacy Promo route', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/promo');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    expect(appRouter.routeInformationProvider.value.uri.path, '/asisten');
+    expect(find.text('Asisten Perjalanan'), findsOneWidget);
+  });
+
+  testWidgets('Assistant confirmation opens the requested Manggarai route', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/asisten');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    final microphoneButton = find.byKey(
+      const Key('assistant-microphone-button'),
+    );
+    await tester.ensureVisible(microphoneButton);
+    await tester.tap(microphoneButton);
+    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pump(const Duration(milliseconds: 750));
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.ensureVisible(find.text('Pakai rute ini'));
+    await tester.tap(find.text('Pakai rute ini'));
+    await tester.pumpAndSettle();
+
+    final uri = appRouter.routeInformationProvider.value.uri;
+    expect(uri.path, '/rute');
+    expect(uri.queryParameters['from'], 'Setiabudi');
+    expect(uri.queryParameters['to'], 'Manggarai');
+  });
+
+  testWidgets('Assistant quick actions open existing app destinations', (
+    WidgetTester tester,
+  ) async {
+    const destinations = <String, String>{
+      'Rencanakan perjalanan': '/cari-stasiun',
+      'Kereta berikutnya': '/timetable',
+      'Tiket saya': '/tiket',
+      'Bantuan petugas': '/pusat-bantuan',
+    };
+
+    for (final entry in destinations.entries) {
+      appRouter.go('/asisten');
+      await tester.pumpWidget(const MyApp());
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text(entry.key));
+      await tester.tap(find.text(entry.key));
+      await tester.pumpAndSettle();
+
+      expect(
+        appRouter.routeInformationProvider.value.uri.path,
+        entry.value,
+        reason: '${entry.key} should open ${entry.value}',
+      );
+    }
+  });
+
+  testWidgets('Assistant wake-word mode resets after leaving the page', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/asisten');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('wake-word-switch')));
+    await tester.pump();
+    expect(find.text('Kata pemicu aktif'), findsOneWidget);
+
+    appRouter.go('/');
+    await tester.pumpAndSettle();
+    appRouter.go('/asisten');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Aktif hanya di halaman ini'), findsOneWidget);
+    expect(find.text('Kata pemicu aktif'), findsNothing);
+  });
+
+  testWidgets('Assistant page cancels an injected controller when disposed', (
+    WidgetTester tester,
+  ) async {
+    final controller = AssistantController(
+      listeningDuration: const Duration(milliseconds: 1),
+      processingDuration: const Duration(milliseconds: 1),
+      speakingDuration: const Duration(milliseconds: 1),
+    );
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(home: AssistantPage(controller: controller)),
+    );
+
+    controller.startConversation();
+    await tester.pump();
+    expect(controller.state, AssistantInteractionState.listening);
+
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pump(const Duration(milliseconds: 20));
+
+    expect(controller.state, AssistantInteractionState.ready);
+    expect(controller.userTranscript, isNull);
+    expect(controller.assistantResponse, isNull);
+  });
+
+  testWidgets('Assistant page supports 200 percent text scaling', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final controller = AssistantController(
+      listeningDuration: const Duration(milliseconds: 1),
+      processingDuration: const Duration(milliseconds: 1),
+      speakingDuration: const Duration(milliseconds: 1),
+    );
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: AssistantPage(controller: controller),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+
+    final microphoneButton = find.byKey(
+      const Key('assistant-microphone-button'),
+    );
+    await tester.ensureVisible(microphoneButton);
+    await tester.tap(microphoneButton);
+    await tester.pump(const Duration(milliseconds: 2));
+    await tester.pump(const Duration(milliseconds: 2));
+    await tester.pump(const Duration(milliseconds: 2));
+
+    expect(find.text('Pakai rute ini'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }
