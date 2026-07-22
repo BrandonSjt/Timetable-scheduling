@@ -5,15 +5,23 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../controllers/assistant_controller.dart';
+import '../controllers/assistant_conversation_controller.dart';
+import '../widgets/assistant_composer.dart';
+import '../widgets/assistant_conversation_timeline.dart';
 import '../widgets/assistant_quick_actions.dart';
-import '../widgets/assistant_response_panel.dart';
 import '../widgets/assistant_voice_panel.dart';
 
 class AssistantPage extends StatefulWidget {
-  const AssistantPage({super.key, this.controller, this.alarmController});
+  const AssistantPage({
+    super.key,
+    this.controller,
+    this.alarmController,
+    this.conversationController,
+  });
 
   final AssistantController? controller;
   final TravelAlarmController? alarmController;
+  final AssistantConversationController? conversationController;
 
   @override
   State<AssistantPage> createState() => _AssistantPageState();
@@ -22,18 +30,34 @@ class AssistantPage extends StatefulWidget {
 class _AssistantPageState extends State<AssistantPage> {
   late final AssistantController _controller;
   late final bool _ownsController;
+  late final TravelAlarmController _alarmController;
+  late final bool _ownsAlarmController;
+  late final AssistantConversationController _conversationController;
+  late final bool _ownsConversationController;
+  int _lastConsumedExchangeId = 0;
 
   @override
   void initState() {
     super.initState();
     _ownsController = widget.controller == null;
     _controller = widget.controller ?? AssistantController();
-    _controller.addListener(_handleControllerChange);
+    _ownsAlarmController = widget.alarmController == null;
+    _alarmController = widget.alarmController ?? TravelAlarmController();
+    _ownsConversationController = widget.conversationController == null;
+    _conversationController =
+        widget.conversationController ??
+        AssistantConversationController(alarmController: _alarmController);
+    _lastConsumedExchangeId = _controller.completedExchangeId;
+    _controller.addListener(_handleVoiceControllerChange);
+    _conversationController.addListener(_handleConversationChange);
+    _alarmController.addListener(_handleAlarmChange);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_handleControllerChange);
+    _controller.removeListener(_handleVoiceControllerChange);
+    _conversationController.removeListener(_handleConversationChange);
+    _alarmController.removeListener(_handleAlarmChange);
     _controller.cancelConversation();
     if (_controller.wakeWordEnabled) {
       _controller.toggleWakeWord(false);
@@ -41,11 +65,56 @@ class _AssistantPageState extends State<AssistantPage> {
     if (_ownsController) {
       _controller.dispose();
     }
+    if (_ownsConversationController) {
+      _conversationController.dispose();
+    }
+    if (_ownsAlarmController) {
+      _alarmController.dispose();
+    }
     super.dispose();
   }
 
-  void _handleControllerChange() {
+  void _handleVoiceControllerChange() {
+    if (_controller.completedExchangeId > _lastConsumedExchangeId &&
+        _controller.userTranscript != null &&
+        _controller.assistantResponse != null) {
+      _lastConsumedExchangeId = _controller.completedExchangeId;
+      _conversationController.addVoiceExchange(
+        transcript: _controller.userTranscript!,
+        response: _controller.assistantResponse!,
+      );
+    }
     if (mounted) setState(() {});
+  }
+
+  void _handleConversationChange() {
+    if (mounted) setState(() {});
+  }
+
+  void _handleAlarmChange() {
+    if (mounted) setState(() {});
+  }
+
+  void _confirmRoute() {
+    context.go(
+      Uri(
+        path: '/rute',
+        queryParameters: const {
+          'from': AssistantController.demoOrigin,
+          'to': AssistantController.demoDestination,
+        },
+      ).toString(),
+    );
+  }
+
+  void _cancelAlarms() {
+    if (!_alarmController.state.hasAnyAlarm) return;
+    _alarmController.cancelAllAlarms();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('Alarm perjalanan dinonaktifkan')),
+      );
   }
 
   VoidCallback? get _voiceAction {
@@ -100,25 +169,17 @@ class _AssistantPageState extends State<AssistantPage> {
                       state: _controller.state,
                       onTap: _voiceAction,
                     ),
-                    if (_controller.userTranscript != null ||
-                        _controller.assistantResponse != null) ...[
+                    if (_conversationController.items.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      AssistantResponsePanel(
-                        state: _controller.state,
-                        userTranscript: _controller.userTranscript,
-                        assistantResponse: _controller.assistantResponse,
-                        onConfirm: () => context.go(
-                          Uri(
-                            path: '/rute',
-                            queryParameters: const {
-                              'from': AssistantController.demoOrigin,
-                              'to': AssistantController.demoDestination,
-                            },
-                          ).toString(),
-                        ),
-                        onRepeat: _controller.repeatResponse,
-                        onCancel: _controller.cancelConversation,
-                        onRetry: _controller.startConversation,
+                      AssistantConversationTimeline(
+                        items: _conversationController.items,
+                        alarmState: _alarmController.state,
+                        onViewTicket: () => context.go('/tiket'),
+                        onCancelAlarm: _cancelAlarms,
+                        onFindTrip: () => context.go('/cari-stasiun'),
+                        onConfirmRoute: _confirmRoute,
+                        onRepeatRoute: _controller.repeatResponse,
+                        onCancelRoute: _controller.cancelConversation,
                       ),
                     ],
                     const SizedBox(height: 20),
@@ -158,6 +219,10 @@ class _AssistantPageState extends State<AssistantPage> {
                   ],
                 ),
               ),
+            ),
+            AssistantComposer(
+              onSubmit: _conversationController.submitText,
+              onMicrophoneTap: _voiceAction,
             ),
             const AppBottomNavBar(currentIndex: 3),
           ],

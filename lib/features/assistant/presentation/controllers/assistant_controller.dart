@@ -27,6 +27,7 @@ class AssistantController extends ChangeNotifier {
 
   AssistantInteractionState state = AssistantInteractionState.ready;
   bool wakeWordEnabled = false;
+  int completedExchangeId = 0;
   String? userTranscript;
   String? assistantResponse;
 
@@ -84,6 +85,7 @@ class AssistantController extends ChangeNotifier {
   void _finishProcessing() {
     assistantResponse =
         'Rute tercepat membutuhkan 7 menit. Kereta tiba 5 menit lagi.';
+    completedExchangeId++;
     _setState(AssistantInteractionState.speaking);
     _timer = Timer(speakingDuration, _finishSpeaking);
   }

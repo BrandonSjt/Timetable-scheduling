@@ -2,7 +2,12 @@ import 'package:flutter/foundation.dart';
 
 enum AssistantMessageAuthor { user, assistant }
 
-enum AssistantConversationItemKind { message, alarmStatus, noActiveTicket }
+enum AssistantConversationItemKind {
+  message,
+  alarmStatus,
+  noActiveTicket,
+  routeSuggestion,
+}
 
 @immutable
 class AssistantConversationItem {

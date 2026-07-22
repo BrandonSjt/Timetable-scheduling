@@ -13,6 +13,9 @@ class AssistantConversationTimeline extends StatelessWidget {
     required this.onViewTicket,
     required this.onCancelAlarm,
     required this.onFindTrip,
+    required this.onConfirmRoute,
+    required this.onRepeatRoute,
+    required this.onCancelRoute,
   });
 
   final List<AssistantConversationItem> items;
@@ -20,6 +23,9 @@ class AssistantConversationTimeline extends StatelessWidget {
   final VoidCallback onViewTicket;
   final VoidCallback onCancelAlarm;
   final VoidCallback onFindTrip;
+  final VoidCallback onConfirmRoute;
+  final VoidCallback onRepeatRoute;
+  final VoidCallback onCancelRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +79,92 @@ class AssistantConversationTimeline extends StatelessWidget {
                 message: item.text,
                 onFindTrip: onFindTrip,
               ),
+            AssistantConversationItemKind.routeSuggestion =>
+              _RouteSuggestionMessage(
+                message: item.text,
+                onConfirm: onConfirmRoute,
+                onRepeat: onRepeatRoute,
+                onCancel: onCancelRoute,
+              ),
             AssistantConversationItemKind.message => _MessageBubble(
               text: item.text,
               isUser: !isAssistant,
             ),
           },
+        ],
+      ),
+    );
+  }
+}
+
+class _RouteSuggestionMessage extends StatelessWidget {
+  const _RouteSuggestionMessage({
+    required this.message,
+    required this.onConfirm,
+    required this.onRepeat,
+    required this.onCancel,
+  });
+
+  final String message;
+  final VoidCallback onConfirm;
+  final VoidCallback onRepeat;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onConfirm,
+              icon: const Icon(Icons.route_rounded),
+              label: const Text('Pakai rute ini'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: AppColors.textOnPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              OutlinedButton.icon(
+                onPressed: onRepeat,
+                icon: const Icon(Icons.replay_rounded, size: 18),
+                label: const Text('Ulangi'),
+              ),
+              TextButton.icon(
+                onPressed: onCancel,
+                icon: const Icon(Icons.close_rounded, size: 18),
+                label: const Text('Batalkan'),
+              ),
+            ],
+          ),
         ],
       ),
     );

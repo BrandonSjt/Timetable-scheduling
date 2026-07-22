@@ -37,7 +37,11 @@ class AssistantConversationController extends ChangeNotifier {
       kind: AssistantConversationItemKind.message,
       text: transcript,
     );
-    _appendAssistant(response);
+    _append(
+      author: AssistantMessageAuthor.assistant,
+      kind: AssistantConversationItemKind.routeSuggestion,
+      text: response,
+    );
     notifyListeners();
   }
 

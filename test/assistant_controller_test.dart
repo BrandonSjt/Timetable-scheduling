@@ -38,8 +38,30 @@ void main() {
     );
     expect(controller.userTranscript, contains('Manggarai'));
     expect(controller.assistantResponse, contains('Kereta tiba 5 menit lagi'));
+    expect(controller.completedExchangeId, 1);
     controller.dispose();
   });
+
+  test(
+    'repeating speech does not create a second completed exchange',
+    () async {
+      final controller = AssistantController(
+        listeningDuration: Duration.zero,
+        processingDuration: Duration.zero,
+        speakingDuration: Duration.zero,
+      );
+
+      controller.startConversation();
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(controller.completedExchangeId, 1);
+
+      controller.repeatResponse();
+      await Future<void>.delayed(Duration.zero);
+      expect(controller.completedExchangeId, 1);
+    },
+  );
 
   test('cancelling conversation stops pending state changes', () async {
     final controller = AssistantController(

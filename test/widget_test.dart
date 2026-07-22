@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:timetable/core/routing/router.dart';
 import 'package:timetable/core/theme/app_colors.dart';
 import 'package:timetable/features/assistant/presentation/controllers/assistant_controller.dart';
+import 'package:timetable/features/assistant/presentation/controllers/assistant_conversation_controller.dart';
 import 'package:timetable/features/assistant/presentation/pages/assistant_page.dart';
 import 'package:timetable/features/tickets/presentation/pages/tickets_page.dart';
 import 'package:timetable/features/travel_alarm/presentation/controllers/travel_alarm_controller.dart';
@@ -393,12 +394,12 @@ void main() {
 
     expect(find.text('Asisten Perjalanan'), findsOneWidget);
     expect(find.text('Dengarkan "Halo Asisten"'), findsOneWidget);
-    expect(find.bySemanticsLabel('Mulai percakapan suara'), findsOneWidget);
+    expect(find.bySemanticsLabel('Mulai percakapan suara'), findsNWidgets(2));
     expect(find.text('Rencanakan perjalanan'), findsOneWidget);
     expect(find.text('Bantuan petugas'), findsOneWidget);
 
     final microphoneSemantics = tester
-        .getSemantics(find.bySemanticsLabel('Mulai percakapan suara'))
+        .getSemantics(find.bySemanticsLabel('Mulai percakapan suara').first)
         .getSemanticsData();
     final wakeWordSemantics = tester
         .getSemantics(
@@ -420,6 +421,66 @@ void main() {
       find.text('Kata pemicu aktif'),
     );
     expect(activeWakeWordText.style?.color, AppColors.textPrimary);
+  });
+
+  testWidgets('Assistant voice and text share one conversation timeline', (
+    WidgetTester tester,
+  ) async {
+    final alarms = TravelAlarmController()
+      ..completePurchase(from: 'Setiabudi', to: 'Manggarai')
+      ..configureAlarms(departure: true, destination: true);
+    final conversation = AssistantConversationController(
+      alarmController: alarms,
+    );
+    final voice = AssistantController(
+      listeningDuration: const Duration(milliseconds: 1),
+      processingDuration: const Duration(milliseconds: 1),
+      speakingDuration: const Duration(milliseconds: 1),
+    );
+    addTearDown(alarms.dispose);
+    addTearDown(conversation.dispose);
+    addTearDown(voice.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AssistantPage(
+          controller: voice,
+          alarmController: alarms,
+          conversationController: conversation,
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('assistant-message-field')),
+      'Alarm berikutnya kapan?',
+    );
+    await tester.tap(find.bySemanticsLabel('Kirim pesan'));
+    await tester.pump();
+
+    expect(find.text('Alarm berikutnya kapan?'), findsOneWidget);
+    expect(find.text('Kereta datang 5 menit lagi'), findsOneWidget);
+
+    final microphoneButton = find.byKey(
+      const Key('assistant-microphone-button'),
+    );
+    await tester.ensureVisible(microphoneButton);
+    await tester.tap(microphoneButton);
+    await tester.pump(const Duration(milliseconds: 2));
+    await tester.pump(const Duration(milliseconds: 2));
+    await tester.pump(const Duration(milliseconds: 2));
+
+    expect(
+      find.text('Saya ingin ke Manggarai dari Setiabudi.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Rute tercepat membutuhkan 7 menit. Kereta tiba 5 menit lagi.'),
+      findsOneWidget,
+    );
+    expect(find.text('Pakai rute ini'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets('Assistant page simulates a trip and requests confirmation', (
