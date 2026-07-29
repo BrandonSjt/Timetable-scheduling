@@ -12,10 +12,8 @@ class AccessibilityPage extends StatefulWidget {
 }
 
 class _AccessibilityPageState extends State<AccessibilityPage> {
-  bool _highContrast = true;
   bool _largeText = false;
   bool _readRoute = true;
-  bool _reduceMotion = false;
 
   void _readPreview() {
     ScaffoldMessenger.of(context)
@@ -33,7 +31,7 @@ class _AccessibilityPageState extends State<AccessibilityPage> {
   Widget build(BuildContext context) {
     return ProfileDetailScaffold(
       title: 'Aksesibilitas',
-      subtitle: 'Kontras, teks, dan suara',
+      subtitle: 'Teks dan suara',
       children: [
         const Text(
           'Pengaturan tampilan',
@@ -55,13 +53,6 @@ class _AccessibilityPageState extends State<AccessibilityPage> {
         ),
         const SizedBox(height: 24),
         _AccessibilitySwitchTile(
-          title: 'Kontras tinggi',
-          subtitle: 'Naikkan kontras teks dan tombol',
-          value: _highContrast,
-          onChanged: (value) => setState(() => _highContrast = value),
-        ),
-        const SizedBox(height: 12),
-        _AccessibilitySwitchTile(
           title: 'Teks besar',
           subtitle: 'Perbesar label dan informasi rute',
           value: _largeText,
@@ -74,24 +65,17 @@ class _AccessibilityPageState extends State<AccessibilityPage> {
           value: _readRoute,
           onChanged: (value) => setState(() => _readRoute = value),
         ),
-        const SizedBox(height: 12),
-        _AccessibilitySwitchTile(
-          title: 'Kurangi animasi',
-          subtitle: 'Batasi gerak saat berpindah halaman',
-          value: _reduceMotion,
-          onChanged: (value) => setState(() => _reduceMotion = value),
-        ),
         const SizedBox(height: 42),
-        _buildContrastPreview(),
+        _buildRoutePreview(),
       ],
     );
   }
 
-  Widget _buildContrastPreview() {
+  Widget _buildRoutePreview() {
     return Semantics(
       container: true,
       label:
-          'Pratinjau kontras. Dukuh Atas ke Harjamukti. Peron 2, tiba 4 menit lagi.',
+          'Pratinjau rute. Dukuh Atas ke Harjamukti. Peron 2, tiba 4 menit lagi.',
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(24, 20, 20, 20),
@@ -103,7 +87,7 @@ class _AccessibilityPageState extends State<AccessibilityPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Pratinjau kontras',
+              'Pratinjau rute',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15,

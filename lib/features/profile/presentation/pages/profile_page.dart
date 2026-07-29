@@ -190,7 +190,7 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildMenuTile(
                     title: 'Aksesibilitas',
-                    subtitle: 'Kontras tinggi, teks besar, bacakan rute',
+                    subtitle: 'Teks besar dan bacakan rute',
                     onTap: () => context.push('/aksesibilitas'),
                   ),
                   const SizedBox(height: 12),

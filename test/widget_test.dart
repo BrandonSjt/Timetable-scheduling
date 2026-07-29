@@ -101,16 +101,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pengaturan tampilan'), findsOneWidget);
-    expect(find.text('Kontras, teks, dan suara'), findsOneWidget);
-    expect(find.byType(Switch), findsNWidgets(4));
+    expect(find.text('Teks dan suara'), findsOneWidget);
+    expect(find.text('Kontras tinggi'), findsNothing);
+    expect(find.text('Kurangi animasi'), findsNothing);
+    expect(find.byType(Switch), findsNWidgets(2));
 
     var switches = tester.widgetList<Switch>(find.byType(Switch)).toList();
-    expect(switches.map((item) => item.value), [true, false, true, false]);
+    expect(switches.map((item) => item.value), [false, true]);
 
     await tester.tap(find.text('Teks besar'));
     await tester.pumpAndSettle();
     switches = tester.widgetList<Switch>(find.byType(Switch)).toList();
-    expect(switches[1].value, isTrue);
+    expect(switches[0].value, isTrue);
 
     await tester.scrollUntilVisible(
       find.text('Baca'),
