@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/profile_detail_scaffold.dart';
@@ -6,14 +7,27 @@ import '../widgets/profile_detail_scaffold.dart';
 class _HelpTopic {
   final String title;
   final String subtitle;
+  final String route;
 
-  const _HelpTopic(this.title, this.subtitle);
+  const _HelpTopic(this.title, this.subtitle, this.route);
 }
 
 const _helpTopics = [
-  _HelpTopic('Cara membeli tiket lokal', 'Panduan untuk KRL dan LRT'),
-  _HelpTopic('Jadwal atau ETA tidak sesuai', 'Kirim laporan dari detail rute'),
-  _HelpTopic('Masalah pembayaran', 'Cek status transaksi terakhir'),
+  _HelpTopic(
+    'Cara membeli tiket lokal',
+    'Panduan untuk KRL dan LRT',
+    '/bantuan/chat',
+  ),
+  _HelpTopic(
+    'Jadwal atau ETA tidak sesuai',
+    'Kirim laporan dari detail rute',
+    '/bantuan/jadwal-eta',
+  ),
+  _HelpTopic(
+    'Masalah pembayaran',
+    'Cek status transaksi terakhir',
+    '/bantuan/pembayaran',
+  ),
 ];
 
 /// Pusat bantuan mode tamu dengan pencarian dan pintasan dukungan.
@@ -98,7 +112,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 label: 'Chat petugas',
                 iconColor: AppColors.primaryBlue,
                 iconBackground: const Color(0xFFEFF6FF),
-                onTap: () => _showMessage('Menghubungkan ke chat petugas.'),
+                onTap: () => context.push('/bantuan/chat'),
               ),
             ),
             const SizedBox(width: 16),
@@ -108,7 +122,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 label: 'Lapor info salah',
                 iconColor: AppColors.accentOrange,
                 iconBackground: const Color(0xFFFFF1E8),
-                onTap: () => _showMessage('Form laporan info salah dibuka.'),
+                onTap: () => context.push('/bantuan/lapor'),
               ),
             ),
           ],
@@ -141,7 +155,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
           for (var index = 0; index < topics.length; index++) ...[
             _HelpTopicTile(
               topic: topics[index],
-              onTap: () => _showMessage('${topics[index].title} dibuka.'),
+              onTap: () => context.push(topics[index].route),
             ),
             if (index != topics.length - 1) const SizedBox(height: 10),
           ],

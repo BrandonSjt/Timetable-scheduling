@@ -10,6 +10,10 @@ import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
 import '../../features/profile/presentation/pages/language_page.dart';
 import '../../features/profile/presentation/pages/help_center_page.dart';
+import '../../features/profile/presentation/pages/help_chat_page.dart';
+import '../../features/profile/presentation/pages/report_incorrect_info_page.dart';
+import '../../features/profile/presentation/pages/schedule_issue_page.dart';
+import '../../features/profile/presentation/pages/payment_issue_page.dart';
 import '../../features/profile/presentation/pages/active_ticket_detail_page.dart';
 import '../../features/profile/presentation/pages/completed_ticket_detail_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
@@ -95,6 +99,30 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/pusat-bantuan',
       builder: (context, state) => const HelpCenterPage(),
+    ),
+
+    // Chat dengan petugas berdasarkan topik
+    GoRoute(
+      path: '/bantuan/chat',
+      builder: (context, state) => const HelpChatPage(),
+    ),
+
+    // Laporan informasi jadwal, rute, atau stasiun yang salah
+    GoRoute(
+      path: '/bantuan/lapor',
+      builder: (context, state) => const ReportIncorrectInfoPage(),
+    ),
+
+    // Laporan ketidaksesuaian jadwal dan ETA
+    GoRoute(
+      path: '/bantuan/jadwal-eta',
+      builder: (context, state) => const ScheduleIssuePage(),
+    ),
+
+    // Bantuan masalah pembayaran
+    GoRoute(
+      path: '/bantuan/pembayaran',
+      builder: (context, state) => const PaymentIssuePage(),
     ),
 
     // Detail Tiket Aktif

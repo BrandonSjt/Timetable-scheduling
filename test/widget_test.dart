@@ -261,8 +261,100 @@ void main() {
     expect(find.text('Masalah pembayaran'), findsNothing);
 
     await tester.tap(find.text('Chat petugas'));
-    await tester.pump();
-    expect(find.text('Menghubungkan ke chat petugas.'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Chat Tiket'), findsOneWidget);
+    expect(find.text('Topik aktif: Tiket'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+
+    await tester.tap(find.text('Jadwal'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chat Jadwal'), findsOneWidget);
+    expect(find.text('Topik aktif: Jadwal'), findsOneWidget);
+  });
+
+  testWidgets('Help center opens all incorrect information report variants', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/pusat-bantuan');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Lapor info salah'));
+    await tester.pumpAndSettle();
+    expect(find.text('Lapor Jadwal'), findsOneWidget);
+    expect(find.text('Jenis laporan: Jadwal'), findsOneWidget);
+
+    await tester.tap(find.text('Rute'));
+    await tester.pumpAndSettle();
+    expect(find.text('Lapor Rute'), findsOneWidget);
+    expect(find.text('Rute bermasalah'), findsOneWidget);
+
+    await tester.tap(find.text('Stasiun'));
+    await tester.pumpAndSettle();
+    expect(find.text('Lapor Stasiun'), findsOneWidget);
+    expect(find.text('Info yang salah'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+  });
+
+  testWidgets('Help center opens all schedule and ETA issue variants', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/pusat-bantuan');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Jadwal atau ETA tidak sesuai'));
+    await tester.pumpAndSettle();
+    expect(find.text('ETA Terlambat'), findsOneWidget);
+    expect(find.text('Masalah aktif: ETA terlambat'), findsOneWidget);
+
+    await tester.tap(find.text('Kereta hilang'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kereta Hilang'), findsOneWidget);
+    expect(find.text('Kereta terdekat tidak tampil'), findsOneWidget);
+
+    await tester.tap(find.text('Jadwal berubah'));
+    await tester.pumpAndSettle();
+    expect(find.text('Jadwal Berubah'), findsOneWidget);
+    expect(find.text('Jadwal aplikasi: 15:18 WIB'), findsOneWidget);
+
+    await tester.tap(find.text('Peron berbeda'));
+    await tester.pumpAndSettle();
+    expect(find.text('Peron Berbeda'), findsOneWidget);
+    expect(find.text('Peron aplikasi: Peron 2'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+  });
+
+  testWidgets('Help center opens all payment issue variants', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/pusat-bantuan');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Masalah pembayaran'));
+    await tester.pumpAndSettle();
+    expect(find.text('Saldo Terpotong'), findsOneWidget);
+    expect(find.text('Diproses'), findsOneWidget);
+
+    await tester.tap(find.text('Tiket belum muncul'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tiket Belum Muncul'), findsOneWidget);
+    expect(find.text('Berhasil'), findsOneWidget);
+
+    await tester.tap(find.text('Refund'));
+    await tester.pumpAndSettle();
+    expect(find.text('Diajukan'), findsOneWidget);
+
+    await tester.tap(find.text('Metode bayar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Metode Bayar'), findsOneWidget);
+    expect(find.text('Gagal'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
   });
 
   testWidgets('Completed history opens completed ticket detail and actions', (
