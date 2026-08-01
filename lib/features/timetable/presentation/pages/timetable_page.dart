@@ -23,17 +23,39 @@ class _TimetablePageState extends State<TimetablePage> {
   bool _isWeekendFilter = false; // false = Hari Kerja (Weekday), true = Akhir Pekan (Weekend)
 
   // Daftar Stasiun yang tersedia di peta skematik
-  final List<String> _stations = [
+  final List<String> _stations = const [
     'Semua Stasiun',
-    'Setiabudi',
-    'Cawang',
     'Manggarai',
     'Tanah Abang',
+    'Jakarta Kota',
+    'Jatinegara',
+    'Bekasi',
+    'Cikarang',
+    'Bogor',
+    'Depok',
+    'Citayam',
+    'Nambo',
+    'Rangkasbitung',
+    'Parung Panjang',
+    'Tangerang',
+    'Duri',
+    'Batu Ceper',
+    'Tanjung Priok',
+    'Setiabudi',
+    'Dukuh Atas',
+    'Bundaran HI',
+    'Lebak Bulus',
+    'Blok M',
+    'Cawang',
     'Halim',
+    'Jati Mulya',
+    'Harjamukti',
+    'Pegangsaan Dua',
+    'Velodrome',
   ];
 
   // Daftar Jenis Kereta
-  final List<String> _trainTypes = [
+  final List<String> _trainTypes = const [
     'Semua',
     'KRL',
     'LRT',
@@ -59,11 +81,135 @@ class _TimetablePageState extends State<TimetablePage> {
     }
   }
 
+  void _showStationPickerSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        String sheetSearchQuery = '';
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final filteredStations = _stations.where((st) {
+              if (sheetSearchQuery.isEmpty) return true;
+              return st.toLowerCase().contains(sheetSearchQuery.toLowerCase());
+            }).toList();
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 38,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Pilih Stasiun Asal',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close_rounded, size: 22, color: AppColors.textSecondary),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Search Box di Bottom Sheet
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: TextField(
+                      onChanged: (val) {
+                        setSheetState(() => sheetSearchQuery = val);
+                      },
+                      style: const TextStyle(fontSize: 13),
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.search, size: 18, color: AppColors.textHint),
+                        hintText: 'Cari nama stasiun (misal: Manggarai, Halim...)',
+                        hintStyle: TextStyle(fontSize: 13, color: AppColors.textHint),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Expanded(
+                    child: ListView.separated(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: filteredStations.length,
+                      separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.cardBorder),
+                      itemBuilder: (context, index) {
+                        final station = filteredStations[index];
+                        final isSelected = _selectedStationFilter == station;
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          leading: Icon(
+                            station == 'Semua Stasiun' ? Icons.train_rounded : Icons.location_on_outlined,
+                            color: isSelected ? AppColors.primaryBlue : AppColors.textSecondary,
+                            size: 20,
+                          ),
+                          title: Text(
+                            station,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected ? AppColors.primaryBlue : AppColors.textPrimary,
+                            ),
+                          ),
+                          trailing: isSelected
+                              ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryBlue, size: 20)
+                              : null,
+                          onTap: () {
+                            setState(() {
+                              _selectedStationFilter = station;
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Terapkan semua filter secara bertahap
     final filteredSchedules = _schedules.where((schedule) {
-      // 1. Filter Hari Kerja / Akhir Pekan (KakaoMetro style)
+      // 1. Filter Hari Kerja / Akhir Pekan
       if (schedule.isWeekend != _isWeekendFilter) return false;
 
       // 2. Filter Stasiun Keberangkatan
@@ -83,7 +229,8 @@ class _TimetablePageState extends State<TimetablePage> {
         final query = _searchQuery.toLowerCase();
         final matchName = schedule.trainName.toLowerCase().contains(query);
         final matchRoute = schedule.route.toLowerCase().contains(query);
-        return matchName || matchRoute;
+        final matchStation = schedule.stationName.toLowerCase().contains(query);
+        return matchName || matchRoute || matchStation;
       }
 
       return true;
@@ -104,7 +251,7 @@ class _TimetablePageState extends State<TimetablePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Judul dan Segmented Control Weekday/Weekend (KakaoMetro Style)
+                  // Judul dan Segmented Switch Weekday/Weekend
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -130,9 +277,9 @@ class _TimetablePageState extends State<TimetablePage> {
                         ],
                       ),
                       
-                      // KakaoMetro Style Day Selector (Capsule Switch)
+                      // Segmented Switch Day Filter
                       Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
                           color: AppColors.background,
                           borderRadius: BorderRadius.circular(20),
@@ -229,91 +376,138 @@ class _TimetablePageState extends State<TimetablePage> {
             ),
             const Divider(height: 1, color: AppColors.cardBorder),
 
-            // ── Filter Horizontal Row ──
+            // ── Clean & Spacious Filter Section ──
             Container(
               color: AppColors.surface,
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Filter 1: Pilih Jenis Kereta (Semua, KRL, LRT, MRT)
-                  SizedBox(
-                    height: 32,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: _trainTypes.length,
-                      itemBuilder: (context, index) {
-                        final type = _trainTypes[index];
+                  // Row 1: Full-Width Train Type Segmented Capsule
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Row(
+                      children: _trainTypes.map((type) {
                         final isSelected = _selectedTypeFilter == type;
                         final typeColor = _getTrainColor(type);
-
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedTypeFilter = type),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? typeColor.withValues(alpha: 0.15)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: isSelected ? typeColor : AppColors.cardBorder,
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _selectedTypeFilter = type),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? (type == 'Semua' ? AppColors.primaryBlue : typeColor)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: (type == 'Semua' ? AppColors.primaryBlue : typeColor).withValues(alpha: 0.25),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
                               ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                type,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected ? typeColor : AppColors.textSecondary,
+                              child: Center(
+                                child: Text(
+                                  type,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         );
-                      },
+                      }).toList(),
                     ),
                   ),
-                  const SizedBox(height: 8),
 
-                  // Filter 2: Pilih Stasiun Asal
-                  SizedBox(
-                    height: 32,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: _stations.length,
-                      itemBuilder: (context, index) {
-                        final station = _stations[index];
-                        final isSelected = _selectedStationFilter == station;
+                  const SizedBox(height: 10),
 
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedStationFilter = station),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: isSelected ? AppColors.primaryBlue : AppColors.background,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: isSelected ? AppColors.primaryBlue : AppColors.cardBorder,
+                  // Row 2: Full-Width Station Selector Field
+                  GestureDetector(
+                    onTap: _showStationPickerSheet,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _selectedStationFilter != 'Semua Stasiun'
+                            ? AppColors.primaryBlueLight
+                            : AppColors.background,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _selectedStationFilter != 'Semua Stasiun'
+                              ? AppColors.primaryBlue
+                              : AppColors.cardBorder,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _selectedStationFilter != 'Semua Stasiun'
+                                ? Icons.location_on
+                                : Icons.location_on_outlined,
+                            size: 18,
+                            color: _selectedStationFilter != 'Semua Stasiun'
+                                ? AppColors.primaryBlue
+                                : AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _selectedStationFilter == 'Semua Stasiun'
+                                  ? 'Filter Stasiun Asal (Semua Stasiun)'
+                                  : 'Stasiun Asal: $_selectedStationFilter',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: _selectedStationFilter != 'Semua Stasiun'
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                                color: _selectedStationFilter != 'Semua Stasiun'
+                                    ? AppColors.primaryBlue
+                                    : AppColors.textPrimary,
                               ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                station,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected ? Colors.white : AppColors.textPrimary,
-                                ),
-                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        );
-                      },
+                          if (_selectedStationFilter != 'Semua Stasiun')
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedStationFilter = 'Semua Stasiun';
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primaryBlue,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close_rounded,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          else
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 20,
+                              color: AppColors.textSecondary,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -343,7 +537,7 @@ class _TimetablePageState extends State<TimetablePage> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
+                          const Text(
                             'Cobalah mengubah filter stasiun atau hari.',
                             style: TextStyle(
                               fontSize: 12,
@@ -354,6 +548,7 @@ class _TimetablePageState extends State<TimetablePage> {
                       ),
                     )
                   : ListView.builder(
+                      physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.all(16),
                       itemCount: filteredSchedules.length,
                       itemBuilder: (context, index) {
