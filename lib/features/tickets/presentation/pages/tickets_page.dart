@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
+import '../../../travel_alarm/presentation/widgets/travel_alarm_button.dart';
+import '../../../travel_alarm/presentation/widgets/travel_alarm_disable_dialog.dart';
+import '../../../travel_alarm/presentation/widgets/travel_alarm_setup_sheet.dart';
 
 enum _TicketViewMode { list, checkout, active }
 
@@ -28,6 +32,7 @@ class _TicketItem {
 /// Halaman Tiket Saya (Screen 09 di Figma)
 /// Menampilkan alur checkout tiket dan tiket QR aktif dengan simulasi pembayaran.
 class TicketsPage extends StatefulWidget {
+  final TravelAlarmController? alarmController;
   final String? from;
   final String? to;
   final String? fare;
@@ -36,6 +41,7 @@ class TicketsPage extends StatefulWidget {
 
   const TicketsPage({
     super.key,
+    this.alarmController,
     this.from,
     this.to,
     this.fare,
@@ -48,6 +54,8 @@ class TicketsPage extends StatefulWidget {
 }
 
 class _TicketsPageState extends State<TicketsPage> {
+  late final TravelAlarmController _alarmController;
+  late final bool _ownsAlarmController;
   _TicketViewMode _viewMode = _TicketViewMode.list;
   String _selectedPayment = 'QRIS';
   String _selectedFilter = 'Semua';
@@ -69,6 +77,101 @@ class _TicketsPageState extends State<TicketsPage> {
     [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1],
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _ownsAlarmController = widget.alarmController == null;
+    _alarmController = widget.alarmController ?? TravelAlarmController();
+    _alarmController.addListener(_handleAlarmChange);
+  }
+
+  @override
+  void dispose() {
+    _alarmController.removeListener(_handleAlarmChange);
+    if (_ownsAlarmController) {
+      _alarmController.dispose();
+    }
+    super.dispose();
+  }
+
+  void _handleAlarmChange() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  void _showAlarmMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _completePayment({
+    required String from,
+    required String to,
+  }) async {
+    _alarmController.completePurchase(
+      from: from,
+      to: to,
+      transferStation: widget.transit == '1' ? 'Setiabudi' : null,
+    );
+    setState(() => _viewMode = _TicketViewMode.active);
+    await _openAlarmSetup(from: from, to: to);
+  }
+
+  Future<void> _openAlarmSetup({
+    required String from,
+    required String to,
+    String? transferStation,
+  }) async {
+    final selection = await showTravelAlarmSetupSheet(
+      context,
+      from: from,
+      to: to,
+    );
+    if (selection == null || !mounted) return;
+
+    if (!_isCurrentAlarmTrip(from, to)) {
+      _alarmController.completePurchase(
+        from: from,
+        to: to,
+        transferStation: transferStation,
+      );
+    }
+
+    _alarmController.configureAlarms(
+      departure: selection.departure,
+      destination: selection.destination,
+    );
+    _showAlarmMessage('Alarm perjalanan diaktifkan');
+  }
+
+  Future<void> _handleAlarmButton(String from, String to) async {
+    final controlsCurrentTrip = _isCurrentAlarmTrip(from, to);
+    if (!controlsCurrentTrip || !_alarmController.state.hasAnyAlarm) {
+      await _openAlarmSetup(
+        from: from,
+        to: to,
+        transferStation: widget.transit == '1' ? 'Setiabudi' : null,
+      );
+      return;
+    }
+
+    final shouldDisable = await showTravelAlarmDisableDialog(
+      context,
+      departureEnabled: _alarmController.state.departureAlarmEnabled,
+      destinationEnabled: _alarmController.state.destinationAlarmEnabled,
+    );
+    if (!shouldDisable || !mounted) return;
+
+    _alarmController.cancelAllAlarms();
+    _showAlarmMessage('Alarm perjalanan dinonaktifkan');
+  }
+
+  bool _isCurrentAlarmTrip(String from, String to) {
+    final activeTrip = _alarmController.state.activeTrip;
+    return activeTrip?.from == from && activeTrip?.to == to;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,14 +278,22 @@ class _TicketsPageState extends State<TicketsPage> {
     String fare,
     String serviceInfo,
   ) {
+    final activeTrip = _alarmController.state.activeTrip;
+    final purchasedTicketIsActive =
+        activeTrip?.from == from && activeTrip?.to == to;
+
     return [
       _TicketItem(
         from: from,
         to: to,
         fare: fare,
         serviceInfo: serviceInfo,
-        validityText: 'Bayar sebelum 23:59',
-        status: _TicketStatus.pending,
+        validityText: purchasedTicketIsActive
+            ? 'Berlaku sampai 23:59'
+            : 'Bayar sebelum 23:59',
+        status: purchasedTicketIsActive
+            ? _TicketStatus.active
+            : _TicketStatus.pending,
       ),
       const _TicketItem(
         from: 'Manggarai',
@@ -469,6 +580,7 @@ class _TicketsPageState extends State<TicketsPage> {
               SizedBox(
                 height: 40,
                 child: ElevatedButton(
+                  key: Key('ticket-action-${ticket.from}-${ticket.to}'),
                   onPressed: () {
                     if (isCompleted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -688,11 +800,7 @@ class _TicketsPageState extends State<TicketsPage> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _viewMode = _TicketViewMode.active;
-                });
-              },
+              onPressed: () => _completePayment(from: from, to: to),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF97316), // Accent Orange
                 foregroundColor: Colors.white,
@@ -795,256 +903,277 @@ class _TicketsPageState extends State<TicketsPage> {
 
   // 2. Tampilan Layar Tiket Aktif (Setelah pembayaran berhasil)
   Widget _buildActiveTicketView(String from, String to) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          // Alert Banner "Pembayaran berhasil"
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFECFDF5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF10B981)),
-            ),
-            child: const Row(
-              children: [
-                Text(
-                  'Pembayaran berhasil',
-                  style: TextStyle(
-                    color: Color(0xFF047857),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Scan QR di gate masuk.',
-                    style: TextStyle(
-                      color: Color(0xFF065F46),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Custom Grid QR Code
-          Container(
-            width: 220,
-            height: 220,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(16),
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 13,
-                crossAxisSpacing: 2.0,
-                mainAxisSpacing: 2.0,
-              ),
-              itemCount: 13 * 13,
-              itemBuilder: (context, index) {
-                int row = index ~/ 13;
-                int col = index % 13;
-                bool isBlack = _qrMatrix[row][col] == 1;
-                return Container(
-                  decoration: BoxDecoration(
-                    color: isBlack ? Colors.black : Colors.white,
-                    borderRadius: BorderRadius.circular(1),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // KAI Metro Access title & Route
-          const Text(
-            'KAI Metro Access',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$from ➔ $to',
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Info Metadata Grid Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Berlaku gate-in sebelum',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '23:59 hari ini',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(width: 1, height: 40, color: const Color(0xFFE2E8F0)),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Tanpa akun',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Guest',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF2563EB), // Accent Blue
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Save & Share Buttons Row
-          Row(
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
             children: [
-              Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tiket disimpan ke galeri ponsel!'),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF005BAC), // KAI Blue
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              // Alert Banner "Pembayaran berhasil"
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFECFDF5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF10B981)),
+                ),
+                child: const Row(
+                  children: [
+                    Text(
+                      'Pembayaran berhasil',
+                      style: TextStyle(
+                        color: Color(0xFF047857),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    child: const Text(
-                      'Simpan tiket',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Scan QR di gate masuk.',
+                        style: TextStyle(
+                          color: Color(0xFF065F46),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Custom Grid QR Code
+              Container(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 13,
+                    crossAxisSpacing: 2.0,
+                    mainAxisSpacing: 2.0,
+                  ),
+                  itemCount: 13 * 13,
+                  itemBuilder: (context, index) {
+                    int row = index ~/ 13;
+                    int col = index % 13;
+                    bool isBlack = _qrMatrix[row][col] == 1;
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: isBlack ? Colors.black : Colors.white,
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // KAI Metro Access title & Route
+              const Text(
+                'KAI Metro Access',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '$from ➔ $to',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Info Metadata Grid Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Berlaku gate-in sebelum',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '23:59 hari ini',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: const Color(0xFFE2E8F0),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Tanpa akun',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Guest',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF2563EB), // Accent Blue
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Save & Share Buttons Row
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Tiket disimpan ke galeri ponsel!'),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF005BAC), // KAI Blue
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Simpan tiket',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Membagikan tautan tiket...'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Membagikan tautan tiket...'),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF005BAC)),
+                          foregroundColor: const Color(0xFF005BAC),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF005BAC)),
-                      foregroundColor: const Color(0xFF005BAC),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Bagikan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                        child: const Text(
+                          'Bagikan',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // A11Y bottom info banner
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF8E1), // Light yellow
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFFFD54F)),
+                ),
+                child: const Text(
+                  'A11Y: QR memiliki kode tiket teks cadangan untuk bantuan petugas.',
+                  style: TextStyle(
+                    color: Color(0xFFB7791F),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
+              const SizedBox(height: 88),
             ],
           ),
-          const SizedBox(height: 20),
-
-          // A11Y bottom info banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF8E1), // Light yellow
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFFFD54F)),
-            ),
-            child: const Text(
-              'A11Y: QR memiliki kode tiket teks cadangan untuk bantuan petugas.',
-              style: TextStyle(
-                color: Color(0xFFB7791F),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+        ),
+        Positioned(
+          right: 20,
+          bottom: 16,
+          child: TravelAlarmButton(
+            isActive:
+                _isCurrentAlarmTrip(from, to) &&
+                _alarmController.state.hasAnyAlarm,
+            onPressed: () => _handleAlarmButton(from, to),
           ),
-          const SizedBox(height: 24),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

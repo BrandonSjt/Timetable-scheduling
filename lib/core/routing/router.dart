@@ -4,9 +4,20 @@ import '../../features/search_station/presentation/pages/search_station_page.dar
 import '../../features/route_result/presentation/pages/route_result_page.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
-import '../../features/promo/presentation/pages/promo_page.dart';
+import '../../features/assistant/presentation/pages/assistant_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/accessibility_page.dart';
+import '../../features/profile/presentation/pages/ticket_history_page.dart';
+import '../../features/profile/presentation/pages/language_page.dart';
+import '../../features/profile/presentation/pages/help_center_page.dart';
+import '../../features/profile/presentation/pages/help_chat_page.dart';
+import '../../features/profile/presentation/pages/report_incorrect_info_page.dart';
+import '../../features/profile/presentation/pages/schedule_issue_page.dart';
+import '../../features/profile/presentation/pages/payment_issue_page.dart';
+import '../../features/profile/presentation/pages/active_ticket_detail_page.dart';
+import '../../features/profile/presentation/pages/completed_ticket_detail_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
+import '../../features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
 /// Semua rute halaman didefinisikan di sini.
@@ -18,17 +29,15 @@ final GoRouter appRouter = GoRouter(
     // Tab 0: Beranda
     GoRoute(
       path: '/',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: HomePage(),
-      ),
+      pageBuilder: (context, state) =>
+          const NoTransitionPage(child: HomePage()),
     ),
 
     // Tab 1: Jadwal (Timetable)
     GoRoute(
       path: '/timetable',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: TimetablePage(),
-      ),
+      pageBuilder: (context, state) =>
+          const NoTransitionPage(child: TimetablePage()),
     ),
 
     // Tab 2: Tiket Saya - Tiket QR (dengan opsi parameter query)
@@ -42,6 +51,7 @@ final GoRouter appRouter = GoRouter(
         final transit = state.uri.queryParameters['transit'];
         return NoTransitionPage(
           child: TicketsPage(
+            alarmController: TravelAlarmScope.of(context),
             from: from,
             to: to,
             fare: fare,
@@ -52,20 +62,79 @@ final GoRouter appRouter = GoRouter(
       },
     ),
 
-    // Tab 3: Promo
+    // Tab 3: Asisten
     GoRoute(
-      path: '/promo',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: PromoPage(),
+      path: '/asisten',
+      pageBuilder: (context, state) => NoTransitionPage(
+        child: AssistantPage(alarmController: TravelAlarmScope.of(context)),
       ),
     ),
+
+    // Tautan lama tetap menuju tab Asisten.
+    GoRoute(path: '/promo', redirect: (context, state) => '/asisten'),
 
     // Tab 4: Akun
     GoRoute(
       path: '/akun',
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: ProfilePage(),
-      ),
+      pageBuilder: (context, state) =>
+          const NoTransitionPage(child: ProfilePage()),
+    ),
+
+    // Pengaturan Aksesibilitas
+    GoRoute(
+      path: '/aksesibilitas',
+      builder: (context, state) => const AccessibilityPage(),
+    ),
+
+    // Riwayat Tiket
+    GoRoute(
+      path: '/riwayat-tiket',
+      builder: (context, state) => const TicketHistoryPage(),
+    ),
+
+    // Bahasa
+    GoRoute(path: '/bahasa', builder: (context, state) => const LanguagePage()),
+
+    // Pusat Bantuan
+    GoRoute(
+      path: '/pusat-bantuan',
+      builder: (context, state) => const HelpCenterPage(),
+    ),
+
+    // Chat dengan petugas berdasarkan topik
+    GoRoute(
+      path: '/bantuan/chat',
+      builder: (context, state) => const HelpChatPage(),
+    ),
+
+    // Laporan informasi jadwal, rute, atau stasiun yang salah
+    GoRoute(
+      path: '/bantuan/lapor',
+      builder: (context, state) => const ReportIncorrectInfoPage(),
+    ),
+
+    // Laporan ketidaksesuaian jadwal dan ETA
+    GoRoute(
+      path: '/bantuan/jadwal-eta',
+      builder: (context, state) => const ScheduleIssuePage(),
+    ),
+
+    // Bantuan masalah pembayaran
+    GoRoute(
+      path: '/bantuan/pembayaran',
+      builder: (context, state) => const PaymentIssuePage(),
+    ),
+
+    // Detail Tiket Aktif
+    GoRoute(
+      path: '/detail-tiket-aktif',
+      builder: (context, state) => const ActiveTicketDetailPage(),
+    ),
+
+    // Detail Tiket Selesai
+    GoRoute(
+      path: '/detail-tiket-selesai',
+      builder: (context, state) => const CompletedTicketDetailPage(),
     ),
 
     // ── Halaman Detail (Menggunakan transisi bawaan slide standar) ──

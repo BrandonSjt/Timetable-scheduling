@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 
@@ -178,21 +179,25 @@ class ProfilePage extends StatelessWidget {
                   _buildMenuTile(
                     title: 'Riwayat tiket lokal',
                     subtitle: 'Tersimpan di perangkat ini',
+                    onTap: () => context.push('/riwayat-tiket'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(
                     title: 'Bahasa',
                     subtitle: 'Indonesia',
+                    onTap: () => context.push('/bahasa'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(
                     title: 'Aksesibilitas',
-                    subtitle: 'Kontras tinggi, teks besar, bacakan rute',
+                    subtitle: 'Teks besar dan bacakan rute',
+                    onTap: () => context.push('/aksesibilitas'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(
                     title: 'Pusat Bantuan',
                     subtitle: 'Kontak petugas dan laporan info salah',
+                    onTap: () => context.push('/pusat-bantuan'),
                   ),
                 ],
               ),
