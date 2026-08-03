@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../controllers/assistant_controller.dart';
 import '../controllers/assistant_conversation_controller.dart';
@@ -150,7 +151,7 @@ class _AssistantPageState extends State<AssistantPage>
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(content: Text('Alarm perjalanan dinonaktifkan')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.alarmDeactivated)),
       );
   }
 
@@ -165,14 +166,15 @@ class _AssistantPageState extends State<AssistantPage>
     };
   }
 
-  String get _statusLabel {
+  String _statusLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return switch (_controller.state) {
-      AssistantInteractionState.ready => 'Siap membantu',
-      AssistantInteractionState.listening => 'Mendengarkan',
-      AssistantInteractionState.processing => 'Memproses',
-      AssistantInteractionState.speaking => 'Berbicara',
-      AssistantInteractionState.confirmation => 'Menunggu konfirmasi',
-      AssistantInteractionState.error => 'Perlu dicoba lagi',
+      AssistantInteractionState.ready => l10n.assistantReady,
+      AssistantInteractionState.listening => l10n.assistantListening,
+      AssistantInteractionState.processing => l10n.assistantProcessing,
+      AssistantInteractionState.speaking => l10n.assistantSpeaking,
+      AssistantInteractionState.confirmation => l10n.assistantWaiting,
+      AssistantInteractionState.error => l10n.assistantError,
     };
   }
 
@@ -185,14 +187,15 @@ class _AssistantPageState extends State<AssistantPage>
     };
   }
 
-  String get _voiceSemanticsLabel {
+  String _voiceSemanticsLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return switch (_controller.state) {
-      AssistantInteractionState.ready => 'Mulai percakapan suara',
-      AssistantInteractionState.listening => 'Hentikan percakapan suara',
-      AssistantInteractionState.processing => 'Permintaan sedang diproses',
-      AssistantInteractionState.speaking => 'Hentikan suara asisten',
-      AssistantInteractionState.confirmation => 'Mulai percakapan baru',
-      AssistantInteractionState.error => 'Coba percakapan suara lagi',
+      AssistantInteractionState.ready => l10n.voiceStart,
+      AssistantInteractionState.listening => l10n.voiceStop,
+      AssistantInteractionState.processing => l10n.voiceProcessing,
+      AssistantInteractionState.speaking => l10n.voiceStopSpeaking,
+      AssistantInteractionState.confirmation => l10n.voiceNew,
+      AssistantInteractionState.error => l10n.voiceRetry,
     };
   }
 
@@ -211,9 +214,9 @@ class _AssistantPageState extends State<AssistantPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader(),
+                    _buildHeader(context),
                     const SizedBox(height: 16),
-                    _buildWakeWordSetting(),
+                    _buildWakeWordSetting(context),
                     const SizedBox(height: 12),
                     AssistantVoicePanel(
                       state: _controller.state,
@@ -233,9 +236,9 @@ class _AssistantPageState extends State<AssistantPage>
                       ),
                     ],
                     const SizedBox(height: 20),
-                    const Text(
-                      'Tindakan cepat',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.quickActions,
+                      style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -245,22 +248,22 @@ class _AssistantPageState extends State<AssistantPage>
                     AssistantQuickActions(
                       actions: [
                         AssistantQuickAction(
-                          label: 'Rencanakan perjalanan',
+                          label: AppLocalizations.of(context)!.planTrip,
                           icon: Icons.route_rounded,
                           onTap: () => context.go('/cari-stasiun'),
                         ),
                         AssistantQuickAction(
-                          label: 'Kereta berikutnya',
+                          label: AppLocalizations.of(context)!.nextTrain,
                           icon: Icons.train_rounded,
                           onTap: () => context.go('/timetable'),
                         ),
                         AssistantQuickAction(
-                          label: 'Tiket saya',
+                          label: AppLocalizations.of(context)!.myTickets,
                           icon: Icons.confirmation_num_rounded,
                           onTap: () => context.go('/tiket'),
                         ),
                         AssistantQuickAction(
-                          label: 'Bantuan petugas',
+                          label: AppLocalizations.of(context)!.officerHelp,
                           icon: Icons.support_agent_rounded,
                           onTap: () => context.go('/pusat-bantuan'),
                         ),
@@ -273,7 +276,7 @@ class _AssistantPageState extends State<AssistantPage>
             AssistantComposer(
               onSubmit: _conversationController.submitText,
               onMicrophoneTap: _voiceAction,
-              microphoneSemanticsLabel: _voiceSemanticsLabel,
+              microphoneSemanticsLabel: _voiceSemanticsLabel(context),
             ),
             const AppBottomNavBar(currentIndex: 3),
           ],
@@ -282,7 +285,8 @@ class _AssistantPageState extends State<AssistantPage>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -304,9 +308,9 @@ class _AssistantPageState extends State<AssistantPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Asisten Perjalanan',
-                style: TextStyle(
+              Text(
+                l10n.travelAssistant,
+                style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 23,
                   fontWeight: FontWeight.w800,
@@ -315,7 +319,7 @@ class _AssistantPageState extends State<AssistantPage>
               const SizedBox(height: 5),
               Semantics(
                 liveRegion: true,
-                label: 'Status asisten: $_statusLabel',
+                label: l10n.assistantStatusLabel(_statusLabel(context)),
                 child: ExcludeSemantics(
                   child: Row(
                     children: [
@@ -330,7 +334,7 @@ class _AssistantPageState extends State<AssistantPage>
                       const SizedBox(width: 7),
                       Flexible(
                         child: Text(
-                          _statusLabel,
+                          _statusLabel(context),
                           style: const TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
@@ -349,12 +353,13 @@ class _AssistantPageState extends State<AssistantPage>
     );
   }
 
-  Widget _buildWakeWordSetting() {
+  Widget _buildWakeWordSetting(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final enabled = _controller.wakeWordEnabled;
     return Semantics(
       container: true,
-      label: 'Mode kata pemicu Halo Asisten',
-      value: enabled ? 'aktif' : 'nonaktif',
+      label: l10n.wakeWordMode,
+      value: enabled ? l10n.active : l10n.inactive,
       toggled: enabled,
       onTap: () => _controller.toggleWakeWord(!enabled),
       child: Container(
@@ -382,9 +387,9 @@ class _AssistantPageState extends State<AssistantPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Dengarkan "Halo Asisten"',
-                    style: TextStyle(
+                  Text(
+                    l10n.listenWakeWord,
+                    style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -393,8 +398,8 @@ class _AssistantPageState extends State<AssistantPage>
                   const SizedBox(height: 2),
                   Text(
                     enabled
-                        ? 'Kata pemicu aktif'
-                        : 'Aktif hanya di halaman ini',
+                        ? l10n.wakeWordActiveText
+                        : l10n.wakeWordPageOnly,
                     style: TextStyle(
                       color: enabled
                           ? AppColors.textPrimary

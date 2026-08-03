@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../controllers/assistant_controller.dart';
 
 class AssistantResponsePanel extends StatelessWidget {
@@ -29,6 +30,7 @@ class AssistantResponsePanel extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
     final isError = state == AssistantInteractionState.error;
     final needsConfirmation = state == AssistantInteractionState.confirmation;
 
@@ -48,7 +50,7 @@ class AssistantResponsePanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (userTranscript != null) ...[
-            const _MessageLabel(icon: Icons.person_rounded, label: 'Anda'),
+            _MessageLabel(icon: Icons.person_rounded, label: l10n.chatUser),
             const SizedBox(height: 6),
             Text(
               userTranscript!,
@@ -65,9 +67,9 @@ class AssistantResponsePanel extends StatelessWidget {
               child: Divider(height: 1, color: AppColors.divider),
             ),
           if (assistantResponse != null) ...[
-            const _MessageLabel(
+            _MessageLabel(
               icon: Icons.headset_mic_rounded,
-              label: 'Asisten',
+              label: l10n.assistantChatAssistant,
             ),
             const SizedBox(height: 6),
             Semantics(
@@ -91,7 +93,7 @@ class AssistantResponsePanel extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onConfirm,
                 icon: const Icon(Icons.route_rounded, size: 20),
-                label: const Text('Pakai rute ini'),
+                label: Text(l10n.assistantUseThisRoute),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   foregroundColor: Colors.white,
@@ -110,7 +112,7 @@ class AssistantResponsePanel extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onRepeat,
                       icon: const Icon(Icons.replay_rounded, size: 18),
-                      label: const Text('Ulangi'),
+                      label: Text(l10n.assistantRepeat),
                     ),
                   ),
                 ),
@@ -121,7 +123,7 @@ class AssistantResponsePanel extends StatelessWidget {
                     child: TextButton.icon(
                       onPressed: onCancel,
                       icon: const Icon(Icons.close_rounded, size: 18),
-                      label: const Text('Batalkan'),
+                      label: Text(l10n.assistantCancel),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.textSecondary,
                       ),
@@ -139,7 +141,7 @@ class AssistantResponsePanel extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 20),
-                label: const Text('Coba lagi'),
+                label: Text(l10n.assistantRetry),
               ),
             ),
           ],

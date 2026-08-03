@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AssistantComposer extends StatefulWidget {
   const AssistantComposer({
@@ -36,6 +37,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Material(
       color: AppColors.surface,
       child: SafeArea(
@@ -58,7 +60,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
                   textInputAction: TextInputAction.send,
                   onSubmitted: _submit,
                   decoration: InputDecoration(
-                    labelText: 'Ketik pesan untuk Asisten',
+                    labelText: l10n.assistantTypeMessage,
                     prefixIcon: const Icon(Icons.chat_bubble_outline_rounded),
                     filled: true,
                     fillColor: AppColors.background,
@@ -86,7 +88,9 @@ class _AssistantComposerState extends State<AssistantComposer> {
               ),
               const SizedBox(width: 8),
               _ComposerIconButton(
-                semanticsLabel: widget.microphoneSemanticsLabel,
+                semanticsLabel: widget.microphoneSemanticsLabel.isEmpty 
+                    ? l10n.voiceStartConversation 
+                    : widget.microphoneSemanticsLabel,
                 icon: Icons.mic_rounded,
                 onPressed: widget.onMicrophoneTap,
                 foregroundColor: AppColors.primaryBlue,
@@ -94,7 +98,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
               ),
               const SizedBox(width: 6),
               _ComposerIconButton(
-                semanticsLabel: 'Kirim pesan',
+                semanticsLabel: l10n.assistantSendMessage,
                 icon: Icons.send_rounded,
                 onPressed: _submit,
                 foregroundColor: AppColors.textOnPrimary,

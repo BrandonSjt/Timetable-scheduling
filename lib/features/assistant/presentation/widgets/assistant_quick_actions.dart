@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AssistantQuickAction {
   const AssistantQuickAction({
@@ -21,6 +22,7 @@ class AssistantQuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return LayoutBuilder(
       builder: (context, constraints) {
         final itemWidth = (constraints.maxWidth - 10) / 2;
@@ -34,7 +36,7 @@ class AssistantQuickActions extends StatelessWidget {
                   height: 72,
                   child: Semantics(
                     button: true,
-                    label: 'Buka ${action.label}',
+                    label: l10n.assistantOpenQuickAction(action.label),
                     onTap: action.onTap,
                     child: ExcludeSemantics(
                       child: Material(

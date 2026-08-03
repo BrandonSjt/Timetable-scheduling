@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../travel_alarm/domain/entities/travel_alarm_state.dart';
 import '../../../travel_alarm/presentation/widgets/travel_alarm_status_card.dart';
 import '../../domain/entities/assistant_conversation_item.dart';
@@ -35,17 +36,18 @@ class AssistantConversationTimeline extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var index = 0; index < items.length; index++) ...[
-          _buildItem(items[index], isLatest: index == items.length - 1),
+          _buildItem(context, items[index], isLatest: index == items.length - 1),
           if (index != items.length - 1) const SizedBox(height: 10),
         ],
       ],
     );
   }
 
-  Widget _buildItem(AssistantConversationItem item, {required bool isLatest}) {
+  Widget _buildItem(BuildContext context, AssistantConversationItem item, {required bool isLatest}) {
+    final l10n = AppLocalizations.of(context)!;
     final sender = item.author == AssistantMessageAuthor.user
-        ? 'Anda'
-        : 'Asisten';
+        ? l10n.chatUser
+        : l10n.assistantChatAssistant;
     final isAssistant = item.author == AssistantMessageAuthor.assistant;
 
     return Semantics(
@@ -113,6 +115,7 @@ class _RouteSuggestionMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -139,7 +142,7 @@ class _RouteSuggestionMessage extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onConfirm,
               icon: const Icon(Icons.route_rounded),
-              label: const Text('Pakai rute ini'),
+              label: Text(l10n.assistantUseThisRoute),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
                 foregroundColor: AppColors.textOnPrimary,
@@ -157,12 +160,12 @@ class _RouteSuggestionMessage extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRepeat,
                 icon: const Icon(Icons.replay_rounded, size: 18),
-                label: const Text('Ulangi'),
+                label: Text(l10n.assistantRepeat),
               ),
               TextButton.icon(
                 onPressed: onCancel,
                 icon: const Icon(Icons.close_rounded, size: 18),
-                label: const Text('Batalkan'),
+                label: Text(l10n.assistantCancel),
               ),
             ],
           ),
@@ -214,6 +217,7 @@ class _NoActiveTicketMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -234,9 +238,9 @@ class _NoActiveTicketMessage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
-            'Beli atau pilih tiket aktif untuk menggunakan alarm perjalanan.',
-            style: TextStyle(
+          Text(
+            l10n.assistantBuyTicketToUseAlarm,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
               height: 1.4,
@@ -246,7 +250,7 @@ class _NoActiveTicketMessage extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onFindTrip,
             icon: const Icon(Icons.route_rounded, size: 18),
-            label: const Text('Cari perjalanan'),
+            label: Text(l10n.assistantSearchTrip),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../controllers/assistant_controller.dart';
 
 class AssistantVoicePanel extends StatelessWidget {
@@ -15,7 +16,8 @@ class AssistantVoicePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final presentation = _VoicePresentation.forState(state);
+    final l10n = AppLocalizations.of(context)!;
+    final presentation = _VoicePresentation.forState(state, l10n);
 
     return Container(
       width: double.infinity,
@@ -136,47 +138,47 @@ class _VoicePresentation {
   final IconData icon;
   final Color color;
 
-  factory _VoicePresentation.forState(AssistantInteractionState state) {
+  factory _VoicePresentation.forState(AssistantInteractionState state, AppLocalizations l10n) {
     return switch (state) {
-      AssistantInteractionState.ready => const _VoicePresentation(
-        prompt: 'Ketuk untuk bicara',
-        description: 'Mau ke mana hari ini?',
-        semanticLabel: 'Mulai percakapan suara',
+      AssistantInteractionState.ready => _VoicePresentation(
+        prompt: l10n.voiceTapToSpeak,
+        description: l10n.voiceWhereToToday,
+        semanticLabel: l10n.voiceStartConversation,
         icon: Icons.mic_rounded,
         color: AppColors.primaryBlue,
       ),
-      AssistantInteractionState.listening => const _VoicePresentation(
-        prompt: 'Mendengarkan',
-        description: 'Silakan sebutkan tujuan perjalanan',
-        semanticLabel: 'Hentikan percakapan suara',
+      AssistantInteractionState.listening => _VoicePresentation(
+        prompt: l10n.voiceListening,
+        description: l10n.voicePleaseStateDestination,
+        semanticLabel: l10n.voiceStopConversation,
         icon: Icons.stop_rounded,
         color: AppColors.accentOrange,
       ),
-      AssistantInteractionState.processing => const _VoicePresentation(
-        prompt: 'Memproses permintaan',
-        description: 'Mencari pilihan perjalanan yang sesuai',
-        semanticLabel: 'Permintaan sedang diproses',
+      AssistantInteractionState.processing => _VoicePresentation(
+        prompt: l10n.voiceProcessingRequest,
+        description: l10n.voiceSearchingForTrips,
+        semanticLabel: l10n.voiceRequestBeingProcessed,
         icon: Icons.hourglass_top_rounded,
         color: AppColors.buttonDark,
       ),
-      AssistantInteractionState.speaking => const _VoicePresentation(
-        prompt: 'Agent sedang berbicara',
-        description: 'Jawaban perjalanan sedang dibacakan',
-        semanticLabel: 'Hentikan suara asisten',
+      AssistantInteractionState.speaking => _VoicePresentation(
+        prompt: l10n.voiceAgentSpeaking,
+        description: l10n.voiceReadingAnswer,
+        semanticLabel: l10n.voiceStopAssistant,
         icon: Icons.stop_rounded,
         color: AppColors.statusGreen,
       ),
-      AssistantInteractionState.confirmation => const _VoicePresentation(
-        prompt: 'Perlu konfirmasi',
-        description: 'Pilih tindakan sebelum membuka rute',
-        semanticLabel: 'Mulai percakapan baru',
+      AssistantInteractionState.confirmation => _VoicePresentation(
+        prompt: l10n.voiceNeedsConfirmation,
+        description: l10n.voiceChooseActionBeforeRoute,
+        semanticLabel: l10n.voiceStartNewConversation,
         icon: Icons.mic_rounded,
         color: AppColors.primaryBlue,
       ),
-      AssistantInteractionState.error => const _VoicePresentation(
-        prompt: 'Coba lagi',
-        description: 'Gunakan suara atau pilih tindakan cepat',
-        semanticLabel: 'Coba percakapan suara lagi',
+      AssistantInteractionState.error => _VoicePresentation(
+        prompt: l10n.assistantRetry,
+        description: l10n.voiceUseVoiceOrQuickAction,
+        semanticLabel: l10n.voiceRetryConversation,
         icon: Icons.refresh_rounded,
         color: AppColors.statusRed,
       ),
