@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
 enum _TicketFilter { all, active, completed }
@@ -25,74 +26,78 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
       _filter == _TicketFilter.all || _filter == _TicketFilter.completed;
 
   void _clearHistory() {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _showHistory = false);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Riwayat tiket dibersihkan dari perangkat ini.'),
+        SnackBar(
+          content: Text(l10n.historyCleared),
         ),
       );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ProfileDetailScaffold(
-      title: 'Riwayat tiket',
-      subtitle: 'Tersimpan di perangkat ini',
+      title: l10n.historyTitle,
+      subtitle: l10n.historySubtitle,
       children: [
-        _buildGuestNotice(),
+        _buildGuestNotice(l10n),
         const SizedBox(height: 20),
-        _buildFilters(),
+        _buildFilters(l10n),
         const SizedBox(height: 24),
-        const Text(
-          'Tiket terakhir',
-          style: TextStyle(
+        Text(
+          l10n.historyLastTicket,
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Urut dari perjalanan terbaru',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        Text(
+          l10n.historySortRecent,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const SizedBox(height: 16),
         if (!_showHistory)
-          _buildEmptyState()
+          _buildEmptyState(l10n)
         else ...[
           if (_showActive)
             _TicketHistoryCard(
-              lineName: 'KRL Commuter Line',
-              route: 'Bogor → Jakarta Kota',
-              date: 'Hari ini, 08:12 WIB',
-              status: 'Aktif',
+              lineName: l10n.historyKrl,
+              route: l10n.historyKrlRoute,
+              date: l10n.historyKrlDate,
+              status: l10n.active,
               accentColor: AppColors.primaryBlue,
               badgeColor: const Color(0xFFECFDF3),
               badgeTextColor: const Color(0xFF16A34A),
               onTap: () => context.push('/detail-tiket-aktif'),
+              detailLabel: l10n.detail,
             ),
           if (_showActive && _showCompleted) const SizedBox(height: 12),
           if (_showCompleted)
             _TicketHistoryCard(
-              lineName: 'LRT Jabodebek',
-              route: 'Dukuh Atas → Harjamukti',
-              date: 'Selasa, 7 Jul 2026',
-              status: 'Selesai',
+              lineName: l10n.historyLrt,
+              route: l10n.historyLrtRoute,
+              date: l10n.historyLrtDate,
+              status: l10n.completed,
               accentColor: AppColors.accentOrange,
               badgeColor: const Color(0xFFF1F5F9),
               badgeTextColor: AppColors.textSecondary,
               onTap: () => context.push('/detail-tiket-selesai'),
+              detailLabel: l10n.detail,
             ),
         ],
         const SizedBox(height: 28),
-        _buildClearAction(),
+        _buildClearAction(l10n),
       ],
     );
   }
 
-  Widget _buildGuestNotice() {
+  Widget _buildGuestNotice(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -116,22 +121,22 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mode tamu',
-                  style: TextStyle(
+                  l10n.historyGuestMode,
+                  style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  'Riwayat ini hanya ada di perangkat ini.',
-                  style: TextStyle(
+                  l10n.historyGuestDesc,
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -144,13 +149,13 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
     );
   }
 
-  Widget _buildFilters() {
+  Widget _buildFilters(AppLocalizations l10n) {
     return Wrap(
       spacing: 8,
       children: [
-        _filterChip('Semua', _TicketFilter.all),
-        _filterChip('Aktif', _TicketFilter.active),
-        _filterChip('Selesai', _TicketFilter.completed),
+        _filterChip(l10n.all, _TicketFilter.all),
+        _filterChip(l10n.active, _TicketFilter.active),
+        _filterChip(l10n.completed, _TicketFilter.completed),
       ],
     );
   }
@@ -177,7 +182,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -185,13 +190,13 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.confirmation_num_outlined, color: AppColors.textHint),
-          SizedBox(height: 10),
+          const Icon(Icons.confirmation_num_outlined, color: AppColors.textHint),
+          const SizedBox(height: 10),
           Text(
-            'Belum ada riwayat tiket',
-            style: TextStyle(
+            l10n.historyNoTickets,
+            style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -202,7 +207,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
     );
   }
 
-  Widget _buildClearAction() {
+  Widget _buildClearAction(AppLocalizations l10n) {
     return Material(
       color: const Color(0xFFEFF6FF),
       shape: RoundedRectangleBorder(
@@ -212,8 +217,8 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: _showHistory ? _clearHistory : null,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           child: Row(
             children: [
               Expanded(
@@ -221,17 +226,17 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bersihkan riwayat',
-                      style: TextStyle(
+                      l10n.historyClearHistory,
+                      style: const TextStyle(
                         color: AppColors.primaryBlue,
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
                     Text(
-                      'Hapus data dari perangkat ini.',
-                      style: TextStyle(
+                      l10n.historyClearDesc,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
@@ -239,7 +244,7 @@ class _TicketHistoryPageState extends State<TicketHistoryPage> {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
             ],
           ),
         ),
@@ -257,6 +262,7 @@ class _TicketHistoryCard extends StatelessWidget {
   final Color badgeColor;
   final Color badgeTextColor;
   final VoidCallback onTap;
+  final String detailLabel;
 
   const _TicketHistoryCard({
     required this.lineName,
@@ -267,6 +273,7 @@ class _TicketHistoryCard extends StatelessWidget {
     required this.badgeColor,
     required this.badgeTextColor,
     required this.onTap,
+    required this.detailLabel,
   });
 
   @override
@@ -353,9 +360,9 @@ class _TicketHistoryCard extends StatelessWidget {
                   minimumSize: const Size(52, 34),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text(
-                  'Detail',
-                  style: TextStyle(fontWeight: FontWeight.w800),
+                child: Text(
+                  detailLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
             ],

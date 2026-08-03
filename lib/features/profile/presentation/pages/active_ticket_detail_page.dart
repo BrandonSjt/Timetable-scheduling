@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
 /// Detail tiket aktif yang tersimpan pada perangkat pengguna.
@@ -9,17 +10,19 @@ class ActiveTicketDetailPage extends StatelessWidget {
   const ActiveTicketDetailPage({super.key});
 
   void _shareTicket(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(content: Text('Kode tiket aktif siap dibagikan.')),
+        SnackBar(content: Text(l10n.activeTicketReadyShare)),
       );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ProfileDetailScaffold(
-      title: 'Detail tiket aktif',
+      title: l10n.activeTicketTitle,
       subtitle: 'KRL-2407-0812',
       fallbackRoute: '/riwayat-tiket',
       children: [
@@ -35,7 +38,7 @@ class ActiveTicketDetailPage extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _shareTicket(context),
                 icon: const Icon(Icons.ios_share_rounded, size: 18),
-                label: const Text('Bagikan kode'),
+                label: Text(l10n.activeTicketShareCode),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primaryBlue,
                   side: const BorderSide(color: AppColors.primaryBlue),
@@ -52,7 +55,7 @@ class ActiveTicketDetailPage extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: () => context.push('/pusat-bantuan'),
                 icon: const Icon(Icons.support_agent_rounded, size: 19),
-                label: const Text('Butuh bantuan'),
+                label: Text(l10n.activeTicketNeedHelp),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.accentOrange,
                   foregroundColor: Colors.white,
@@ -67,10 +70,10 @@ class ActiveTicketDetailPage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 18),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.phone_android_rounded,
               color: AppColors.textHint,
               size: 16,
@@ -78,9 +81,9 @@ class ActiveTicketDetailPage extends StatelessWidget {
             SizedBox(width: 7),
             Flexible(
               child: Text(
-                'Data tiket hanya tersimpan di perangkat ini.',
+                l10n.activeTicketOfflineOnly,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
               ),
             ),
           ],
@@ -115,22 +118,22 @@ class _ActiveTicketSummary extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'KRL Commuter Line',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.historyKrl,
+                      style: const TextStyle(
                         color: AppColors.primaryBlue,
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
                     Text(
-                      'Hari ini, 08:12 WIB',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.historyKrlDate,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
@@ -147,9 +150,9 @@ class _ActiveTicketSummary extends StatelessWidget {
                   color: const Color(0xFFECFDF3),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Text(
-                  'Aktif',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.activeTicketStatus,
+                  style: const TextStyle(
                     color: Color(0xFF16A34A),
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -159,13 +162,13 @@ class _ActiveTicketSummary extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          const Text(
-            'Bogor → Jakarta Kota',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.historyKrlRoute,
+            style: const TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.w900,
-              letterSpacing: -0.3,
+              letterSpacing: -0.5,
             ),
           ),
         ],
@@ -182,24 +185,24 @@ class _TicketCodeCard extends StatelessWidget {
     return _TicketCard(
       child: Column(
         children: [
-          const Text(
-            'Kode tiket aktif',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.activeTicketCodeTitle,
+            style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 17,
               fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Tunjukkan kode ini kepada petugas',
+          Text(
+            AppLocalizations.of(context)!.activeTicketShowToStaff,
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
           ),
           const SizedBox(height: 18),
           Semantics(
             image: true,
-            label: 'Kode tiket aktif KRL-2407-0812',
+            label: AppLocalizations.of(context)!.activeTicketCodeSemantic('KRL-2407-0812'),
             child: Container(
               width: 164,
               height: 164,
@@ -223,18 +226,18 @@ class _TicketCodeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.cloud_done_outlined,
                 color: Color(0xFF16A34A),
                 size: 16,
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Text(
-                'Tersimpan offline',
-                style: TextStyle(
+                AppLocalizations.of(context)!.activeTicketSavedOffline,
+                style: const TextStyle(
                   color: Color(0xFF16A34A),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -253,19 +256,20 @@ class _TicketInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _TicketCard(
+    final l10n = AppLocalizations.of(context)!;
+    return _TicketCard(
       child: Column(
         children: [
-          _InformationRow(label: 'Stasiun asal', value: 'Bogor'),
-          SizedBox(height: 14),
-          _InformationRow(label: 'Tujuan', value: 'Jakarta Kota'),
-          Padding(
+          _InformationRow(label: l10n.ticketStationOrigin, value: 'Bogor'),
+          const SizedBox(height: 14),
+          _InformationRow(label: l10n.ticketStationDest, value: 'Jakarta Kota'),
+          const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Divider(height: 1, color: AppColors.cardBorder),
           ),
-          _InformationRow(label: 'Perkiraan tiba', value: '09:32 WIB'),
-          SizedBox(height: 14),
-          _InformationRow(label: 'Jenis tiket', value: 'Tiket aktif'),
+          _InformationRow(label: l10n.ticketEta, value: '09:32 WIB'),
+          const SizedBox(height: 14),
+          _InformationRow(label: l10n.ticketType, value: l10n.ticketTypeActive),
         ],
       ),
     );

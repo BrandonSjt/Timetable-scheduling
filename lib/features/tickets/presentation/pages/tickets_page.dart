@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../../../travel_alarm/presentation/widgets/travel_alarm_button.dart';
 import '../../../travel_alarm/presentation/widgets/travel_alarm_disable_dialog.dart';
@@ -143,7 +144,7 @@ class _TicketsPageState extends State<TicketsPage> {
       departure: selection.departure,
       destination: selection.destination,
     );
-    _showAlarmMessage('Alarm perjalanan diaktifkan');
+    _showAlarmMessage(AppLocalizations.of(context)!.alarmActivated);
   }
 
   Future<void> _handleAlarmButton(String from, String to) async {
@@ -165,7 +166,7 @@ class _TicketsPageState extends State<TicketsPage> {
     if (!shouldDisable || !mounted) return;
 
     _alarmController.cancelAllAlarms();
-    _showAlarmMessage('Alarm perjalanan dinonaktifkan');
+    _showAlarmMessage(AppLocalizations.of(context)!.alarmDeactivated);
   }
 
   bool _isCurrentAlarmTrip(String from, String to) {
@@ -208,8 +209,8 @@ class _TicketsPageState extends State<TicketsPage> {
                         context.go('/');
                       }
                     },
-                    child: const Text(
-                      'Back',
+                    child: Text(
+                      AppLocalizations.of(context)!.actionBack,
                       style: TextStyle(
                         color: Color(0xFF2563EB),
                         fontSize: 16,
@@ -217,9 +218,9 @@ class _TicketsPageState extends State<TicketsPage> {
                       ),
                     ),
                   ),
-                  const Text(
-                    'Tiket',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.tickets,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
@@ -289,34 +290,34 @@ class _TicketsPageState extends State<TicketsPage> {
         fare: fare,
         serviceInfo: serviceInfo,
         validityText: purchasedTicketIsActive
-            ? 'Berlaku sampai 23:59'
-            : 'Bayar sebelum 23:59',
+            ? AppLocalizations.of(context)!.validUntil
+            : AppLocalizations.of(context)!.payBefore,
         status: purchasedTicketIsActive
             ? _TicketStatus.active
             : _TicketStatus.pending,
       ),
-      const _TicketItem(
+      _TicketItem(
         from: 'Manggarai',
         to: 'Tanah Abang',
         fare: 'Rp4.000',
-        serviceInfo: 'KRL Jabodetabek · 6 menit · tanpa transit',
-        validityText: 'Berlaku sampai 23:59',
+        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('KRL Jabodetabek')} · ${AppLocalizations.of(context)!.durationMinutes('6')}',
+        validityText: AppLocalizations.of(context)!.validUntil,
         status: _TicketStatus.active,
       ),
-      const _TicketItem(
+      _TicketItem(
         from: 'Halim',
         to: 'Cawang',
         fare: 'Rp4.000',
-        serviceInfo: 'LRT Jabodebek · 8 menit · tanpa transit',
-        validityText: 'Berlaku sampai 23:59',
+        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('8')}',
+        validityText: AppLocalizations.of(context)!.validUntil,
         status: _TicketStatus.active,
       ),
-      const _TicketItem(
+      _TicketItem(
         from: 'Dukuh Atas',
         to: 'Setiabudi',
         fare: 'Rp5.000',
-        serviceInfo: 'LRT Jabodebek · 7 menit · tanpa transit',
-        validityText: 'Digunakan hari ini, 09:12',
+        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('7')}',
+        validityText: AppLocalizations.of(context)!.usedToday,
         status: _TicketStatus.completed,
       ),
     ];
@@ -324,14 +325,15 @@ class _TicketsPageState extends State<TicketsPage> {
 
   // 1. Tampilan daftar tiket sebelum metode pembayaran
   Widget _buildTicketListView(List<_TicketItem> tickets) {
+    final l10n = AppLocalizations.of(context)!;
     final filteredTickets = tickets.where((ticket) {
-      if (_selectedFilter == 'Belum bayar') {
+      if (_selectedFilter == l10n.unpaid) {
         return ticket.status == _TicketStatus.pending;
       }
-      if (_selectedFilter == 'Aktif') {
+      if (_selectedFilter == l10n.active) {
         return ticket.status == _TicketStatus.active;
       }
-      if (_selectedFilter == 'Selesai') {
+      if (_selectedFilter == l10n.completed) {
         return ticket.status == _TicketStatus.completed;
       }
       return true;
@@ -386,9 +388,9 @@ class _TicketsPageState extends State<TicketsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Tiket perjalanan',
-                        style: TextStyle(
+                      Text(
+                        l10n.travelTicket,
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w900,
                           color: AppColors.textPrimary,
@@ -396,7 +398,7 @@ class _TicketsPageState extends State<TicketsPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$activeCount tiket aktif · $pendingCount belum dibayar · $completedCount selesai',
+                        l10n.ticketStatusSummary(activeCount, pendingCount, completedCount),
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary,
@@ -411,10 +413,10 @@ class _TicketsPageState extends State<TicketsPage> {
           ),
           const SizedBox(height: 18),
           Row(
-            children: ['Semua', 'Belum bayar', 'Aktif', 'Selesai'].map((
+            children: [l10n.all, l10n.unpaid, l10n.active, l10n.completed].map((
               filter,
             ) {
-              final isSelected = _selectedFilter == filter;
+              final isSelected = _selectedFilter == filter || (_selectedFilter == 'Semua' && filter == l10n.all);
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
@@ -454,6 +456,7 @@ class _TicketsPageState extends State<TicketsPage> {
   }
 
   Widget _buildTicketCard(_TicketItem ticket) {
+    final l10n = AppLocalizations.of(context)!;
     final isPending = ticket.status == _TicketStatus.pending;
     final isCompleted = ticket.status == _TicketStatus.completed;
     final accentColor = isPending
@@ -462,15 +465,15 @@ class _TicketsPageState extends State<TicketsPage> {
         ? AppColors.textSecondary
         : AppColors.statusGreen;
     final statusText = isPending
-        ? 'Belum dibayar'
+        ? l10n.notPaid
         : isCompleted
-        ? 'Sudah digunakan'
-        : 'Siap scan';
+        ? l10n.alreadyUsed
+        : l10n.readyToScan;
     final actionText = isPending
-        ? 'Bayar sekarang'
+        ? l10n.payNow
         : isCompleted
-        ? 'Detail'
-        : 'Lihat QR';
+        ? l10n.detail
+        : l10n.viewQR;
 
     return Container(
       width: double.infinity,
@@ -539,9 +542,9 @@ class _TicketsPageState extends State<TicketsPage> {
           ),
           if (isCompleted) ...[
             const SizedBox(height: 8),
-            const Text(
-              'Riwayat selesai',
-              style: TextStyle(
+            Text(
+              l10n.historyCompleted,
+              style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.w900,
@@ -584,8 +587,8 @@ class _TicketsPageState extends State<TicketsPage> {
                   onPressed: () {
                     if (isCompleted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tiket ini sudah selesai digunakan.'),
+                        SnackBar(
+                          content: Text(l10n.ticketAlreadyUsed),
                         ),
                       );
                       return;
@@ -633,6 +636,7 @@ class _TicketsPageState extends State<TicketsPage> {
     String fare,
     String serviceInfo,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -694,18 +698,18 @@ class _TicketsPageState extends State<TicketsPage> {
                         color: const Color(0xFFFFF7ED),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'QR berlaku sampai',
-                            style: TextStyle(
+                            l10n.qrValidUntil,
+                            style: const TextStyle(
                               color: Color(0xFFC2410C),
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          Text(
+                          const Text(
                             '23:59',
                             style: TextStyle(
                               color: Color(0xFFC2410C),
@@ -724,9 +728,9 @@ class _TicketsPageState extends State<TicketsPage> {
           const SizedBox(height: 24),
 
           // Payment Options Title
-          const Text(
-            'Pilih pembayaran',
-            style: TextStyle(
+          Text(
+            l10n.choosePayment,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
@@ -737,7 +741,7 @@ class _TicketsPageState extends State<TicketsPage> {
           // QRIS Option
           _buildPaymentMethodTile(
             name: 'QRIS',
-            desc: 'Tanpa akun, semua e-wallet',
+            desc: l10n.qrisDesc,
             isSelected: _selectedPayment == 'QRIS',
             onTap: () => setState(() => _selectedPayment = 'QRIS'),
           ),
@@ -745,7 +749,7 @@ class _TicketsPageState extends State<TicketsPage> {
 
           // Credit Card Option
           _buildPaymentMethodTile(
-            name: 'Kartu debit/kredit',
+            name: l10n.creditCard,
             desc: 'Visa, Mastercard, GPN',
             isSelected: _selectedPayment == 'Card',
             onTap: () => setState(() => _selectedPayment = 'Card'),
@@ -754,8 +758,8 @@ class _TicketsPageState extends State<TicketsPage> {
 
           // VA Option
           _buildPaymentMethodTile(
-            name: 'VA / transfer',
-            desc: 'Kode bayar sekali pakai',
+            name: l10n.virtualAccount,
+            desc: l10n.vaDesc,
             isSelected: _selectedPayment == 'VA',
             onTap: () => setState(() => _selectedPayment = 'VA'),
           ),
@@ -770,21 +774,21 @@ class _TicketsPageState extends State<TicketsPage> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Nomor HP/email opsional',
-                  style: TextStyle(
+                  l10n.optionalContact,
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Hanya untuk mengirim salinan tiket. Tidak membuat akun.',
-                  style: TextStyle(
+                  l10n.optionalContactDesc,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                     height: 1.35,
@@ -809,7 +813,7 @@ class _TicketsPageState extends State<TicketsPage> {
                 ),
               ),
               child: Text(
-                'Bayar $fare',
+                l10n.payAmount(fare),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -903,6 +907,7 @@ class _TicketsPageState extends State<TicketsPage> {
 
   // 2. Tampilan Layar Tiket Aktif (Setelah pembayaran berhasil)
   Widget _buildActiveTicketView(String from, String to) {
+    final l10n = AppLocalizations.of(context)!;
     return Stack(
       children: [
         SingleChildScrollView(
@@ -921,21 +926,21 @@ class _TicketsPageState extends State<TicketsPage> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFF10B981)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Text(
-                      'Pembayaran berhasil',
-                      style: TextStyle(
+                      l10n.paymentSuccess,
+                      style: const TextStyle(
                         color: Color(0xFF047857),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Scan QR di gate masuk.',
-                        style: TextStyle(
+                        l10n.scanQrAtGate,
+                        style: const TextStyle(
                           color: Color(0xFF065F46),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -1024,16 +1029,16 @@ class _TicketsPageState extends State<TicketsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Berlaku gate-in sebelum',
-                            style: TextStyle(
+                          Text(
+                            l10n.validGateInBefore,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '23:59 hari ini',
+                            l10n.today2359,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -1053,17 +1058,17 @@ class _TicketsPageState extends State<TicketsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Tanpa akun',
-                            style: TextStyle(
+                          Text(
+                            l10n.withoutAccount,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Guest',
-                            style: TextStyle(
+                          Text(
+                            l10n.guest,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: Color(0xFF2563EB), // Accent Blue
@@ -1086,8 +1091,8 @@ class _TicketsPageState extends State<TicketsPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Tiket disimpan ke galeri ponsel!'),
+                            SnackBar(
+                              content: Text(l10n.ticketSaved),
                             ),
                           );
                         },
@@ -1098,9 +1103,9 @@ class _TicketsPageState extends State<TicketsPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Simpan tiket',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.saveTicket,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1115,8 +1120,8 @@ class _TicketsPageState extends State<TicketsPage> {
                       child: OutlinedButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Membagikan tautan tiket...'),
+                            SnackBar(
+                              content: Text(l10n.sharingTicketLink),
                             ),
                           );
                         },
@@ -1127,9 +1132,9 @@ class _TicketsPageState extends State<TicketsPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Bagikan',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.share,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1150,9 +1155,9 @@ class _TicketsPageState extends State<TicketsPage> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: const Color(0xFFFFD54F)),
                 ),
-                child: const Text(
-                  'A11Y: QR memiliki kode tiket teks cadangan untuk bantuan petugas.',
-                  style: TextStyle(
+                child: Text(
+                  l10n.a11yQrInfo,
+                  style: const TextStyle(
                     color: Color(0xFFB7791F),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
