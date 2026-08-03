@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Bottom Navigation Bar premium dengan tombol Home bulat besar di tengah.
 /// Layout: Kereta | Tiket | Home | Asisten | Akun
@@ -38,6 +39,8 @@ class AppBottomNavBar extends StatelessWidget {
     final scaleProgress = ((textScale - 1) / 1).clamp(0.0, 1.0);
     final navHeight = 64.0 + (52 * scaleProgress);
     final homeSize = 60.0 + (24 * scaleProgress);
+
+    final l10n = AppLocalizations.of(context)!;
 
     return SizedBox(
       height: navHeight + 16 + bottomPadding,
@@ -82,7 +85,7 @@ class AppBottomNavBar extends StatelessWidget {
                     child: _NavItem(
                       icon: Icons.calendar_month_outlined,
                       activeIcon: Icons.calendar_month_rounded,
-                      label: 'Jadwal',
+                      label: l10n.navSchedule,
                       isActive: currentIndex == 1,
                       onTap: () => _onTap(context, 1),
                     ),
@@ -91,7 +94,7 @@ class AppBottomNavBar extends StatelessWidget {
                     child: _NavItem(
                       icon: Icons.confirmation_num_outlined,
                       activeIcon: Icons.confirmation_num_rounded,
-                      label: 'Tiket',
+                      label: l10n.navTickets,
                       isActive: currentIndex == 2,
                       onTap: () => _onTap(context, 2),
                     ),
@@ -105,7 +108,7 @@ class AppBottomNavBar extends StatelessWidget {
                     child: _NavItem(
                       icon: Icons.headset_mic_outlined,
                       activeIcon: Icons.headset_mic_rounded,
-                      label: 'Asisten',
+                      label: l10n.navAssistant,
                       isActive: currentIndex == 3,
                       onTap: () => _onTap(context, 3),
                     ),
@@ -114,7 +117,7 @@ class AppBottomNavBar extends StatelessWidget {
                     child: _NavItem(
                       icon: Icons.person_outline_rounded,
                       activeIcon: Icons.person_rounded,
-                      label: 'Akun',
+                      label: l10n.navAccount,
                       isActive: currentIndex == 4,
                       onTap: () => _onTap(context, 4),
                     ),
@@ -188,9 +191,9 @@ class AppBottomNavBar extends StatelessWidget {
                             size: 26,
                           ),
                           const SizedBox(height: 1),
-                          const Text(
-                            'Home',
-                            style: TextStyle(
+                          Text(
+                            l10n.navHome,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 9,
                               fontWeight: FontWeight.w700,

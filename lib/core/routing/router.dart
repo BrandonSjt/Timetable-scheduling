@@ -11,6 +11,8 @@ import '../../features/profile/presentation/pages/ticket_history_page.dart';
 import '../../features/profile/presentation/pages/language_page.dart';
 import '../../features/profile/presentation/pages/help_center_page.dart';
 import '../../features/profile/presentation/pages/help_chat_page.dart';
+import '../../features/profile/presentation/pages/support_chat_conversation_page.dart';
+import '../../features/profile/presentation/models/support_chat_topic.dart';
 import '../../features/profile/presentation/pages/report_incorrect_info_page.dart';
 import '../../features/profile/presentation/pages/schedule_issue_page.dart';
 import '../../features/profile/presentation/pages/payment_issue_page.dart';
@@ -105,6 +107,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/bantuan/chat',
       builder: (context, state) => const HelpChatPage(),
+    ),
+
+    // Percakapan lokal dengan petugas berdasarkan topik bantuan
+    GoRoute(
+      path: '/bantuan/chat/percakapan',
+      builder: (context, state) => SupportChatConversationPage(
+        topic: SupportChatTopic.fromKey(state.uri.queryParameters['topic']),
+      ),
     ),
 
     // Laporan informasi jadwal, rute, atau stasiun yang salah

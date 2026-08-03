@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 import '../../../home/presentation/widgets/map_widgets.dart';
 
@@ -18,17 +19,18 @@ class _TrainMapPageState extends State<TrainMapPage> {
   String _selectedStation = 'Cawang';
 
   /// Data dummy info stasiun
-  Map<String, Map<String, String>> get _stationData => {
-    'Setiabudi': {'subtitle': 'LRT Jabodebek · KRL akses integrasi', 'lrtDest': 'Dukuh Atas', 'lrtDur': '3 menit', 'krlDest': 'Manggarai', 'krlDur': '7 menit'},
-    'Cawang': {'subtitle': 'LRT Jabodebek · KRL akses integrasi', 'lrtDest': 'Dukuh Atas', 'lrtDur': '5 menit', 'krlDest': 'Manggarai', 'krlDur': '9 menit'},
-    'Manggarai': {'subtitle': 'KRL · Transit utama', 'lrtDest': 'Setiabudi', 'lrtDur': '4 menit', 'krlDest': 'Tanah Abang', 'krlDur': '6 menit'},
-    'Tanah Abang': {'subtitle': 'KRL Jabodetabek', 'lrtDest': 'Manggarai', 'lrtDur': '6 menit', 'krlDest': 'Sudirman', 'krlDur': '3 menit'},
-    'Halim': {'subtitle': 'LRT Jabodebek', 'lrtDest': 'Setiabudi', 'lrtDur': '8 menit', 'krlDest': 'Cawang', 'krlDur': '4 menit'},
+  Map<String, Map<String, String>> _getStationData(AppLocalizations l10n) => {
+    'Setiabudi': {'subtitle': l10n.mapSubtitleLrtKrl, 'lrtDest': 'Dukuh Atas', 'lrtDur': l10n.durationMinutes('3'), 'krlDest': 'Manggarai', 'krlDur': l10n.durationMinutes('7')},
+    'Cawang': {'subtitle': l10n.mapSubtitleLrtKrl, 'lrtDest': 'Dukuh Atas', 'lrtDur': l10n.durationMinutes('5'), 'krlDest': 'Manggarai', 'krlDur': l10n.durationMinutes('9')},
+    'Manggarai': {'subtitle': l10n.mapSubtitleKrlTransit, 'lrtDest': 'Setiabudi', 'lrtDur': l10n.durationMinutes('4'), 'krlDest': 'Tanah Abang', 'krlDur': l10n.durationMinutes('6')},
+    'Tanah Abang': {'subtitle': l10n.mapSubtitleKrl, 'lrtDest': 'Manggarai', 'lrtDur': l10n.durationMinutes('6'), 'krlDest': 'Sudirman', 'krlDur': l10n.durationMinutes('3')},
+    'Halim': {'subtitle': l10n.mapSubtitleLrt, 'lrtDest': 'Setiabudi', 'lrtDur': l10n.durationMinutes('8'), 'krlDest': 'Cawang', 'krlDur': l10n.durationMinutes('4')},
   };
 
   @override
   Widget build(BuildContext context) {
-    final data = _stationData[_selectedStation]!;
+    final l10n = AppLocalizations.of(context)!;
+    final data = _getStationData(l10n)[_selectedStation]!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -54,13 +56,13 @@ class _TrainMapPageState extends State<TrainMapPage> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: AppColors.cardBorder),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.search, color: AppColors.textHint),
-                              SizedBox(width: 12),
+                              const Icon(Icons.search, color: AppColors.textHint),
+                              const SizedBox(width: 12),
                               Text(
-                                'Cari stasiun atau favorit',
-                                style: TextStyle(
+                                l10n.mapSearchHint,
+                                style: const TextStyle(
                                   color: AppColors.textHint,
                                   fontSize: 14,
                                 ),

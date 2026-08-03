@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/train_schedule.dart';
 import '../controllers/timetable_controller.dart';
 import '../widgets/schedule_card.dart';
@@ -87,6 +88,7 @@ class _TimetablePageState extends State<TimetablePage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
         String sheetSearchQuery = '';
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -119,9 +121,9 @@ class _TimetablePageState extends State<TimetablePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Pilih Stasiun Asal',
-                        style: TextStyle(
+                      Text(
+                        l10n.selectOriginStation,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
@@ -149,13 +151,13 @@ class _TimetablePageState extends State<TimetablePage> {
                         setSheetState(() => sheetSearchQuery = val);
                       },
                       style: const TextStyle(fontSize: 13),
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.search, size: 18, color: AppColors.textHint),
-                        hintText: 'Cari nama stasiun (misal: Manggarai, Halim...)',
-                        hintStyle: TextStyle(fontSize: 13, color: AppColors.textHint),
+                      decoration: InputDecoration(
+                        icon: const Icon(Icons.search, size: 18, color: AppColors.textHint),
+                        hintText: l10n.searchStationHint2,
+                        hintStyle: const TextStyle(fontSize: 13, color: AppColors.textHint),
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
                   ),
@@ -207,6 +209,7 @@ class _TimetablePageState extends State<TimetablePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Terapkan semua filter secara bertahap
     final filteredSchedules = _schedules.where((schedule) {
       // 1. Filter Hari Kerja / Akhir Pekan
@@ -255,20 +258,20 @@ class _TimetablePageState extends State<TimetablePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Jadwal Kereta',
-                            style: TextStyle(
+                            l10n.trainSchedule,
+                            style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                               color: AppColors.textPrimary,
                             ),
                           ),
                           Text(
-                            'KRL · LRT · MRT Jakarta',
-                            style: TextStyle(
+                            l10n.trainTypesJakarta,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
@@ -296,7 +299,7 @@ class _TimetablePageState extends State<TimetablePage> {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
-                                  'Hari Kerja',
+                                  l10n.weekday,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -314,7 +317,7 @@ class _TimetablePageState extends State<TimetablePage> {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
-                                  'Akhir Pekan',
+                                  l10n.weekend,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -350,12 +353,12 @@ class _TimetablePageState extends State<TimetablePage> {
                               });
                             },
                             style: const TextStyle(fontSize: 13),
-                            decoration: const InputDecoration(
-                              hintText: 'Cari stasiun tujuan atau nomor kereta...',
-                              hintStyle: TextStyle(color: AppColors.textHint, fontSize: 13),
+                            decoration: InputDecoration(
+                              hintText: l10n.searchDestinationHint,
+                              hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13),
                               border: InputBorder.none,
                               isDense: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: 10),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 10),
                             ),
                           ),
                         ),
@@ -418,7 +421,7 @@ class _TimetablePageState extends State<TimetablePage> {
                               ),
                               child: Center(
                                 child: Text(
-                                  type,
+                                  type == 'Semua' ? l10n.all : type,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
@@ -466,8 +469,8 @@ class _TimetablePageState extends State<TimetablePage> {
                           Expanded(
                             child: Text(
                               _selectedStationFilter == 'Semua Stasiun'
-                                  ? 'Filter Stasiun Asal (Semua Stasiun)'
-                                  : 'Stasiun Asal: $_selectedStationFilter',
+                                  ? l10n.filterOriginAll
+                                  : l10n.originStation(_selectedStationFilter),
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: _selectedStationFilter != 'Semua Stasiun'
@@ -528,18 +531,18 @@ class _TimetablePageState extends State<TimetablePage> {
                             color: AppColors.textHint.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'Jadwal tidak ditemukan',
-                            style: TextStyle(
+                          Text(
+                            l10n.scheduleNotFound,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Cobalah mengubah filter stasiun atau hari.',
-                            style: TextStyle(
+                          Text(
+                            l10n.tryChangingFilter,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.textHint,
                             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class DepartureDetailPage extends StatelessWidget {
   final String lineType;
@@ -22,6 +23,7 @@ class DepartureDetailPage extends StatelessWidget {
     if (lineType == 'KRL') badgeColor = AppColors.badgeKRL;
     if (lineType == 'MRT') badgeColor = AppColors.badgeMRT;
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -32,9 +34,9 @@ class DepartureDetailPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Detail Keberangkatan',
-          style: TextStyle(
+        title: Text(
+          l10n.departureDetailTitle,
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -90,9 +92,9 @@ class DepartureDetailPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Tujuan Akhir',
-                              style: TextStyle(
+                            Text(
+                              l10n.departureFinalDestination,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary,
                                 fontWeight: FontWeight.w600,
@@ -120,7 +122,7 @@ class DepartureDetailPage extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Tiba Dalam', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                          Text(l10n.departureArrivingIn, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                           const SizedBox(height: 4),
                           Text(
                             duration,
@@ -131,7 +133,7 @@ class DepartureDetailPage extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('Nomor Peron', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                          Text(l10n.departurePlatformNumber, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                           const SizedBox(height: 4),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -140,7 +142,7 @@ class DepartureDetailPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'Peron $platform',
+                              l10n.departurePlatform(platform),
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: badgeColor),
                             ),
                           ),
@@ -165,10 +167,10 @@ class DepartureDetailPage extends StatelessWidget {
                 children: [
                   const Icon(Icons.info_outline_rounded, color: AppColors.a11yBannerText, size: 24),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Kereta beroperasi normal. Fasilitas prioritas tersedia di gerbong 3 dan 4.',
-                      style: TextStyle(fontSize: 13, color: AppColors.a11yBannerText, height: 1.4),
+                      l10n.departureStatusNormal,
+                      style: const TextStyle(fontSize: 13, color: AppColors.a11yBannerText, height: 1.4),
                     ),
                   ),
                 ],
@@ -177,9 +179,9 @@ class DepartureDetailPage extends StatelessWidget {
             const SizedBox(height: 32),
 
             // ── Stasiun Berikutnya ──
-            const Text(
-              'Stasiun Berikutnya',
-              style: TextStyle(
+            Text(
+              l10n.departureNextStations,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -194,11 +196,11 @@ class DepartureDetailPage extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildNextStationTile('Dukuh Atas', '2 Menit', 'Peron 1', isFirst: true),
+                  _buildNextStationTile('Dukuh Atas', l10n.durationMinutes('2'), l10n.departurePlatform('1'), isFirst: true, l10n: l10n),
                   const Divider(color: AppColors.cardBorder, height: 1, indent: 48),
-                  _buildNextStationTile('Sudirman', '5 Menit', 'Peron 2'),
+                  _buildNextStationTile('Sudirman', l10n.durationMinutes('5'), l10n.departurePlatform('2'), l10n: l10n),
                   const Divider(color: AppColors.cardBorder, height: 1, indent: 48),
-                  _buildNextStationTile('Manggarai (Transit)', '8 Menit', 'Peron 5', isLast: true),
+                  _buildNextStationTile(l10n.stationTransit('Manggarai'), l10n.durationMinutes('8'), l10n.departurePlatform('5'), isLast: true, l10n: l10n),
                 ],
               ),
             ),
@@ -225,15 +227,15 @@ class DepartureDetailPage extends StatelessWidget {
                       color: AppColors.accentOrange,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text(
-                      'PROMO',
-                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    child: Text(
+                      l10n.departurePromoBadge,
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Diskon 50% Tiket Kereta Antarkota',
-                    style: TextStyle(
+                  Text(
+                    l10n.departurePromoTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -241,7 +243,7 @@ class DepartureDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Beli tiket mudik sekarang dan dapatkan potongan harga spesial menggunakan KAI Pay.',
+                    l10n.departurePromoDesc,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 12,
@@ -256,7 +258,7 @@ class DepartureDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNextStationTile(String stationName, String time, String platformInfo, {bool isFirst = false, bool isLast = false}) {
+  Widget _buildNextStationTile(String stationName, String time, String platformInfo, {bool isFirst = false, bool isLast = false, required AppLocalizations l10n}) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -301,7 +303,7 @@ class DepartureDetailPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$time • Tiba di $platformInfo',
+                  '$time • ${l10n.departureArriveAt(platformInfo)}',
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,

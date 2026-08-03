@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/station_card.dart';
 
 class _StationItem {
@@ -178,7 +179,7 @@ class SearchStationPage extends StatefulWidget {
 class _SearchStationPageState extends State<SearchStationPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedFilter = 'Semua';
+  String? _selectedFilter;
 
   @override
   void dispose() {
@@ -194,6 +195,9 @@ class _SearchStationPageState extends State<SearchStationPage> {
     final fromStation = uri.queryParameters['from'];
     final isSelectingDestination = action == 'select_destination';
 
+    final l10n = AppLocalizations.of(context)!;
+    _selectedFilter ??= l10n.all; // Default filter
+
     // Logika penyaringan stasiun
     final filteredStations = _allStations.where((station) {
       // 1. Filter stasiun asal agar tidak bisa dipilih sebagai stasiun tujuan
@@ -206,11 +210,11 @@ class _SearchStationPageState extends State<SearchStationPage> {
                             station.lineInfo.toLowerCase().contains(_searchQuery.toLowerCase());
 
       // 3. Filter berdasarkan tab layanan
-      final matchesFilter = _selectedFilter == 'Semua' ||
+      final matchesFilter = _selectedFilter == l10n.all ||
                             (_selectedFilter == 'LRT' && station.isLrt) ||
                             (_selectedFilter == 'KRL' && station.isKrl) ||
                             (_selectedFilter == 'MRT' && station.isMrt) ||
-                            (_selectedFilter == 'Aksesibel' && station.isAccessible);
+                            (_selectedFilter == l10n.accessible && station.isAccessible);
 
       return matchesSearch && matchesFilter;
     }).toList();
@@ -235,9 +239,9 @@ class _SearchStationPageState extends State<SearchStationPage> {
                         children: [
                           GestureDetector(
                             onTap: () => context.go('/'),
-                            child: const Text(
-                              'Back',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.back,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: AppColors.primaryBlue,
                                 fontWeight: FontWeight.w500,
@@ -247,8 +251,8 @@ class _SearchStationPageState extends State<SearchStationPage> {
                           Expanded(
                             child: Text(
                               isSelectingDestination
-                                  ? 'Pilih stasiun tujuan'
-                                  : 'Cari stasiun',
+                                  ? l10n.selectDestination
+                                  : l10n.searchStationTitle,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 18,
@@ -284,7 +288,7 @@ class _SearchStationPageState extends State<SearchStationPage> {
                       Padding(
                         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
                         child: Text(
-                          'Mulai perjalanan dari: $fromStation',
+                          l10n.startTripFrom(fromStation),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -304,7 +308,7 @@ class _SearchStationPageState extends State<SearchStationPage> {
                           });
                         },
                         decoration: InputDecoration(
-                          hintText: 'Ketik nama stasiun, jalur, atau area',
+                          hintText: l10n.searchStationHint,
                           prefixIcon: const Icon(Icons.search_rounded),
                           suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
@@ -334,11 +338,11 @@ class _SearchStationPageState extends State<SearchStationPage> {
                     const SizedBox(height: 16),
 
                     // ── Filter Layanan ──
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Filter layanan',
-                        style: TextStyle(
+                        l10n.serviceFilter,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
@@ -350,7 +354,7 @@ class _SearchStationPageState extends State<SearchStationPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         children: [
-                          _buildFilterChip('Semua'),
+                          _buildFilterChip(l10n.all),
                           const SizedBox(width: 8),
                           _buildFilterChip('LRT'),
                           const SizedBox(width: 8),
@@ -358,7 +362,7 @@ class _SearchStationPageState extends State<SearchStationPage> {
                           const SizedBox(width: 8),
                           _buildFilterChip('MRT'),
                           const SizedBox(width: 8),
-                          _buildFilterChip('Aksesibel'),
+                          _buildFilterChip(l10n.accessible),
                         ],
                       ),
                     ),
@@ -366,11 +370,11 @@ class _SearchStationPageState extends State<SearchStationPage> {
                     const SizedBox(height: 20),
 
                     // ── Hasil Cepat ──
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Hasil cepat',
-                        style: TextStyle(
+                        l10n.quickResults,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
@@ -383,12 +387,12 @@ class _SearchStationPageState extends State<SearchStationPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: filteredStations.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Padding(
-                                padding: EdgeInsets.symmetric(vertical: 40),
+                                padding: const EdgeInsets.symmetric(vertical: 40),
                                 child: Text(
-                                  'Stasiun tidak ditemukan',
-                                  style: TextStyle(color: AppColors.textSecondary),
+                                  l10n.stationNotFound,
+                                  style: const TextStyle(color: AppColors.textSecondary),
                                 ),
                               ),
                             )
@@ -420,21 +424,21 @@ class _SearchStationPageState extends State<SearchStationPage> {
                           color: AppColors.a11yBannerBg,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Column(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Tanpa login',
-                              style: TextStyle(
+                              l10n.withoutLogin,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.a11yBannerText,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
-                              'Favorit dan riwayat disimpan lokal di perangkat.',
-                              style: TextStyle(
+                              l10n.favoriteHistoryLocal,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.textSecondary,
                               ),

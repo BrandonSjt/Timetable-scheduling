@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class RoutePlanStep {
   final String text;
@@ -52,7 +53,7 @@ class RoutePlan {
 }
 
 /// Mesin perutean sederhana untuk menghitung rute transit offline.
-RoutePlan _calculateRoute(String from, String to) {
+RoutePlan _calculateRoute(String from, String to, AppLocalizations l10n) {
   final fromNorm = from.trim();
   final toNorm = to.trim();
 
@@ -68,8 +69,8 @@ RoutePlan _calculateRoute(String from, String to) {
   bool isToKrl = krlStations.contains(toNorm);
   bool isToMrt = mrtStations.contains(toNorm);
 
-  const defaultGateA = 'Akses Utama Jalan Utama & Integrasi Halte TransJakarta';
-  const defaultGateB = 'Area Drop-off Ojek Online, Pangkalan Taksi & Parkir';
+  final defaultGateA = l10n.mainAccessGate;
+  final defaultGateB = l10n.dropOffGate;
 
   if (fromNorm == toNorm) {
     return RoutePlan(
@@ -78,13 +79,13 @@ RoutePlan _calculateRoute(String from, String to) {
       travelTime: 0,
       fare: 0,
       stops: 0,
-      serviceInfo: 'Tidak butuh perjalanan',
+      serviceInfo: l10n.noTripNeeded,
       hasTransit: false,
       steps: [
         RoutePlanStep(
-          text: 'Asal dan tujuan sama.',
-          durationText: '0 mnt',
-          detailNote: 'Anda sudah berada di lokasi stasiun tujuan.',
+          text: l10n.sameOriginDest,
+          durationText: '0 ${l10n.minuteShort}',
+          detailNote: l10n.alreadyAtDest,
           icon: Icons.place_rounded,
           color: AppColors.primaryBlue,
         ),
@@ -113,35 +114,35 @@ RoutePlan _calculateRoute(String from, String to) {
       travelTime: duration,
       fare: price,
       stops: stopsCount,
-      serviceInfo: '$lineName · Tanpa transit',
+      serviceInfo: l10n.lineNoTransit(lineName),
       hasTransit: false,
       steps: [
         RoutePlanStep(
-          text: 'Naik $lineName dari Stasiun $fromNorm',
-          durationText: 'Keberangkatan: 08:35 WIB',
-          detailNote: 'Peron 1 · Arah $toNorm',
+          text: l10n.boardLineFrom(lineName, fromNorm),
+          durationText: l10n.departureTime,
+          detailNote: l10n.platformDirection(1, toNorm),
           icon: Icons.directions_transit_filled_rounded,
           color: lineColor,
           isHeader: true,
         ),
         RoutePlanStep(
-          text: 'Perjalanan langsung menuju $toNorm ($stopsCount stasiun)',
-          durationText: 'estimasi $duration mnt',
-          detailNote: 'Lewati $stopsCount stasiun perhentian secara langsung',
+          text: l10n.directTripTo(toNorm, stopsCount),
+          durationText: l10n.estDuration(duration),
+          detailNote: l10n.skipStops(stopsCount),
           icon: Icons.directions_railway_rounded,
           color: lineColor,
         ),
         RoutePlanStep(
-          text: 'Tiba di Stasiun tujuan $toNorm',
-          durationText: 'Total $duration mnt',
-          detailNote: 'Stasiun Layang (Elevated)',
+          text: l10n.arriveAtDest(toNorm),
+          durationText: l10n.totalDuration(duration),
+          detailNote: l10n.elevatedStation,
           icon: Icons.place_rounded,
           color: AppColors.statusGreen,
           isDestination: true,
         ),
       ],
-      exitGateA: 'Pintu A (Utara): $defaultGateA',
-      exitGateB: 'Pintu B (Selatan): $defaultGateB',
+      exitGateA: l10n.gateA(defaultGateA),
+      exitGateB: l10n.gateB(defaultGateB),
     );
   }
 
@@ -165,50 +166,50 @@ RoutePlan _calculateRoute(String from, String to) {
     travelTime: totalTime,
     fare: 10000,
     stops: stops1 + stops2,
-    serviceInfo: '1 transit · Berpindah di Setiabudi',
+    serviceInfo: l10n.oneTransitAt('Setiabudi'),
     hasTransit: true,
     steps: [
       RoutePlanStep(
-        text: 'Naik $line1 dari Stasiun $fromNorm',
-        durationText: 'Keberangkatan: 08:35 WIB',
-        detailNote: 'Peron 1 · Arah Setiabudi',
+        text: l10n.boardLineFrom(line1, fromNorm),
+        durationText: l10n.departureTime,
+        detailNote: l10n.platformDirection(1, 'Setiabudi'),
         icon: Icons.directions_transit_filled_rounded,
         color: color1,
         isHeader: true,
       ),
       RoutePlanStep(
-        text: 'Turun di Stasiun Setiabudi ($stops1 stop perhentian)',
-        durationText: 'estimasi $dur1 mnt',
-        detailNote: 'Persiapan berpindah jalur di Stasiun Setiabudi',
+        text: l10n.alightAt('Setiabudi', stops1),
+        durationText: l10n.estDuration(dur1),
+        detailNote: l10n.prepareTransitAt('Setiabudi'),
         icon: Icons.directions_subway_rounded,
         color: color1,
       ),
       RoutePlanStep(
-        text: 'Transit di Setiabudi: Pindah ke peron $line2',
-        durationText: 'estimasi $transitDur mnt',
-        detailNote: 'Berpindah dari Peron 1 ke Peron 2 (Lift Aksesibel & Guiding Block)',
+        text: l10n.transitToLine('Setiabudi', line2),
+        durationText: l10n.estDuration(transitDur),
+        detailNote: l10n.transitPlatform1To2,
         icon: Icons.swap_horizontal_circle_rounded,
         color: AppColors.statusAmber,
         isTransit: true,
       ),
       RoutePlanStep(
-        text: 'Naik $line2 ke arah Stasiun $toNorm ($stops2 stop perhentian)',
-        durationText: 'estimasi $dur2 mnt',
-        detailNote: 'Kereta berikutnya datang 3 menit lagi di Peron 2',
+        text: l10n.boardLineTo(line2, toNorm, stops2),
+        durationText: l10n.estDuration(dur2),
+        detailNote: l10n.nextTrainAtPlatform(3, 2),
         icon: Icons.train_rounded,
         color: color2,
       ),
       RoutePlanStep(
-        text: 'Tiba di Stasiun tujuan $toNorm',
-        durationText: 'Total $totalTime mnt',
-        detailNote: 'Stasiun Layang (Elevated)',
+        text: l10n.arriveAtDest(toNorm),
+        durationText: l10n.totalDuration(totalTime),
+        detailNote: l10n.elevatedStation,
         icon: Icons.place_rounded,
         color: AppColors.statusGreen,
         isDestination: true,
       ),
     ],
-    exitGateA: 'Pintu A (Utara): Akses Utama Jalan Utama & Integrasi Halte TransJakarta',
-    exitGateB: 'Pintu B (Selatan): Area Drop-off Ojek Online, Pangkalan Taksi & Parkir',
+    exitGateA: l10n.gateA(l10n.mainAccessGate),
+    exitGateB: l10n.gateB(l10n.dropOffGate),
   );
 }
 
@@ -225,11 +226,12 @@ class _RouteResultPageState extends State<RouteResultPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final uri = GoRouterState.of(context).uri;
     final from = uri.queryParameters['from'] ?? 'Halim';
     final to = uri.queryParameters['to'] ?? 'Taman Mini';
 
-    final route = _calculateRoute(from, to);
+    final route = _calculateRoute(from, to, l10n);
 
     // Format Rupiah
     final formattedFare = 'Rp${route.fare.toString().replaceAllMapped(
@@ -268,9 +270,9 @@ class _RouteResultPageState extends State<RouteResultPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Panduan Rute Perjalanan',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.routeGuideTitle,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textSecondary,
@@ -361,9 +363,9 @@ class _RouteResultPageState extends State<RouteResultPage> {
                         ),
                         child: Row(
                           children: [
-                            Expanded(child: _buildFilterChip('Tercepat')),
-                            Expanded(child: _buildFilterChip('Minim transit')),
-                            Expanded(child: _buildFilterChip('Aksesibel')),
+                            Expanded(child: _buildFilterChip(l10n.fastest)),
+                            Expanded(child: _buildFilterChip(l10n.minTransit)),
+                            Expanded(child: _buildFilterChip(l10n.accessible)),
                           ],
                         ),
                       ),
@@ -388,9 +390,9 @@ class _RouteResultPageState extends State<RouteResultPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Estimasi Perjalanan',
-                                    style: TextStyle(
+                                  Text(
+                                    l10n.travelEstimate,
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.textSecondary,
@@ -411,9 +413,9 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 6),
-                                      const Text(
-                                        'menit',
-                                        style: TextStyle(
+                                      Text(
+                                        l10n.minutesOnly,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
                                           color: AppColors.textSecondary,
@@ -423,7 +425,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${route.stops} Stasiun · ${route.serviceInfo}',
+                                    l10n.stopsAndService(route.stops, route.serviceInfo),
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -438,9 +440,9 @@ class _RouteResultPageState extends State<RouteResultPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                const Text(
-                                  'Tarif Perjalanan',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.travelFare,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textSecondary,
@@ -465,10 +467,10 @@ class _RouteResultPageState extends State<RouteResultPage> {
                     const SizedBox(height: 14),
 
                     // ── Live Realtime ETA Card ──
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: LiveEtaCard(
-                        etaText: 'Kereta berikutnya datang 3 menit lagi (Peron 1)',
+                        etaText: l10n.nextTrainAtPlatform(3, 1),
                       ),
                     ),
 
@@ -510,7 +512,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
                             size: 22,
                           ),
                           label: Text(
-                            'Beli Tiket Langsung ($formattedFare)',
+                            l10n.buyTicketDirect(formattedFare),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -542,7 +544,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      'Membacakan rute dari ${route.from} ke ${route.to}: Durasi ${route.travelTime} menit.',
+                                      l10n.readRouteToast(route.from, route.to, route.travelTime),
                                     ),
                                     behavior: SnackBarBehavior.floating,
                                   ),
@@ -552,9 +554,9 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                 Icons.volume_up_rounded,
                                 size: 18,
                               ),
-                              label: const Text(
-                                'Bacakan Rute',
-                                style: TextStyle(
+                              label: Text(
+                                l10n.readRouteBtn,
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -577,9 +579,9 @@ class _RouteResultPageState extends State<RouteResultPage> {
                                 Icons.map_rounded,
                                 size: 18,
                               ),
-                              label: const Text(
-                                'Lihat di Peta',
-                                style: TextStyle(
+                              label: Text(
+                                l10n.viewOnMapBtn,
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -624,7 +626,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'A11Y Audio: Rute ${route.from} ke ${route.to} (${route.travelTime} mnt, ${route.stops} stop).',
+                                l10n.a11yAudioRoute(route.from, route.to, route.travelTime, route.stops),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.a11yBannerText,
@@ -653,9 +655,10 @@ class _RouteResultPageState extends State<RouteResultPage> {
 
   Widget _buildFilterChip(String label) {
     IconData? iconData;
-    if (label == 'Tercepat') iconData = Icons.bolt_rounded;
-    if (label == 'Minim transit') iconData = Icons.sync_alt_rounded;
-    if (label == 'Aksesibel') iconData = Icons.accessible_rounded;
+    final l10n = AppLocalizations.of(context)!;
+    if (label == l10n.fastest) iconData = Icons.bolt_rounded;
+    if (label == l10n.minTransit) iconData = Icons.sync_alt_rounded;
+    if (label == l10n.accessible) iconData = Icons.accessible_rounded;
 
     final isSelected = _selectedFilter == label;
     return GestureDetector(
@@ -708,17 +711,17 @@ class _RouteResultPageState extends State<RouteResultPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.alt_route_rounded,
                 color: AppColors.primaryBlue,
                 size: 20,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
-                'Timeline Rute Perjalanan',
-                style: TextStyle(
+                AppLocalizations.of(context)!.routeTimeline,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
@@ -872,7 +875,7 @@ class _RouteResultPageState extends State<RouteResultPage> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Informasi Pintu Keluar Stasiun ${route.to}',
+                  AppLocalizations.of(context)!.exitGateInfo(route.to),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -1001,9 +1004,9 @@ class LiveEtaCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Text(
-                      'KERETA BERIKUTNYA (LIVE REALTIME)',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.nextTrainLive,
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: AppColors.statusGreen,

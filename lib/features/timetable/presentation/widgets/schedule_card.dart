@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/train_schedule.dart';
 
 class ScheduleCard extends StatelessWidget {
@@ -23,6 +24,7 @@ class ScheduleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final trainColor = _getTrainColor(schedule.trainType);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -83,7 +85,7 @@ class ScheduleCard extends StatelessWidget {
                     border: Border.all(color: AppColors.cardBorder),
                   ),
                   child: Text(
-                    'Peron ${schedule.platform}',
+                    l10n.departurePlatform(schedule.platform),
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -108,7 +110,7 @@ class ScheduleCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _TimeBlock(
-                    label: 'Berangkat dari ${schedule.stationName}',
+                    label: l10n.departFromStation(schedule.stationName),
                     value: schedule.departureTime,
                     icon: Icons.play_arrow_rounded,
                     color: trainColor,
@@ -117,7 +119,7 @@ class ScheduleCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _TimeBlock(
-                    label: 'Estimasi Tiba',
+                    label: l10n.estimatedArrival,
                     value: schedule.arrivalTime,
                     icon: Icons.stop_rounded,
                     color: AppColors.textSecondary,

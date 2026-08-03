@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/schematic_map_painter.dart';
 
 /// Widget peta skematik jalur kereta yang bisa di-zoom, di-geser,
@@ -405,10 +406,10 @@ class StationActionBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ActionButton(label: 'Dari', onTap: () {}),
-          _ActionButton(label: 'Lewat', onTap: () {}),
-          _ActionButton(label: 'Ke', onTap: () {}),
-          _ActionButton(label: 'Info', onTap: () {}),
+          _ActionButton(label: AppLocalizations.of(context)!.mapActionFrom, onTap: () {}),
+          _ActionButton(label: AppLocalizations.of(context)!.mapActionVia, onTap: () {}),
+          _ActionButton(label: AppLocalizations.of(context)!.mapActionTo, onTap: () {}),
+          _ActionButton(label: AppLocalizations.of(context)!.mapActionInfo, onTap: () {}),
         ],
       ),
     );
@@ -614,28 +615,28 @@ class _MapLegend extends StatelessWidget {
         ],
         border: Border.all(color: AppColors.cardBorder),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Legenda Rute Utama",
-            style: TextStyle(
+            AppLocalizations.of(context)!.mapLegendTitle,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
           ),
-          SizedBox(height: 8),
-          _LegendItem(code: "B", label: "KRL Bogor", color: AppColors.lineBogor),
-          _LegendItem(code: "C", label: "KRL Cikarang Loop", color: AppColors.lineCikarang),
-          _LegendItem(code: "R", label: "KRL Rangkasbitung", color: AppColors.lineRangkasbitung),
-          _LegendItem(code: "T", label: "KRL Tangerang", color: AppColors.lineTangerang),
-          _LegendItem(code: "TP", label: "KRL Tanjung Priok", color: AppColors.lineTanjungPriok),
-          _LegendItem(code: "M", label: "MRT Utara Selatan", color: AppColors.lineMRT),
-          _LegendItem(code: "BK", label: "LRT Bekasi", color: AppColors.lineLRTBekasi),
-          _LegendItem(code: "CB", label: "LRT Cibubur", color: AppColors.lineLRTCibubur),
-          _LegendItem(code: "S", label: "LRT Jakarta Selatan", color: AppColors.lineLRTJakarta),
+          const SizedBox(height: 8),
+          _LegendItem(code: "B", label: AppLocalizations.of(context)!.mapLegendBogor, color: AppColors.lineBogor),
+          _LegendItem(code: "C", label: AppLocalizations.of(context)!.mapLegendCikarang, color: AppColors.lineCikarang),
+          _LegendItem(code: "R", label: AppLocalizations.of(context)!.mapLegendRangkasbitung, color: AppColors.lineRangkasbitung),
+          _LegendItem(code: "T", label: AppLocalizations.of(context)!.mapLegendTangerang, color: AppColors.lineTangerang),
+          _LegendItem(code: "TP", label: AppLocalizations.of(context)!.mapLegendTanjungPriok, color: AppColors.lineTanjungPriok),
+          _LegendItem(code: "M", label: AppLocalizations.of(context)!.mapLegendMrt, color: AppColors.lineMRT),
+          _LegendItem(code: "BK", label: AppLocalizations.of(context)!.mapLegendLrtBekasi, color: AppColors.lineLRTBekasi),
+          _LegendItem(code: "CB", label: AppLocalizations.of(context)!.mapLegendLrtCibubur, color: AppColors.lineLRTCibubur),
+          _LegendItem(code: "S", label: AppLocalizations.of(context)!.mapLegendLrtJakarta, color: AppColors.lineLRTJakarta),
         ],
       ),
     );

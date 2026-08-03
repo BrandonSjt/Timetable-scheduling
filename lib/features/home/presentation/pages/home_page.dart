@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/map_widgets.dart';
 
 class _DepartureInfo {
@@ -305,7 +306,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEndDrawer() {
+  Widget _buildEndDrawer(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Drawer(
       backgroundColor: AppColors.background,
       child: SafeArea(
@@ -316,13 +318,13 @@ class _HomePageState extends State<HomePage> {
             // Filter Area/Kota (Region Selector)
             ExpansionTile(
               leading: const Icon(Icons.location_city_rounded, color: AppColors.primaryBlue),
-              title: const Text('Filter Kawasan', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: Text(l10n.filterArea, style: const TextStyle(fontWeight: FontWeight.w600)),
               initiallyExpanded: true,
               shape: const Border(),
               children: [
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: const Text('Seluruh Jabodetabek', style: TextStyle(fontWeight: FontWeight.w600)),
+                  title: Text(l10n.areaJabodetabek, style: const TextStyle(fontWeight: FontWeight.w600)),
                   trailing: const Icon(Icons.check, color: AppColors.primaryBlue, size: 20),
                   onTap: () {
                     Navigator.pop(context); // Close drawer
@@ -332,42 +334,42 @@ class _HomePageState extends State<HomePage> {
                   contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text('Jakarta Pusat', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text('Jakarta Selatan', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text('Jakarta Barat', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text('Jakarta Timur', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text('Jakarta Utara', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text('Bodetabek (Penyangga)', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
               ],
@@ -378,60 +380,60 @@ class _HomePageState extends State<HomePage> {
             // Filter Jalur (Line Filter)
             ExpansionTile(
               leading: const Icon(Icons.train_rounded, color: AppColors.primaryBlue),
-              title: const Text('Filter Jalur Transportasi', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: Text(l10n.filterLine, style: const TextStyle(fontWeight: FontWeight.w600)),
               initiallyExpanded: true,
               shape: const Border(),
               children: [
                 // Header KRL
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('KRL Commuter Line', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    child: Text(l10n.homeLineKRL, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
-                _buildFilterOption('Lin Bogor & Nambo', ['bogor', 'bogor_nambo'], AppColors.lineBogor),
-                _buildFilterOption('Lin Cikarang', ['cikarang_loop', 'cikarang_east'], AppColors.lineCikarang),
-                _buildFilterOption('Lin Rangkasbitung', ['rangkasbitung'], AppColors.lineRangkasbitung),
-                _buildFilterOption('Lin Tangerang', ['tangerang'], AppColors.lineTangerang),
-                _buildFilterOption('Lin Tanjung Priok', ['tanjung_priok'], AppColors.lineTanjungPriok),
+                _buildFilterOption(l10n.homeFilterBogor, ['bogor', 'bogor_nambo'], AppColors.lineBogor),
+                _buildFilterOption(l10n.homeFilterCikarang, ['cikarang_loop', 'cikarang_east'], AppColors.lineCikarang),
+                _buildFilterOption(l10n.homeFilterRangkas, ['rangkasbitung'], AppColors.lineRangkasbitung),
+                _buildFilterOption(l10n.homeFilterTangerang, ['tangerang'], AppColors.lineTangerang),
+                _buildFilterOption(l10n.homeFilterPriok, ['tanjung_priok'], AppColors.lineTanjungPriok),
 
                 const Divider(color: AppColors.cardBorder, height: 16),
 
                 // Header MRT
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('MRT Jakarta', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    child: Text(l10n.homeLineMRTJ, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
-                _buildFilterOption('MRT Lin Utara - Selatan', ['mrt'], AppColors.lineMRT),
+                _buildFilterOption(l10n.homeFilterMRTNorthSouth, ['mrt'], AppColors.lineMRT),
 
                 const Divider(color: AppColors.cardBorder, height: 16),
 
                 // Header LRT Jabodebek
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('LRT Jabodebek', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    child: Text(l10n.homeLineLRTJabo, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
-                _buildFilterOption('Lin Bekasi', ['lrt_bekasi'], AppColors.lineLRTBekasi),
-                _buildFilterOption('Lin Cibubur', ['lrt_cibubur'], AppColors.lineLRTCibubur),
+                _buildFilterOption(l10n.homeFilterLRTBekasi, ['lrt_bekasi'], AppColors.lineLRTBekasi),
+                _buildFilterOption(l10n.homeFilterLRTCibubur, ['lrt_cibubur'], AppColors.lineLRTCibubur),
 
                 const Divider(color: AppColors.cardBorder, height: 16),
 
                 // Header LRT Jakarta
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('LRT Jakarta', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    child: Text(l10n.homeLineLRTJakarta, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
-                _buildFilterOption('Lin Pegangsaan Dua - Velodrome', ['lrt_jakarta'], AppColors.lineLRTJakarta),
+                _buildFilterOption(l10n.homeFilterLRTPegangsaan, ['lrt_jakarta'], AppColors.lineLRTJakarta),
 
                 const SizedBox(height: 16),
               ],
@@ -453,6 +455,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final uri = GoRouterState.of(context).uri;
     final selectedParam = uri.queryParameters['selected'];
     final fromParam = uri.queryParameters['from'];
@@ -496,7 +499,7 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
       key: _scaffoldKey,
-      endDrawer: _buildEndDrawer(),
+      endDrawer: _buildEndDrawer(context),
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
@@ -512,7 +515,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Mulai dari: $_fromStation',
+                        l10n.startFrom(_fromStation!),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -556,13 +559,13 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.cardBorder),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.search_rounded, color: AppColors.textHint),
-                            SizedBox(width: 12),
+                            const Icon(Icons.search_rounded, color: AppColors.textHint),
+                            const SizedBox(width: 12),
                             Text(
-                              'Cari stasiun LRT atau KRL',
-                              style: TextStyle(
+                              l10n.searchStationHint,
+                              style: const TextStyle(
                                 color: AppColors.textHint,
                                 fontSize: 14,
                               ),
@@ -681,9 +684,9 @@ class _HomePageState extends State<HomePage> {
                                           color: AppColors.primaryBlueLight,
                                           borderRadius: BorderRadius.circular(6),
                                         ),
-                                        child: const Text(
-                                          'Stasiun Terpilih',
-                                          style: TextStyle(
+                                        child: Text(
+                                          l10n.selectedStation,
+                                          style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                             color: AppColors.primaryBlue,
@@ -769,9 +772,9 @@ class _HomePageState extends State<HomePage> {
                                                 vertical: 10,
                                               ),
                                             ),
-                                            child: const Text(
-                                              'Dari',
-                                              style: TextStyle(
+                                            child: Text(
+                                              l10n.from,
+                                              style: const TextStyle(
                                                 fontWeight: FontWeight.w700,
                                               ),
                                             ),
@@ -787,9 +790,9 @@ class _HomePageState extends State<HomePage> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  const SnackBar(
+                                                  SnackBar(
                                                     content: Text(
-                                                      'Pilih stasiun asal (Dari) terlebih dahulu!',
+                                                      l10n.selectFromFirst,
                                                     ),
                                                   ),
                                                 );
@@ -804,13 +807,13 @@ class _HomePageState extends State<HomePage> {
                                                     BorderRadius.circular(12),
                                               ),
                                               padding: const EdgeInsets.symmetric(
-                                                horizontal: 20,
-                                                vertical: 12,
+                                                horizontal: 24,
+                                                vertical: 10,
                                               ),
                                             ),
-                                            child: const Text(
-                                              'Ke',
-                                              style: TextStyle(
+                                            child: Text(
+                                              l10n.to,
+                                              style: const TextStyle(
                                                 fontWeight: FontWeight.w700,
                                               ),
                                             ),
@@ -941,7 +944,7 @@ class _NextTrainBoardState extends State<_NextTrainBoard> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Kereta berikutnya dari ${widget.stationName}',
+                  AppLocalizations.of(context)!.homeNextTrainFrom(widget.stationName),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -974,8 +977,8 @@ class _NextTrainBoardState extends State<_NextTrainBoard> {
                 child: Center(
                   child: Text(
                     _isExpanded
-                        ? 'Tutup'
-                        : 'Tampilkan Semua (${widget.departures.length})',
+                        ? AppLocalizations.of(context)!.homeClose
+                        : AppLocalizations.of(context)!.homeShowAll(widget.departures.length),
                     style: const TextStyle(
                       color: AppColors.primaryBlue,
                       fontSize: 12,
@@ -1061,7 +1064,7 @@ class _NextTrainRow extends StatelessWidget {
                       const SizedBox(height: 3),
                       if (departure.travelDuration.isNotEmpty) ...[
                         Text(
-                          'Perjalanan ${departure.travelDuration}',
+                          AppLocalizations.of(context)!.homeTravelDuration(departure.travelDuration),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -1076,7 +1079,7 @@ class _NextTrainRow extends StatelessWidget {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(
-                            'Peron ${departure.platform}',
+                            AppLocalizations.of(context)!.homePlatform(departure.platform),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -1084,7 +1087,7 @@ class _NextTrainRow extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'Tujuan ${departure.destination}',
+                            AppLocalizations.of(context)!.homeDestination(departure.destination),
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppColors.textHint,
@@ -1101,7 +1104,7 @@ class _NextTrainRow extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Datang ${departure.duration} lagi',
+                      AppLocalizations.of(context)!.homeArrivingIn(departure.duration),
                       textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontSize: 13,
@@ -1110,9 +1113,9 @@ class _NextTrainRow extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 3),
-                    const Text(
-                      'di stasiun',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.homeAtStation,
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textHint,
@@ -1158,7 +1161,7 @@ class _StationFacilitiesSection extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Fasilitas Stasiun $stationName',
+                AppLocalizations.of(context)!.homeStationFacilities(stationName),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1231,7 +1234,7 @@ class _StationInfoSection extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Informasi Stasiun $stationName',
+                AppLocalizations.of(context)!.homeStationInformation(stationName),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1253,26 +1256,26 @@ class _StationInfoSection extends StatelessWidget {
             children: [
               _buildInfoRow(
                 Icons.account_tree_outlined,
-                'Tipe Konstruksi',
-                'Stasiun Layang (Elevated) · Ramah Aksesibilitas',
+                AppLocalizations.of(context)!.homeConstructionType,
+                AppLocalizations.of(context)!.homeConstructionTypeDesc,
               ),
               const Divider(height: 16, color: AppColors.cardBorder),
               _buildInfoRow(
                 Icons.access_time_rounded,
-                'Jam Operasional',
-                '05:00 - 23:30 WIB (Buka Setiap Hari)',
+                AppLocalizations.of(context)!.homeOperationalHours,
+                AppLocalizations.of(context)!.homeOperationalHoursDesc,
               ),
               const Divider(height: 16, color: AppColors.cardBorder),
               _buildInfoRow(
                 Icons.confirmation_number_outlined,
-                'Layanan Tiket',
-                'Kartu E-Money, KMT, QRIS, & Vending Machine',
+                AppLocalizations.of(context)!.homeTicketServices,
+                AppLocalizations.of(context)!.homeTicketServicesDesc,
               ),
               const Divider(height: 16, color: AppColors.cardBorder),
               _buildInfoRow(
                 Icons.blind_rounded,
-                'Fitur Aksesibilitas',
-                'Guiding Block, Ramp Khusus, & Pengumuman Audio TTS',
+                AppLocalizations.of(context)!.homeAccessibilityFeatures,
+                AppLocalizations.of(context)!.homeAccessibilityFeaturesDesc,
               ),
             ],
           ),
@@ -1330,10 +1333,10 @@ class _StationExitGateSection extends StatelessWidget {
           children: [
             const Icon(Icons.meeting_room_outlined, color: AppColors.primaryBlue, size: 20),
             const SizedBox(width: 8),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Panduan Pintu Keluar (Exit Gate)',
-                style: TextStyle(
+                AppLocalizations.of(context)!.homeExitGateGuide,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -1344,16 +1347,16 @@ class _StationExitGateSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _buildExitCard(
-          gate: 'Pintu A (Utara)',
-          description: 'Akses Utama Jalan Utama / Kebon Sirih',
-          integrations: 'Integrasi TransJakarta & Halte Busway',
+          gate: AppLocalizations.of(context)!.homeExitNorth,
+          description: AppLocalizations.of(context)!.homeExitNorthDesc,
+          integrations: AppLocalizations.of(context)!.homeExitNorthIntegration,
           color: AppColors.primaryBlue,
         ),
         const SizedBox(height: 10),
         _buildExitCard(
-          gate: 'Pintu B (Selatan)',
-          description: 'Akses Jalan Srikaya & Area Komersial',
-          integrations: 'Area Drop-off Ojek Online & Parkir Kendaraan',
+          gate: AppLocalizations.of(context)!.homeExitSouth,
+          description: AppLocalizations.of(context)!.homeExitSouthDesc,
+          integrations: AppLocalizations.of(context)!.homeExitSouthIntegration,
           color: AppColors.statusGreen,
         ),
       ],
@@ -1441,14 +1444,14 @@ class _StationCustomerServiceSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.support_agent_rounded, color: AppColors.primaryBlue, size: 20),
-            SizedBox(width: 8),
+            const Icon(Icons.support_agent_rounded, color: AppColors.primaryBlue, size: 20),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Layanan Pelanggan & Bantuan CS',
-                style: TextStyle(
+                AppLocalizations.of(context)!.homeCustomerServiceHeader,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -1484,7 +1487,7 @@ class _StationCustomerServiceSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Customer Service Stasiun $stationName',
+                          AppLocalizations.of(context)!.homeCSStation(stationName),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -1492,18 +1495,18 @@ class _StationCustomerServiceSection extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        const Text(
-                          'Contact Center: 121 / (021) 121',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.homeContactCenter,
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
-                        const Text(
-                          'WhatsApp Aksesibilitas: +62 811-1211-121',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.homeWhatsApp,
+                          style: const TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
                           ),
@@ -1521,13 +1524,13 @@ class _StationCustomerServiceSection extends StatelessWidget {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Menghubungi CS Stasiun $stationName (121)...'),
+                            content: Text(AppLocalizations.of(context)!.homeCallCSSnackbar(stationName)),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
                       },
                       icon: const Icon(Icons.phone_rounded, size: 16),
-                      label: const Text('Hubungi CS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      label: Text(AppLocalizations.of(context)!.homeCallCSBtn, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
                         foregroundColor: Colors.white,
@@ -1542,14 +1545,14 @@ class _StationCustomerServiceSection extends StatelessWidget {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Permintaan pendampingan petugas di $stationName telah dikirim!'),
+                            content: Text(AppLocalizations.of(context)!.homeAskHelpSnackbar(stationName)),
                             backgroundColor: AppColors.statusGreen,
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
                       },
                       icon: const Icon(Icons.accessible_rounded, size: 16),
-                      label: const Text('Minta Bantuan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      label: Text(AppLocalizations.of(context)!.homeAskHelpBtn, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primaryBlue,
                         side: const BorderSide(color: AppColors.primaryBlue),
