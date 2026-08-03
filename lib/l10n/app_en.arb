@@ -1,0 +1,785 @@
+{
+  "@@locale": "en",
+  "languagePageTitle": "Language",
+  "languagePageSubtitle": "Currently used language",
+  "languageApp": "App Language",
+  "languageDescription": "Choose a language for app navigation and messages",
+  "languageIndonesian": "Indonesia",
+  "languageEnglish": "English",
+  "languageEnglishDesc": "Use English for app labels",
+  "preview": "Preview",
+  "previewAccount": "Account",
+  "previewGuestActive": "Guest mode active",
+  "applyLanguage": "Apply language",
+  "languageAppliedNote": "This language selection will be saved and applied to all app pages on your next visit.",
+  "navHome": "Home",
+  "navSchedule": "Schedule",
+  "navTickets": "Tickets",
+  "navAssistant": "Assistant",
+  "navAccount": "Account",
+  "filterArea": "Area Filter",
+  "areaJabodetabek": "Greater Jakarta Area",
+  "filterAreaComingSoon": "Specific area filters coming soon",
+  "filterLine": "Transportation Line Filter",
+  "searchStationHint": "Search for LRT or KRL stations",
+  "startFrom": "Start from: {station}",
+  "@startFrom": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedStation": "Selected Station",
+  "from": "From",
+  "to": "To",
+  "selectFromFirst": "Please select a starting station (From) first!",
+  "nearestDepartures": "Nearest Departures",
+  "languageAppliedSnackbar": "English applied.",
+  
+  "profileAccount": "Account",
+  "profileGuestModeActive": "Guest mode active",
+  "profileGuest": "Guest",
+  "profileGuestDesc": "No login needed for maps, ETA, schedules, and tickets.",
+  "profileOptionalLogin": "Optional login",
+  "profileLocalTicketHistory": "Local ticket history",
+  "profileSavedOnDevice": "Saved on this device",
+  "profileAccessibility": "Accessibility",
+  "profileLargeText": "Large text and read routes",
+  "profileHelpCenter": "Help Center",
+  "profileContactOfficer": "Contact officer and report errors",
+  "allStations": "All Stations",
+  "all": "All",
+  "selectOriginStation": "Select Origin Station",
+  "searchStationHint2": "Search station name (e.g., Manggarai, Halim...)",
+  "weekday": "Weekday",
+  "weekend": "Weekend",
+  "trainSchedule": "Train Schedule",
+  "searchDestinationHint": "Search destination station or train number...",
+  "filterOriginAll": "Origin Station Filter (All Stations)",
+  "originStation": "Origin Station: {station}",
+  "@originStation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleNotFound": "Schedule not found",
+  "tryChangingFilter": "Try changing the station or day filter.",
+  "alarmActivated": "Travel alarm activated",
+  "alarmDeactivated": "Travel alarm deactivated",
+  "tickets": "Tickets",
+  "validUntil": "Valid until 23:59",
+  "payBefore": "Pay before 23:59",
+  "usedToday": "Used today, 09:12",
+  "unpaid": "Unpaid",
+  "active": "Active",
+  "completed": "Completed",
+  "travelTicket": "Travel ticket",
+  "ticketStatusSummary": "{active} active tickets · {pending} unpaid · {completed} completed",
+  "@ticketStatusSummary": {
+    "placeholders": {
+      "active": { "type": "int" },
+      "pending": { "type": "int" },
+      "completed": { "type": "int" }
+    }
+  },
+  "notPaid": "Not paid",
+  "alreadyUsed": "Already used",
+  "readyToScan": "Ready to scan",
+  "payNow": "Pay now",
+  "detail": "Detail",
+  "viewQR": "View QR",
+  "ticketAlreadyUsed": "This ticket has already been used.",
+  "qrValidUntil": "QR valid until",
+  "choosePayment": "Choose payment",
+  "qrisDesc": "No account, all e-wallets",
+  "creditCard": "Debit/credit card",
+  "virtualAccount": "VA / transfer",
+  "vaDesc": "One-time payment code",
+  "optionalContact": "Optional phone/email",
+  "optionalContactDesc": "Only for sending ticket copy. No account created.",
+  "payAmount": "Pay {amount}",
+  "@payAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "paymentSuccess": "Payment successful",
+  "scanQrAtGate": "Scan QR at entrance gate.",
+  "validGateInBefore": "Valid for gate-in before",
+  "today2359": "23:59 today",
+  "withoutAccount": "No account",
+  "guest": "Guest",
+  "ticketSaved": "Ticket saved to phone gallery!",
+  "saveTicket": "Save ticket",
+  "sharingTicketLink": "Sharing ticket link...",
+  "share": "Share",
+  "a11yQrInfo": "A11Y: QR has backup text code for staff assistance.",
+  "assistantReady": "Ready to help",
+  "assistantListening": "Listening",
+  "assistantProcessing": "Processing",
+  "assistantSpeaking": "Speaking",
+  "assistantWaiting": "Waiting for confirmation",
+  "assistantError": "Needs to try again",
+  "voiceStart": "Start voice conversation",
+  "voiceStop": "Stop voice conversation",
+  "voiceProcessing": "Request is processing",
+  "voiceStopSpeaking": "Stop assistant voice",
+  "voiceNew": "Start new conversation",
+  "voiceRetry": "Try voice conversation again",
+  "quickActions": "Quick actions",
+  "planTrip": "Plan a trip",
+  "nextTrain": "Next train",
+  "myTickets": "My tickets",
+  "officerHelp": "Staff assistance",
+  "travelAssistant": "Travel Assistant",
+  "assistantStatusLabel": "Assistant status: {status}",
+  "@assistantStatusLabel": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "wakeWordMode": "Wake word mode Hello Assistant",
+  "inactive": "inactive",
+  "listenWakeWord": "Listen for \"Hello Assistant\"",
+  "wakeWordActiveText": "Wake word active",
+  "wakeWordPageOnly": "Active only on this page",
+  "back": "Back",
+  "selectDestination": "Select destination station",
+  "searchStationTitle": "Search station",
+  "startTripFrom": "Start trip from: {station}",
+  "@startTripFrom": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "searchStationHint": "Type station name, line, or area",
+  "serviceFilter": "Service filter",
+  "accessible": "Accessible",
+  "quickResults": "Quick results",
+  "stationNotFound": "Station not found",
+  "withoutLogin": "No login",
+  "favoriteHistoryLocal": "Favorites and history are saved locally on the device.",
+  "routeGuideTitle": "Journey Route Guide",
+  "fastest": "Fastest",
+  "minTransit": "Min transits",
+  "travelEstimate": "Travel Estimate",
+  "minutesOnly": "minutes",
+  "stopsAndService": "{stops} Stops · {serviceInfo}",
+  "@stopsAndService": {
+    "placeholders": {
+      "stops": { "type": "int" },
+      "serviceInfo": { "type": "String" }
+    }
+  },
+  "travelFare": "Travel Fare",
+  "routeTimeline": "Route Timeline",
+  "exitGateInfo": "Exit Gate Info at {to}",
+  "@exitGateInfo": {
+    "placeholders": {
+      "to": { "type": "String" }
+    }
+  },
+  "buyTicketDirect": "Buy Ticket Direct ({fare})",
+  "@buyTicketDirect": {
+    "placeholders": {
+      "fare": { "type": "String" }
+    }
+  },
+  "readRouteToast": "Reading route from {from} to {to}: Duration {travelTime} minutes.",
+  "@readRouteToast": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" },
+      "travelTime": { "type": "int" }
+    }
+  },
+  "readRouteBtn": "Read Route",
+  "viewOnMapBtn": "View on Map",
+  "a11yAudioRoute": "A11Y Audio: Route {from} to {to} ({travelTime} min, {stops} stops).",
+  "@a11yAudioRoute": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" },
+      "travelTime": { "type": "int" },
+      "stops": { "type": "int" }
+    }
+  },
+  "nextTrainLive": "NEXT TRAIN (LIVE REALTIME)",
+  "noTripNeeded": "No trip needed",
+  "sameOriginDest": "Origin and destination are the same.",
+  "alreadyAtDest": "You are already at the destination station.",
+  "minuteShort": "min",
+  "lineNoTransit": "{lineName} · No transit",
+  "@lineNoTransit": {
+    "placeholders": { "lineName": { "type": "String" } }
+  },
+  "boardLineFrom": "Board {lineName} from {from} Station",
+  "@boardLineFrom": {
+    "placeholders": { "lineName": { "type": "String" }, "from": { "type": "String" } }
+  },
+  "departureTime": "Departure: 08:35 AM",
+  "platformDirection": "Platform {platform} · Towards {to}",
+  "@platformDirection": {
+    "placeholders": { "platform": { "type": "int" }, "to": { "type": "String" } }
+  },
+  "directTripTo": "Direct trip to {to} ({stops} stations)",
+  "@directTripTo": {
+    "placeholders": { "to": { "type": "String" }, "stops": { "type": "int" } }
+  },
+  "estDuration": "est. {duration} min",
+  "@estDuration": {
+    "placeholders": { "duration": { "type": "int" } }
+  },
+  "skipStops": "Skip {stops} stations directly",
+  "@skipStops": {
+    "placeholders": { "stops": { "type": "int" } }
+  },
+  "arriveAtDest": "Arrive at destination {to}",
+  "@arriveAtDest": {
+    "placeholders": { "to": { "type": "String" } }
+  },
+  "totalDuration": "Total {duration} min",
+  "@totalDuration": {
+    "placeholders": { "duration": { "type": "int" } }
+  },
+  "elevatedStation": "Elevated Station",
+  "gateA": "Gate A (North): {gate}",
+  "@gateA": {
+    "placeholders": { "gate": { "type": "String" } }
+  },
+  "gateB": "Gate B (South): {gate}",
+  "@gateB": {
+    "placeholders": { "gate": { "type": "String" } }
+  },
+  "mainAccessGate": "Main Road Access & TransJakarta Integration",
+  "dropOffGate": "Ojek Online Drop-off, Taxi Stand & Parking",
+  "oneTransitAt": "1 transit · Change at {station}",
+  "@oneTransitAt": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "alightAt": "Alight at {station} Station ({stops} stops)",
+  "@alightAt": {
+    "placeholders": { "station": { "type": "String" }, "stops": { "type": "int" } }
+  },
+  "prepareTransitAt": "Prepare to change lines at {station} Station",
+  "@prepareTransitAt": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "transitToLine": "Transit at {station}: Transfer to {line} platform",
+  "@transitToLine": {
+    "placeholders": { "station": { "type": "String" }, "line": { "type": "String" } }
+  },
+  "transitPlatform1To2": "Transfer from Platform 1 to Platform 2 (Accessible Lift & Guiding Block)",
+  "boardLineTo": "Board {line} towards {to} Station ({stops} stops)",
+  "@boardLineTo": {
+    "placeholders": { "line": { "type": "String" }, "to": { "type": "String" }, "stops": { "type": "int" } }
+  },
+  "nextTrainAtPlatform": "Next train arrives in {minutes} minutes at Platform {platform}",
+  "@nextTrainAtPlatform": {
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "platform": { "type": "int" }
+    }
+  },
+
+  "a11yReadingPreview": "Reading: Dukuh Atas to Harjamukti, Platform 2, arriving in 4 minutes.",
+  "a11yTitle": "Accessibility",
+  "a11ySubtitle": "Text and voice",
+  "a11yDisplaySettings": "Display settings",
+  "a11yMakeEasier": "Make the app easier to read and hear",
+  "a11yLargeText": "Large text",
+  "a11yLargeTextDesc": "Enlarge labels and route information",
+  "a11yReadRoute": "Read route",
+  "a11yReadRouteDesc": "Enable station and direction reading",
+  "a11yRoutePreviewSemantic": "Route preview. Dukuh Atas to Harjamukti. Platform 2, arriving in 4 minutes.",
+  "a11yRoutePreviewTitle": "Route preview",
+  "a11yRoutePreviewRoute": "Dukuh Atas → Harjamukti",
+  "a11yRoutePreviewDetail": "Platform 2, arriving in 4 mins",
+  "a11yReadBtn": "Read",
+
+  "historyCleared": "Ticket history cleared from this device.",
+  "historyTitle": "Ticket history",
+  "historyCompleted": "History completed",
+  "historySubtitle": "Saved on this device",
+  "historyLastTicket": "Last ticket",
+  "historySortRecent": "Sorted by recent trips",
+  "historyKrl": "KRL Commuter Line",
+  "historyKrlRoute": "Bogor → Jakarta Kota",
+  "historyKrlDate": "Today, 08:12",
+  "historyLrt": "LRT Jabodebek",
+  "historyLrtRoute": "Dukuh Atas → Harjamukti",
+  "historyLrtDate": "Tuesday, 7 Jul 2026",
+  "historyGuestMode": "Guest mode",
+  "historyGuestDesc": "This history only exists on this device.",
+  "historyNoTickets": "No ticket history yet",
+  "historyClearHistory": "Clear history",
+  "historyClearDesc": "Delete data from this device.",
+
+  "helpTopicBuyTicket": "How to buy local tickets",
+  "helpTopicBuyTicketDesc": "Guide for KRL and LRT",
+  "helpTopicScheduleIssue": "Schedule or ETA mismatch",
+  "helpTopicScheduleIssueDesc": "Send report from route details",
+  "helpTopicPaymentIssue": "Payment issue",
+  "helpTopicPaymentIssueDesc": "Check last transaction status",
+  "helpCenterTitle": "Help Center",
+  "helpCenterSubtitle": "Contact staff and reports",
+  "helpSearchHint": "Search help, station, or ticket",
+  "helpQuickActions": "Quick actions",
+  "helpQuickActionsDesc": "Choose frequently used help",
+  "helpChatStaff": "Chat with staff",
+  "helpReportInfo": "Report wrong info",
+  "helpTopicsTitle": "Help topics",
+  "helpNoTopicsFound": "No help topics found.",
+  "helpCallKaiSnack": "Contacting KAI via 121.",
+  "helpCallKai": "Contact KAI: 121",
+
+  "chatLiveHelp": "Live assistance",
+  "chatWithStaff": "Chat with staff",
+  "chatActiveTopic": "Active topic: {topic}",
+  "@chatActiveTopic": {
+    "placeholders": { "topic": { "type": "String" } }
+  },
+  "chatContentTailored": "Chat content tailored to your choice.",
+  "chatServiceStatus": "Service status",
+  "chatWaitEstimate": "Current wait estimate",
+  "chatSelectTopic": "Select topic",
+  "chatInitialMessage": "Initial message",
+  "chatSharedData": "Shared data",
+
+  "issueLateEtaTitle": "Late ETA",
+  "issueLateEtaLabel": "Late ETA",
+  "issueLateEtaActive": "ETA is late",
+  "issueLateEtaRoute": "Bogor → Jakarta Kota",
+  "issueLateEtaRouteDetail": "App ETA: 09:32",
+  "issueLateEtaNote": "Station board shows 09:40.",
+  "issueLateEtaGuidance": "Correction helps ETA accuracy for this route.",
+  "issueLateEtaAction": "Send ETA correction",
+
+  "issueMissingTrainTitle": "Missing Train",
+  "issueMissingTrainLabel": "Missing train",
+  "issueMissingTrainActive": "Train didn't appear",
+  "issueMissingTrainRoute": "Bekasi → Manggarai",
+  "issueMissingTrainRouteDetail": "Nearest train not showing",
+  "issueMissingTrainNote": "Train is seen at the station, but not in the app.",
+  "issueMissingTrainGuidance": "Report completes departure data.",
+  "issueMissingTrainAction": "Report missing train",
+
+  "issueChangedScheduleTitle": "Changed Schedule",
+  "issueChangedScheduleLabel": "Schedule changed",
+  "issueChangedScheduleActive": "Schedule changed",
+  "issueChangedScheduleRoute": "Dukuh Atas → Harjamukti",
+  "issueChangedScheduleRouteDetail": "App schedule: 15:18",
+  "issueChangedScheduleNote": "Schedule at station changed to 15:30.",
+  "issueChangedScheduleGuidance": "Report helps schedule synchronization.",
+  "issueChangedScheduleAction": "Send schedule change",
+
+  "issueDiffPlatformTitle": "Different Platform",
+  "issueDiffPlatformLabel": "Different platform",
+  "issueDiffPlatformActive": "Different platform",
+  "issueDiffPlatformRoute": "Bogor → Jakarta Kota",
+  "issueDiffPlatformRouteDetail": "App platform: Platform 2",
+  "issueDiffPlatformNote": "Staff directs passengers to Platform 4.",
+  "issueDiffPlatformGuidance": "Report helps fix platform info.",
+  "issueDiffPlatformAction": "Send platform correction",
+
+  "issueReportMismatch": "Report mismatch",
+  "issueScheduleAndEta": "Schedule & ETA",
+  "issueActiveProblem": "Active problem: {problem}",
+  "@issueActiveProblem": {
+    "placeholders": { "problem": { "type": "String" } }
+  },
+  "issueDetailFollows": "Report details follow the selected problem.",
+  "issueMonitoredRoute": "Monitored route",
+  "issueProblemOccurred": "Problem occurred",
+  "issueNotes": "Notes",
+  "issueCorrectionPrepared": "Correction for {problem} prepared successfully.",
+  "@issueCorrectionPrepared": {
+    "placeholders": { "problem": { "type": "String" } }
+  },
+
+  "topicTicketLabel": "Ticket",
+  "topicTicketTitle": "Ticket Chat",
+  "topicTicketAgent": "Ticket staff",
+  "topicTicketAvailability": "Ticket staff available",
+  "topicTicketWait": "Usually replies in 2 minutes",
+  "topicTicketOpening": "I need help with a ticket",
+  "topicTicketShared": "Guest mode, ticket ID, and last route",
+  "topicTicketAction": "Start ticket chat",
+  "topicTicketGreeting": "Hello, I'm Rani from ticket service. I received your ticket data. What do you want to check?",
+
+  "topicScheduleLabel": "Schedule",
+  "topicScheduleTitle": "Schedule Chat",
+  "topicScheduleAgent": "Schedule staff",
+  "topicScheduleAvailability": "Schedule staff available",
+  "topicScheduleWait": "Usually replies in 3 minutes",
+  "topicScheduleOpening": "I need help with schedule or ETA",
+  "topicScheduleShared": "Last route, origin-destination, and travel time",
+  "topicScheduleAction": "Start schedule chat",
+  "topicScheduleGreeting": "Hello, I'm Dimas from schedule service. I saw your route. Which schedule or ETA do you want to check?",
+
+  "topicPaymentLabel": "Payment",
+  "topicPaymentTitle": "Payment Chat",
+  "topicPaymentAgent": "Payment staff",
+  "topicPaymentAvailability": "Payment staff available",
+  "topicPaymentWait": "Usually replies in 4 minutes",
+  "topicPaymentOpening": "I need help with ticket payment",
+  "topicPaymentShared": "Last transaction status, ticket code, and time",
+  "topicPaymentAction": "Start payment chat",
+  "topicPaymentGreeting": "Hello, I'm Sari from payment service. I received your transaction status. What's the problem?",
+
+  "chatReplyTicketNotFound": "Alright, I'll help check. Try opening My Tickets and reloading the page. If the ticket still doesn't appear, send your ticket code here.",
+  "chatReplyTicketBuy": "To buy a ticket, select a route from Home, set the trip, then proceed to payment. Tickets will appear in the Tickets menu after successful payment.",
+  "chatReplyTicketActive": "Active tickets can be opened from the Tickets menu. Ensure the QR code is clearly visible before scanning at the gate.",
+  "chatReplyTicketDefault": "I am ready to help check your ticket. Explain the ticket status or steps you are having trouble with.",
+
+  "chatReplyScheduleLate": "ETA can change following train position. Let me know your route and station so I can help match the latest information.",
+  "chatReplySchedulePlatform": "Platform info can change at the station. Follow staff announcements and send the station name if app info is different.",
+  "chatReplyScheduleMissing": "I'll help note the missing train. Send the station, destination, and estimated departure time.",
+  "chatReplyScheduleDefault": "Please send the route, station, and travel time you want to check.",
+
+  "chatReplyPaymentDeducted": "If balance is deducted but ticket is not active, wait two minutes then check Ticket History. Send transaction code if status hasn't changed.",
+  "chatReplyPaymentRefund": "I'll help check the refund. Send the transaction code and reason for refund request.",
+  "chatReplyPaymentFailed": "Try again with stable network or use another payment method. Send the failure message shown if problem persists.",
+  "chatReplyPaymentDefault": "Explain the transaction status or payment method you are having trouble with so I can help.",
+
+  "payDeductedLabel": "Balance deducted",
+  "payDeductedTitle": "Balance Deducted",
+  "payDeductedStatus": "Processing",
+  "payDeductedDetail": "Rp 8.000 deducted, ticket not active",
+  "payDeductedAdvice": "Check Ticket History after 2 minutes.\nSend help if status doesn't change.",
+  "payDeductedAction": "Report deducted balance",
+
+  "payMissingLabel": "Ticket missing",
+  "payMissingTitle": "Ticket Missing",
+  "payMissingStatus": "Success",
+  "payMissingDetail": "Payment successful, ticket not showing",
+  "payMissingAdvice": "Reload My Tickets page.\nIf still empty, send transaction code.",
+  "payMissingAction": "Report missing ticket",
+
+  "payRefundLabel": "Refund",
+  "payRefundTitle": "Refund",
+  "payRefundStatus": "Submitted",
+  "payRefundDetail": "Ticket refund",
+  "payRefundAdvice": "Refund follows last transaction status.\nKeep ticket code until process finishes.",
+  "payRefundAction": "Submit refund",
+
+  "payMethodLabel": "Payment method",
+  "payMethodTitle": "Payment Method",
+  "payMethodStatus": "Failed",
+  "payMethodDetail": "Payment method cannot be used",
+  "payMethodAdvice": "Try another payment method.\nReport if all methods fail.",
+  "payMethodAction": "Report payment method",
+
+  "payCheckStatusSubtitle": "Check transaction status",
+  "payIssueTitle": "Payment issue",
+  "payActiveIssue": "Active issue: {issue}",
+  "@payActiveIssue": {
+    "placeholders": { "issue": { "type": "String" } }
+  },
+  "payIssueDescription": "Advice and actions follow the selected issue.",
+  "payLastTransaction": "Last transaction",
+  "paySelectIssue": "Select issue",
+  "payQuickAdvice": "Quick advice",
+  "payHelpPrepared": "{issue} help prepared successfully.",
+  "@payHelpPrepared": {
+    "placeholders": { "issue": { "type": "String" } }
+  },
+
+  "reportScheduleLabel": "Schedule",
+  "reportScheduleTitle": "Report Schedule",
+  "reportScheduleFirstLabel": "Related route",
+  "reportScheduleFirstValue": "Bogor → Jakarta Kota",
+  "reportScheduleSecondLabel": "Location / station",
+  "reportScheduleSecondValue": "Bogor",
+  "reportScheduleDesc": "App ETA is different from station board.",
+  "reportScheduleAction": "Send schedule report",
+
+  "reportRouteLabel": "Route",
+  "reportRouteTitle": "Report Route",
+  "reportRouteFirstLabel": "Problematic route",
+  "reportRouteFirstValue": "Dukuh Atas → Harjamukti",
+  "reportRouteSecondLabel": "Route point",
+  "reportRouteSecondValue": "Transit station",
+  "reportRouteDesc": "Displayed route doesn't pass the correct transit station.",
+  "reportRouteAction": "Send route report",
+
+  "reportStationLabel": "Station",
+  "reportStationTitle": "Report Station",
+  "reportStationFirstLabel": "Station name",
+  "reportStationFirstValue": "Jakarta Kota",
+  "reportStationSecondLabel": "Incorrect info",
+  "reportStationSecondValue": "Platform / facility",
+  "reportStationDesc": "Station info doesn't match location conditions.",
+  "reportStationAction": "Send station report",
+
+  "reportSubtitle": "Correct travel data",
+  "reportWrongInfo": "Report wrong info",
+  "reportTypePrefix": "Report type: {type}",
+  "@reportTypePrefix": {
+    "placeholders": { "type": { "type": "String" } }
+  },
+  "reportFieldsDesc": "Fields follow the selected report type.",
+  "reportTypeHeading": "Report type",
+  "reportDescLabel": "Report description",
+  "reportAttachScreenshot": "Attach screenshot",
+  "reportAttachScreenshotMsg": "Select screenshot from device to attach.",
+  "reportPrepared": "{type} report prepared successfully.",
+  "@reportPrepared": {
+    "placeholders": { "type": { "type": "String" } }
+  },
+
+  "chatOnline": "Online",
+  "chatLocalReply": "Local reply",
+  "chatToday": "Today",
+  "chatUser": "You",
+  "chatAgent": "Staff",
+  "chatAgentTyping": "Staff is typing…",
+  "chatWriteMessage": "Write a message…",
+  "chatWaitReply": "Waiting for staff reply…",
+  "chatSendMessage": "Send message",
+
+  "activeTicketReadyShare": "Active ticket code is ready to share.",
+  "activeTicketTitle": "Active ticket detail",
+  "activeTicketShareCode": "Share code",
+  "activeTicketNeedHelp": "Need help",
+  "activeTicketOfflineOnly": "Ticket data is only saved on this device.",
+  "activeTicketStatus": "Active",
+  "activeTicketCodeTitle": "Active ticket code",
+  "activeTicketShowToStaff": "Show this code to staff",
+  "activeTicketCodeSemantic": "Active ticket code {code}",
+  "@activeTicketCodeSemantic": {
+    "placeholders": { "code": { "type": "String" } }
+  },
+  "activeTicketSavedOffline": "Saved offline",
+  "ticketStationOrigin": "Origin station",
+  "ticketStationDest": "Destination",
+  "ticketStationDestFull": "Destination station",
+  "ticketEta": "Estimated arrival",
+  "ticketType": "Ticket type",
+  "ticketTypeActive": "Active ticket",
+
+  "completedTicketReceiptReady": "Journey receipt prepared successfully.",
+  "completedTicketTitle": "Completed ticket detail",
+  "completedTicketDownload": "Download receipt",
+  "completedTicketReport": "Report issue",
+  "completedTicketLocalHistory": "Completed details remain in local history.",
+  "completedTicketStatus": "Completed",
+  "completedTicketSummary": "Journey summary",
+  "completedTicketDepart": "Depart",
+  "completedTicketArrive": "Arrive",
+  "completedTicketDuration": "Duration {minutes} minutes",
+  "@completedTicketDuration": {
+    "placeholders": { "minutes": { "type": "String" } }
+  },
+  "completedTicketJourneyDone": "Journey completed",
+  "completedTicketCode": "Journey code",
+  "completedTicketTypeLocal": "Local ticket",
+
+  "actionBack": "Back",
+
+  "departureDetailTitle": "Departure Detail",
+  "departureFinalDestination": "Final Destination",
+  "departureArrivingIn": "Arriving In",
+  "departurePlatformNumber": "Platform Number",
+  "departurePlatform": "Platform {platform}",
+  "@departurePlatform": { "placeholders": { "platform": { "type": "String" } } },
+  "departureStatusNormal": "Train operating normally. Priority facilities available in carriages 3 and 4.",
+  "departureNextStations": "Next Stations",
+  "departureArriveAt": "Arrive at {platform}",
+  "@departureArriveAt": { "placeholders": { "platform": { "type": "String" } } },
+  "departurePromoBadge": "PROMO",
+  "departurePromoTitle": "50% Off Intercity Train Tickets",
+  "departurePromoDesc": "Buy homecoming tickets now and get a special discount using KAI Pay.",
+  "durationMinutes": "{minutes} Minutes",
+  "@durationMinutes": { "placeholders": { "minutes": { "type": "String" } } },
+  "stationTransit": "{station} (Transit)",
+  "@stationTransit": { "placeholders": { "station": { "type": "String" } } },
+
+  "mapSearchHint": "Search station or favorite",
+  "mapSubtitleLrtKrl": "LRT Jabodebek · KRL integration access",
+  "mapSubtitleKrlTransit": "KRL · Main transit",
+  "mapSubtitleKrl": "KRL Jabodetabek",
+  "mapSubtitleLrt": "LRT Jabodebek",
+
+  "mapActionFrom": "From",
+  "mapActionVia": "Via",
+  "mapActionTo": "To",
+  "mapActionInfo": "Info",
+
+  "mapLegendTitle": "Main Route Legend",
+  "mapLegendBogor": "Bogor KRL",
+  "mapLegendCikarang": "Cikarang Loop KRL",
+  "mapLegendRangkasbitung": "Rangkasbitung KRL",
+  "mapLegendTangerang": "Tangerang KRL",
+  "mapLegendTanjungPriok": "Tanjung Priok KRL",
+  "mapLegendMrt": "North-South MRT",
+  "mapLegendLrtBekasi": "Bekasi LRT",
+  "mapLegendLrtCibubur": "Cibubur LRT",
+  "mapLegendLrtJakarta": "South Jakarta LRT",
+  
+  "trainTypesJakarta": "KRL · LRT · MRT Jakarta",
+  "departFromStation": "Departing from {station}",
+  "@departFromStation": {
+    "placeholders": {
+      "station": { "type": "String" }
+    }
+  },
+  "estimatedArrival": "Estimated Arrival",
+
+  "alarmActiveSemantics": "Travel alarm active, tap to disable",
+  "alarmInactiveSemantics": "Activate travel alarm",
+  "alarmActiveTooltip": "Alarm active",
+  "alarmInactiveTooltip": "Activate alarm",
+  "alarmDisableBoth": "Train arrival and alighting/transit reminders will be disabled.",
+  "alarmDisableDeparture": "Train arrival reminder will be disabled.",
+  "alarmDisableDestination": "Alighting or transit reminder will be disabled.",
+  "alarmDisableNone": "No active travel reminders.",
+  "alarmDisableTitle": "Disable travel alarm?",
+  "alarmDisableAction": "Disable alarm",
+  "alarmSetupTitle": "Activate travel reminder?",
+  "routeFromTo": "{from} to {to}",
+  "@routeFromTo": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "alarmDepartureSemantics": "Train arrival reminder",
+  "alarmDepartureTitle": "Train arrival",
+  "alarmDepartureDesc": "Remind me 5 minutes and 1 minute before",
+  "alarmDestinationSemantics": "Alighting or transit reminder",
+  "alarmDestinationTitle": "Alight or transit",
+  "alarmDestinationDesc": "Remind me 1 station before destination",
+  "alarmSimulationNote": "These reminders are a simulation and active while the app is open.",
+  "alarmActivateBtn": "Activate alarm",
+  "actionSkip": "Skip",
+  "stateActive": "active",
+  "stateInactive": "inactive",
+  "alarmDepartureActive": "Train arrival active",
+  "alarmDepartureInactive": "Train arrival inactive",
+  "alarmDestinationActive": "Alight or transit active",
+  "alarmDestinationInactive": "Alight or transit inactive",
+  "viewTicketBtn": "View ticket",
+  "cancelAlarmBtn": "Cancel alarm",
+
+  "assistantChatAssistant": "Assistant",
+  "assistantTypeMessage": "Type a message for Assistant",
+  "assistantSendMessage": "Send message",
+  "assistantUseThisRoute": "Use this route",
+  "assistantRepeat": "Repeat",
+  "assistantCancel": "Cancel",
+  "assistantBuyTicketToUseAlarm": "Buy or select an active ticket to use the travel alarm.",
+  "assistantSearchTrip": "Search trip",
+  "assistantOpenQuickAction": "Open {action}",
+  "@assistantOpenQuickAction": {
+    "placeholders": { "action": { "type": "String" } }
+  },
+  "assistantRetry": "Retry",
+
+  "voiceTapToSpeak": "Tap to speak",
+  "voiceWhereToToday": "Where to today?",
+  "voiceStartConversation": "Start voice conversation",
+  "voiceListening": "Listening",
+  "voicePleaseStateDestination": "Please state your destination",
+  "voiceStopConversation": "Stop voice conversation",
+  "voiceProcessingRequest": "Processing request",
+  "voiceSearchingForTrips": "Searching for suitable travel options",
+  "voiceRequestBeingProcessed": "Request is being processed",
+  "voiceAgentSpeaking": "Agent is speaking",
+  "voiceReadingAnswer": "Travel answer is being read",
+  "voiceStopAssistant": "Stop assistant voice",
+  "voiceNeedsConfirmation": "Needs confirmation",
+  "voiceChooseActionBeforeRoute": "Choose an action before opening route",
+  "voiceStartNewConversation": "Start new conversation",
+  "voiceUseVoiceOrQuickAction": "Use voice or choose quick action.",
+  "voiceRetryConversation": "Try voice conversation again",
+
+  "homeNextTrainFrom": "Next train from {station}",
+  "@homeNextTrainFrom": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeClose": "Close",
+  "actionBack": "Back",
+  "homeShowAll": "Show All ({count})",
+  "@homeShowAll": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "homeTravelDuration": "Travel {duration}",
+  "@homeTravelDuration": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "homePlatform": "Platform {platform}",
+  "@homePlatform": {
+    "placeholders": { "platform": { "type": "String" } }
+  },
+  "homeDestination": "Destination {destination}",
+  "@homeDestination": {
+    "placeholders": { "destination": { "type": "String" } }
+  },
+  "homeArrivingIn": "Arriving in {duration}",
+  "@homeArrivingIn": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "homeAtStation": "at station",
+  "homeStationFacilities": "Station Facilities {station}",
+  "@homeStationFacilities": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeStationInformation": "Station Information {station}",
+  "@homeStationInformation": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeConstructionType": "Construction Type",
+  "homeConstructionTypeDesc": "Elevated Station · Accessibility Friendly",
+  "homeOperationalHours": "Operational Hours",
+  "homeOperationalHoursDesc": "05:00 - 23:30 WIB (Open Everyday)",
+  "homeTicketServices": "Ticket Services",
+  "homeTicketServicesDesc": "E-Money Card, KMT, QRIS, & Vending Machine",
+  "homeAccessibilityFeatures": "Accessibility Features",
+  "homeAccessibilityFeaturesDesc": "Guiding Block, Special Ramp, & TTS Audio Announcements",
+  "homeExitGateGuide": "Exit Gate Guide",
+  "homeExitNorth": "Gate A (North)",
+  "homeExitNorthDesc": "Main Access Main Road / Kebon Sirih",
+  "homeExitNorthIntegration": "TransJakarta & Busway Stop Integration",
+  "homeExitSouth": "Gate B (South)",
+  "homeExitSouthDesc": "Srikaya Road & Commercial Area Access",
+  "homeExitSouthIntegration": "Online Motorcycle Taxi Drop-off & Vehicle Parking",
+  "homeCustomerServiceHeader": "Customer Service & Assistance",
+  "homeCSStation": "Customer Service Station {station}",
+  "@homeCSStation": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeContactCenter": "Contact Center: 121 / (021) 121",
+  "homeWhatsApp": "Accessibility WhatsApp: +62 811-1211-121",
+  "homeCallCSBtn": "Call CS",
+  "homeCallCSSnackbar": "Calling CS Station {station} (121)...",
+  "@homeCallCSSnackbar": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeAskHelpBtn": "Ask for Help",
+  "homeAskHelpSnackbar": "Assistance request for staff at {station} has been sent!",
+  "@homeAskHelpSnackbar": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+
+  "homeLineKRL": "KRL Commuter Line",
+  "homeLineMRTJ": "MRT Jakarta",
+  "homeLineLRTJabo": "LRT Jabodebek",
+  "homeLineLRTJakarta": "LRT Jakarta",
+  "homeFilterBogor": "Bogor & Nambo Line",
+  "homeFilterCikarang": "Cikarang Line",
+  "homeFilterRangkas": "Rangkasbitung Line",
+  "homeFilterTangerang": "Tangerang Line",
+  "homeFilterPriok": "Tanjung Priok Line",
+  "homeFilterMRTNorthSouth": "North - South MRT Line",
+  "homeFilterLRTBekasi": "Bekasi Line",
+  "homeFilterLRTCibubur": "Cibubur Line",
+  "homeFilterLRTPegangsaan": "Pegangsaan Dua - Velodrome Line"
+}

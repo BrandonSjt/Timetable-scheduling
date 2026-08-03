@@ -274,6 +274,95 @@ void main() {
     expect(find.text('Topik aktif: Jadwal'), findsOneWidget);
   });
 
+  testWidgets('Support chat opens a local conversation and replies by topic', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/bantuan/chat');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Mulai chat tiket'),
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Mulai chat tiket'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Petugas tiket'), findsWidgets);
+    expect(find.text('Tiket • Balasan lokal'), findsOneWidget);
+    expect(find.text('Saya butuh bantuan terkait tiket'), findsOneWidget);
+    expect(find.textContaining('Halo, saya Rani'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('support-chat-message-field')),
+      'Tiket saya belum muncul',
+    );
+    await tester.tap(find.byKey(const Key('support-chat-send-button')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(
+      find.text('Tiket saya belum muncul', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(find.text('Petugas sedang mengetik…'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Coba buka Tiket Saya', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(find.text('Petugas sedang mengetik…'), findsNothing);
+  });
+
+  testWidgets(
+    'Support chat keeps schedule and payment conversations distinct',
+    (WidgetTester tester) async {
+      appRouter.go('/bantuan/chat/percakapan?topic=schedule');
+      await tester.pumpWidget(const MyApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chat Jadwal'), findsOneWidget);
+      expect(find.text('Petugas jadwal'), findsWidgets);
+      expect(
+        find.text('Saya butuh bantuan terkait jadwal atau ETA kereta'),
+        findsOneWidget,
+      );
+
+      appRouter.go('/bantuan/chat/percakapan?topic=payment');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chat Pembayaran'), findsOneWidget);
+      expect(find.text('Petugas pembayaran'), findsWidgets);
+      expect(
+        find.text('Saya butuh bantuan terkait pembayaran tiket'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('Ticket purchase help opens the same ticket chat setup', (
+    WidgetTester tester,
+  ) async {
+    appRouter.go('/pusat-bantuan');
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Cara membeli tiket lokal'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Cara membeli tiket lokal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chat Tiket'), findsOneWidget);
+    expect(find.text('Topik aktif: Tiket'), findsOneWidget);
+  });
+
   testWidgets('Help center opens all incorrect information report variants', (
     WidgetTester tester,
   ) async {

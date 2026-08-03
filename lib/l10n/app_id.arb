@@ -1,0 +1,783 @@
+{
+  "@@locale": "id",
+  "languagePageTitle": "Bahasa",
+  "languagePageSubtitle": "Bahasa yang sedang digunakan",
+  "languageApp": "Bahasa aplikasi",
+  "languageDescription": "Pilih bahasa untuk navigasi dan pesan aplikasi",
+  "languageIndonesian": "Indonesia",
+  "languageEnglish": "English",
+  "languageEnglishDesc": "Gunakan Bahasa Inggris untuk label aplikasi",
+  "preview": "Pratinjau",
+  "previewAccount": "Akun",
+  "previewGuestActive": "Mode tamu aktif",
+  "applyLanguage": "Terapkan bahasa",
+  "languageAppliedNote": "Perubahan diterapkan langsung setelah dipilih.",
+  "languageAppliedSnackbar": "Bahasa Indonesia diterapkan.",
+  
+  "profileAccount": "Akun",
+  "profileGuestModeActive": "Mode tamu aktif",
+  "profileGuest": "Tamu",
+  "profileGuestDesc": "Tidak perlu login untuk peta, ETA. jadwal, dan beli tiket.",
+  "profileOptionalLogin": "Masuk opsional",
+  "profileLocalTicketHistory": "Riwayat tiket lokal",
+  "profileSavedOnDevice": "Tersimpan di perangkat ini",
+  "profileAccessibility": "Aksesibilitas",
+  "profileLargeText": "Teks besar dan bacakan rute",
+  "profileHelpCenter": "Pusat Bantuan",
+  "profileContactOfficer": "Kontak petugas dan laporan info salah",
+  "navHome": "Beranda",
+  "navSchedule": "Jadwal",
+  "navTickets": "Tiket",
+  "navAssistant": "Asisten",
+  "navAccount": "Akun",
+  "filterArea": "Filter Kawasan",
+  "areaJabodetabek": "Seluruh Jabodetabek",
+  "filterAreaComingSoon": "Filter spesifik kawasan segera hadir",
+  "filterLine": "Filter Jalur Transportasi",
+  "searchStationHint": "Cari stasiun LRT atau KRL",
+  "startFrom": "Mulai dari: {station}",
+  "@startFrom": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedStation": "Stasiun Terpilih",
+  "from": "Dari",
+  "to": "Ke",
+  "selectFromFirst": "Pilih stasiun asal (Dari) terlebih dahulu!",
+  "nearestDepartures": "Keberangkatan Terdekat",
+  "allStations": "Semua Stasiun",
+  "all": "Semua",
+  "selectOriginStation": "Pilih Stasiun Asal",
+  "searchStationHint2": "Cari nama stasiun (misal: Manggarai, Halim...)",
+  "weekday": "Hari Kerja",
+  "weekend": "Akhir Pekan",
+  "trainSchedule": "Jadwal Kereta",
+  "searchDestinationHint": "Cari stasiun tujuan atau nomor kereta...",
+  "filterOriginAll": "Filter Stasiun Asal (Semua Stasiun)",
+  "originStation": "Stasiun Asal: {station}",
+  "@originStation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleNotFound": "Jadwal tidak ditemukan",
+  "tryChangingFilter": "Cobalah mengubah filter stasiun atau hari.",
+  "alarmActivated": "Alarm perjalanan diaktifkan",
+  "alarmDeactivated": "Alarm perjalanan dinonaktifkan",
+  "tickets": "Tiket",
+  "validUntil": "Berlaku sampai 23:59",
+  "payBefore": "Bayar sebelum 23:59",
+  "usedToday": "Digunakan hari ini, 09:12",
+  "unpaid": "Belum bayar",
+  "active": "Aktif",
+  "completed": "Selesai",
+  "travelTicket": "Tiket perjalanan",
+  "ticketStatusSummary": "{active} tiket aktif · {pending} belum dibayar · {completed} selesai",
+  "@ticketStatusSummary": {
+    "placeholders": {
+      "active": { "type": "int" },
+      "pending": { "type": "int" },
+      "completed": { "type": "int" }
+    }
+  },
+  "notPaid": "Belum dibayar",
+  "alreadyUsed": "Sudah digunakan",
+  "readyToScan": "Siap scan",
+  "payNow": "Bayar sekarang",
+  "detail": "Detail",
+  "viewQR": "Lihat QR",
+  "ticketAlreadyUsed": "Tiket ini sudah selesai digunakan.",
+  "qrValidUntil": "QR berlaku sampai",
+  "choosePayment": "Pilih pembayaran",
+  "qrisDesc": "Tanpa akun, semua e-wallet",
+  "creditCard": "Kartu debit/kredit",
+  "virtualAccount": "VA / transfer",
+  "vaDesc": "Kode bayar sekali pakai",
+  "optionalContact": "Nomor HP/email opsional",
+  "optionalContactDesc": "Hanya untuk mengirim salinan tiket. Tidak membuat akun.",
+  "payAmount": "Bayar {amount}",
+  "@payAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "paymentSuccess": "Pembayaran berhasil",
+  "scanQrAtGate": "Scan QR di gate masuk.",
+  "validGateInBefore": "Berlaku gate-in sebelum",
+  "today2359": "23:59 hari ini",
+  "withoutAccount": "Tanpa akun",
+  "guest": "Guest",
+  "ticketSaved": "Tiket disimpan ke galeri ponsel!",
+  "saveTicket": "Simpan tiket",
+  "sharingTicketLink": "Membagikan tautan tiket...",
+  "share": "Bagikan",
+  "a11yQrInfo": "A11Y: QR memiliki kode tiket teks cadangan untuk bantuan petugas.",
+  "assistantReady": "Siap membantu",
+  "assistantListening": "Mendengarkan",
+  "assistantProcessing": "Memproses",
+  "assistantSpeaking": "Berbicara",
+  "assistantWaiting": "Menunggu konfirmasi",
+  "assistantError": "Perlu dicoba lagi",
+  "voiceStart": "Mulai percakapan suara",
+  "voiceStop": "Hentikan percakapan suara",
+  "voiceProcessing": "Permintaan sedang diproses",
+  "voiceStopSpeaking": "Hentikan suara asisten",
+  "voiceNew": "Mulai percakapan baru",
+  "voiceRetry": "Coba percakapan suara lagi",
+  "quickActions": "Tindakan cepat",
+  "planTrip": "Rencanakan perjalanan",
+  "nextTrain": "Kereta berikutnya",
+  "myTickets": "Tiket saya",
+  "officerHelp": "Bantuan petugas",
+  "travelAssistant": "Asisten Perjalanan",
+  "assistantStatusLabel": "Status asisten: {status}",
+  "@assistantStatusLabel": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "wakeWordMode": "Mode kata pemicu Halo Asisten",
+  "inactive": "nonaktif",
+  "listenWakeWord": "Dengarkan \"Halo Asisten\"",
+  "wakeWordActiveText": "Kata pemicu aktif",
+  "wakeWordPageOnly": "Aktif hanya di halaman ini",
+  "back": "Back",
+  "selectDestination": "Pilih stasiun tujuan",
+  "searchStationTitle": "Cari stasiun",
+  "startTripFrom": "Mulai perjalanan dari: {station}",
+  "@startTripFrom": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "searchStationHint": "Ketik nama stasiun, jalur, atau area",
+  "serviceFilter": "Filter layanan",
+  "accessible": "Aksesibel",
+  "quickResults": "Hasil cepat",
+  "stationNotFound": "Stasiun tidak ditemukan",
+  "withoutLogin": "Tanpa login",
+  "favoriteHistoryLocal": "Favorit dan riwayat disimpan lokal di perangkat.",
+  "routeGuideTitle": "Panduan Rute Perjalanan",
+  "fastest": "Tercepat",
+  "minTransit": "Minim transit",
+  "travelEstimate": "Estimasi Perjalanan",
+  "minutesOnly": "menit",
+  "stopsAndService": "{stops} Stasiun · {serviceInfo}",
+  "@stopsAndService": {
+    "placeholders": {
+      "stops": { "type": "int" },
+      "serviceInfo": { "type": "String" }
+    }
+  },
+  "travelFare": "Tarif Perjalanan",
+  "routeTimeline": "Timeline Rute Perjalanan",
+  "exitGateInfo": "Informasi Pintu Keluar Stasiun {to}",
+  "@exitGateInfo": {
+    "placeholders": {
+      "to": { "type": "String" }
+    }
+  },
+  "buyTicketDirect": "Beli Tiket Langsung ({fare})",
+  "@buyTicketDirect": {
+    "placeholders": {
+      "fare": { "type": "String" }
+    }
+  },
+  "readRouteToast": "Membacakan rute dari {from} ke {to}: Durasi {travelTime} menit.",
+  "@readRouteToast": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" },
+      "travelTime": { "type": "int" }
+    }
+  },
+  "readRouteBtn": "Bacakan Rute",
+  "viewOnMapBtn": "Lihat di Peta",
+  "a11yAudioRoute": "A11Y Audio: Rute {from} ke {to} ({travelTime} mnt, {stops} stop).",
+  "@a11yAudioRoute": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" },
+      "travelTime": { "type": "int" },
+      "stops": { "type": "int" }
+    }
+  },
+  "nextTrainLive": "KERETA BERIKUTNYA (LIVE REALTIME)",
+  "noTripNeeded": "Tidak butuh perjalanan",
+  "sameOriginDest": "Asal dan tujuan sama.",
+  "alreadyAtDest": "Anda sudah berada di lokasi stasiun tujuan.",
+  "minuteShort": "mnt",
+  "lineNoTransit": "{lineName} · Tanpa transit",
+  "@lineNoTransit": {
+    "placeholders": { "lineName": { "type": "String" } }
+  },
+  "boardLineFrom": "Naik {lineName} dari Stasiun {from}",
+  "@boardLineFrom": {
+    "placeholders": { "lineName": { "type": "String" }, "from": { "type": "String" } }
+  },
+  "departureTime": "Keberangkatan: 08:35 WIB",
+  "platformDirection": "Peron {platform} · Arah {to}",
+  "@platformDirection": {
+    "placeholders": { "platform": { "type": "int" }, "to": { "type": "String" } }
+  },
+  "directTripTo": "Perjalanan langsung menuju {to} ({stops} stasiun)",
+  "@directTripTo": {
+    "placeholders": { "to": { "type": "String" }, "stops": { "type": "int" } }
+  },
+  "estDuration": "estimasi {duration} mnt",
+  "@estDuration": {
+    "placeholders": { "duration": { "type": "int" } }
+  },
+  "skipStops": "Lewati {stops} stasiun perhentian secara langsung",
+  "@skipStops": {
+    "placeholders": { "stops": { "type": "int" } }
+  },
+  "arriveAtDest": "Tiba di Stasiun tujuan {to}",
+  "@arriveAtDest": {
+    "placeholders": { "to": { "type": "String" } }
+  },
+  "totalDuration": "Total {duration} mnt",
+  "@totalDuration": {
+    "placeholders": { "duration": { "type": "int" } }
+  },
+  "elevatedStation": "Stasiun Layang (Elevated)",
+  "gateA": "Pintu A (Utara): {gate}",
+  "@gateA": {
+    "placeholders": { "gate": { "type": "String" } }
+  },
+  "gateB": "Pintu B (Selatan): {gate}",
+  "@gateB": {
+    "placeholders": { "gate": { "type": "String" } }
+  },
+  "mainAccessGate": "Akses Utama Jalan Utama & Integrasi Halte TransJakarta",
+  "dropOffGate": "Area Drop-off Ojek Online, Pangkalan Taksi & Parkir",
+  "oneTransitAt": "1 transit · Berpindah di {station}",
+  "@oneTransitAt": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "alightAt": "Turun di Stasiun {station} ({stops} stop perhentian)",
+  "@alightAt": {
+    "placeholders": { "station": { "type": "String" }, "stops": { "type": "int" } }
+  },
+  "prepareTransitAt": "Persiapan berpindah jalur di Stasiun {station}",
+  "@prepareTransitAt": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "transitToLine": "Transit di {station}: Pindah ke peron {line}",
+  "@transitToLine": {
+    "placeholders": { "station": { "type": "String" }, "line": { "type": "String" } }
+  },
+  "transitPlatform1To2": "Berpindah dari Peron 1 ke Peron 2 (Lift Aksesibel & Guiding Block)",
+  "boardLineTo": "Naik {line} ke arah Stasiun {to} ({stops} stop perhentian)",
+  "@boardLineTo": {
+    "placeholders": { "line": { "type": "String" }, "to": { "type": "String" }, "stops": { "type": "int" } }
+  },
+  "nextTrainAtPlatform": "Kereta berikutnya tiba {minutes} menit lagi di Peron {platform}",
+  "@nextTrainAtPlatform": {
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "platform": { "type": "int" }
+    }
+  },
+  "a11yReadingPreview": "Membacakan: Dukuh Atas ke Harjamukti, Peron 2, tiba 4 menit lagi.",
+  "a11yTitle": "Aksesibilitas",
+  "a11ySubtitle": "Teks dan suara",
+  "a11yDisplaySettings": "Pengaturan tampilan",
+  "a11yMakeEasier": "Buat aplikasi lebih mudah dibaca dan didengar",
+  "a11yLargeText": "Teks besar",
+  "a11yLargeTextDesc": "Perbesar label dan informasi rute",
+  "a11yReadRoute": "Bacakan rute",
+  "a11yReadRouteDesc": "Aktifkan pembacaan stasiun dan arah",
+  "a11yRoutePreviewSemantic": "Pratinjau rute. Dukuh Atas ke Harjamukti. Peron 2, tiba 4 menit lagi.",
+  "a11yRoutePreviewTitle": "Pratinjau rute",
+  "a11yRoutePreviewRoute": "Dukuh Atas → Harjamukti",
+  "a11yRoutePreviewDetail": "Peron 2, tiba 4 menit lagi",
+  "a11yReadBtn": "Baca",
+  "historyCleared": "Riwayat tiket dibersihkan dari perangkat ini.",
+  "historyTitle": "Riwayat tiket",
+  "historyCompleted": "Riwayat selesai",
+  "historySubtitle": "Tersimpan di perangkat ini",
+  "historyLastTicket": "Tiket terakhir",
+  "historySortRecent": "Urut dari perjalanan terbaru",
+  "historyKrl": "KRL Commuter Line",
+  "historyKrlRoute": "Bogor → Jakarta Kota",
+  "historyKrlDate": "Hari ini, 08:12 WIB",
+  "historyLrt": "LRT Jabodebek",
+  "historyLrtRoute": "Dukuh Atas → Harjamukti",
+  "historyLrtDate": "Selasa, 7 Jul 2026",
+  "historyGuestMode": "Mode tamu",
+  "historyGuestDesc": "Riwayat ini hanya ada di perangkat ini.",
+  "historyNoTickets": "Belum ada riwayat tiket",
+  "historyClearHistory": "Bersihkan riwayat",
+  "historyClearDesc": "Hapus data dari perangkat ini.",
+
+  "helpTopicBuyTicket": "Cara membeli tiket lokal",
+  "helpTopicBuyTicketDesc": "Panduan untuk KRL dan LRT",
+  "helpTopicScheduleIssue": "Jadwal atau ETA tidak sesuai",
+  "helpTopicScheduleIssueDesc": "Kirim laporan dari detail rute",
+  "helpTopicPaymentIssue": "Masalah pembayaran",
+  "helpTopicPaymentIssueDesc": "Cek status transaksi terakhir",
+  "helpCenterTitle": "Pusat Bantuan",
+  "helpCenterSubtitle": "Kontak petugas dan laporan",
+  "helpSearchHint": "Cari bantuan, stasiun, atau tiket",
+  "helpQuickActions": "Aksi cepat",
+  "helpQuickActionsDesc": "Pilih bantuan yang paling sering dipakai",
+  "helpChatStaff": "Chat petugas",
+  "helpReportInfo": "Lapor info salah",
+  "helpTopicsTitle": "Topik bantuan",
+  "helpNoTopicsFound": "Topik bantuan tidak ditemukan.",
+  "helpCallKaiSnack": "Menghubungi KAI melalui 121.",
+  "helpCallKai": "Hubungi KAI: 121",
+
+  "chatLiveHelp": "Bantuan langsung",
+  "chatWithStaff": "Chat dengan petugas",
+  "chatActiveTopic": "Topik aktif: {topic}",
+  "@chatActiveTopic": {
+    "placeholders": { "topic": { "type": "String" } }
+  },
+  "chatContentTailored": "Konten chat disesuaikan dengan pilihan Anda.",
+  "chatServiceStatus": "Status layanan",
+  "chatWaitEstimate": "Estimasi tunggu saat ini",
+  "chatSelectTopic": "Pilih topik",
+  "chatInitialMessage": "Pesan awal",
+  "chatSharedData": "Data yang dikirim",
+
+  "issueLateEtaTitle": "ETA Terlambat",
+  "issueLateEtaLabel": "ETA terlambat",
+  "issueLateEtaActive": "ETA terlambat",
+  "issueLateEtaRoute": "Bogor → Jakarta Kota",
+  "issueLateEtaRouteDetail": "ETA aplikasi: 09:32 WIB",
+  "issueLateEtaNote": "Papan stasiun menunjukkan 09:40 WIB.",
+  "issueLateEtaGuidance": "Koreksi membantu akurasi ETA rute ini.",
+  "issueLateEtaAction": "Kirim koreksi ETA",
+
+  "issueMissingTrainTitle": "Kereta Hilang",
+  "issueMissingTrainLabel": "Kereta hilang",
+  "issueMissingTrainActive": "Kereta tidak muncul",
+  "issueMissingTrainRoute": "Bekasi → Manggarai",
+  "issueMissingTrainRouteDetail": "Kereta terdekat tidak tampil",
+  "issueMissingTrainNote": "Kereta terlihat di stasiun, tetapi tidak ada di aplikasi.",
+  "issueMissingTrainGuidance": "Laporan melengkapi data keberangkatan.",
+  "issueMissingTrainAction": "Laporkan kereta hilang",
+
+  "issueChangedScheduleTitle": "Jadwal Berubah",
+  "issueChangedScheduleLabel": "Jadwal berubah",
+  "issueChangedScheduleActive": "Jadwal berubah",
+  "issueChangedScheduleRoute": "Dukuh Atas → Harjamukti",
+  "issueChangedScheduleRouteDetail": "Jadwal aplikasi: 15:18 WIB",
+  "issueChangedScheduleNote": "Jadwal di stasiun berubah menjadi 15:30 WIB.",
+  "issueChangedScheduleGuidance": "Laporan membantu sinkronisasi jadwal.",
+  "issueChangedScheduleAction": "Kirim perubahan jadwal",
+
+  "issueDiffPlatformTitle": "Peron Berbeda",
+  "issueDiffPlatformLabel": "Peron berbeda",
+  "issueDiffPlatformActive": "Peron berbeda",
+  "issueDiffPlatformRoute": "Bogor → Jakarta Kota",
+  "issueDiffPlatformRouteDetail": "Peron aplikasi: Peron 2",
+  "issueDiffPlatformNote": "Petugas mengarahkan penumpang ke Peron 4.",
+  "issueDiffPlatformGuidance": "Laporan membantu memperbaiki info peron.",
+  "issueDiffPlatformAction": "Kirim koreksi peron",
+
+  "issueReportMismatch": "Laporkan ketidaksesuaian",
+  "issueScheduleAndEta": "Jadwal & ETA",
+  "issueActiveProblem": "Masalah aktif: {problem}",
+  "@issueActiveProblem": {
+    "placeholders": { "problem": { "type": "String" } }
+  },
+  "issueDetailFollows": "Detail laporan mengikuti masalah yang dipilih.",
+  "issueMonitoredRoute": "Rute dipantau",
+  "issueProblemOccurred": "Masalah yang terjadi",
+  "issueNotes": "Catatan",
+  "issueCorrectionPrepared": "Koreksi {problem} berhasil disiapkan.",
+  "@issueCorrectionPrepared": {
+    "placeholders": { "problem": { "type": "String" } }
+  },
+
+  "topicTicketLabel": "Tiket",
+  "topicTicketTitle": "Chat Tiket",
+  "topicTicketAgent": "Petugas tiket",
+  "topicTicketAvailability": "Petugas tiket tersedia",
+  "topicTicketWait": "Biasanya membalas dalam 2 menit",
+  "topicTicketOpening": "Saya butuh bantuan terkait tiket",
+  "topicTicketShared": "Mode tamu, ID tiket, dan rute terakhir",
+  "topicTicketAction": "Mulai chat tiket",
+  "topicTicketGreeting": "Halo, saya Rani dari layanan tiket. Data tiket dan rute terakhir Anda sudah saya terima. Apa kendala yang ingin diperiksa?",
+
+  "topicScheduleLabel": "Jadwal",
+  "topicScheduleTitle": "Chat Jadwal",
+  "topicScheduleAgent": "Petugas jadwal",
+  "topicScheduleAvailability": "Petugas jadwal tersedia",
+  "topicScheduleWait": "Biasanya membalas dalam 3 menit",
+  "topicScheduleOpening": "Saya butuh bantuan terkait jadwal atau ETA kereta",
+  "topicScheduleShared": "Rute terakhir, stasiun asal-tujuan, dan waktu perjalanan",
+  "topicScheduleAction": "Mulai chat jadwal",
+  "topicScheduleGreeting": "Halo, saya Dimas dari layanan jadwal. Rute terakhir Anda sudah terlihat. Jadwal atau ETA mana yang ingin diperiksa?",
+
+  "topicPaymentLabel": "Pembayaran",
+  "topicPaymentTitle": "Chat Pembayaran",
+  "topicPaymentAgent": "Petugas pembayaran",
+  "topicPaymentAvailability": "Petugas pembayaran tersedia",
+  "topicPaymentWait": "Biasanya membalas dalam 4 menit",
+  "topicPaymentOpening": "Saya butuh bantuan terkait pembayaran tiket",
+  "topicPaymentShared": "Status transaksi terakhir, kode tiket, dan waktu pembayaran",
+  "topicPaymentAction": "Mulai chat pembayaran",
+  "topicPaymentGreeting": "Halo, saya Sari dari layanan pembayaran. Status transaksi terakhir Anda sudah saya terima. Apa kendala pembayarannya?",
+
+  "chatReplyTicketNotFound": "Baik, saya bantu periksa. Coba buka Tiket Saya dan muat ulang halaman. Jika tiket tetap belum muncul, kirimkan kode tiket Anda di sini.",
+  "chatReplyTicketBuy": "Untuk membeli tiket, pilih rute dari Beranda, tentukan perjalanan, lalu lanjutkan ke pembayaran. Tiket akan tampil di menu Tiket setelah pembayaran berhasil.",
+  "chatReplyTicketActive": "Tiket aktif dapat dibuka dari menu Tiket. Pastikan kode QR terlihat jelas sebelum dipindai di gerbang.",
+  "chatReplyTicketDefault": "Saya siap membantu memeriksa tiket Anda. Jelaskan status tiket atau langkah yang mengalami kendala.",
+
+  "chatReplyScheduleLate": "ETA dapat berubah mengikuti posisi kereta. Beri tahu rute dan stasiun Anda agar saya dapat membantu mencocokkan informasi terakhir.",
+  "chatReplySchedulePlatform": "Informasi peron dapat berubah di stasiun. Ikuti pengumuman petugas dan kirim nama stasiun jika informasi aplikasi berbeda.",
+  "chatReplyScheduleMissing": "Saya bantu catat kereta yang tidak muncul. Kirim stasiun, tujuan, dan perkiraan waktu keberangkatannya.",
+  "chatReplyScheduleDefault": "Silakan kirim rute, stasiun, dan waktu perjalanan yang ingin diperiksa.",
+
+  "chatReplyPaymentDeducted": "Jika saldo terpotong tetapi tiket belum aktif, tunggu dua menit lalu periksa Riwayat Tiket. Kirim kode transaksi jika status belum berubah.",
+  "chatReplyPaymentRefund": "Saya bantu memeriksa pengembalian dana. Kirim kode transaksi dan alasan pengajuan refund.",
+  "chatReplyPaymentFailed": "Coba ulangi dengan jaringan stabil atau gunakan metode pembayaran lain. Kirim pesan kegagalan yang tampil jika masalah berlanjut.",
+  "chatReplyPaymentDefault": "Jelaskan status transaksi atau metode pembayaran yang mengalami kendala agar saya dapat membantu.",
+
+  "payDeductedLabel": "Saldo terpotong",
+  "payDeductedTitle": "Saldo Terpotong",
+  "payDeductedStatus": "Diproses",
+  "payDeductedDetail": "Rp 8.000 terpotong, tiket belum aktif",
+  "payDeductedAdvice": "Cek Riwayat tiket setelah 2 menit.\nKirim bantuan jika status belum berubah.",
+  "payDeductedAction": "Laporkan saldo terpotong",
+
+  "payMissingLabel": "Tiket belum muncul",
+  "payMissingTitle": "Tiket Belum Muncul",
+  "payMissingStatus": "Berhasil",
+  "payMissingDetail": "Pembayaran berhasil, tiket belum tampil",
+  "payMissingAdvice": "Muat ulang halaman Tiket Saya.\nJika tetap kosong, kirim kode transaksi.",
+  "payMissingAction": "Laporkan tiket belum muncul",
+
+  "payRefundLabel": "Refund",
+  "payRefundTitle": "Refund",
+  "payRefundStatus": "Diajukan",
+  "payRefundDetail": "Pengembalian dana untuk tiket",
+  "payRefundAdvice": "Refund mengikuti status transaksi terakhir.\nSimpan kode tiket sampai proses selesai.",
+  "payRefundAction": "Ajukan refund",
+
+  "payMethodLabel": "Metode bayar",
+  "payMethodTitle": "Metode Bayar",
+  "payMethodStatus": "Gagal",
+  "payMethodDetail": "Metode pembayaran tidak dapat digunakan",
+  "payMethodAdvice": "Coba metode pembayaran lain.\nLaporkan jika semua metode gagal.",
+  "payMethodAction": "Laporkan metode bayar",
+
+  "payCheckStatusSubtitle": "Cek status transaksi",
+  "payIssueTitle": "Masalah pembayaran",
+  "payActiveIssue": "Kendala aktif: {issue}",
+  "@payActiveIssue": {
+    "placeholders": { "issue": { "type": "String" } }
+  },
+  "payIssueDescription": "Saran dan tindakan mengikuti kendala yang dipilih.",
+  "payLastTransaction": "Transaksi terakhir",
+  "paySelectIssue": "Pilih kendala",
+  "payQuickAdvice": "Saran cepat",
+  "payHelpPrepared": "Bantuan {issue} berhasil disiapkan.",
+  "@payHelpPrepared": {
+    "placeholders": { "issue": { "type": "String" } }
+  },
+
+  "reportScheduleLabel": "Jadwal",
+  "reportScheduleTitle": "Lapor Jadwal",
+  "reportScheduleFirstLabel": "Rute terkait",
+  "reportScheduleFirstValue": "Bogor → Jakarta Kota",
+  "reportScheduleSecondLabel": "Lokasi / stasiun",
+  "reportScheduleSecondValue": "Bogor",
+  "reportScheduleDesc": "ETA di aplikasi berbeda dengan papan informasi stasiun.",
+  "reportScheduleAction": "Kirim laporan jadwal",
+
+  "reportRouteLabel": "Rute",
+  "reportRouteTitle": "Lapor Rute",
+  "reportRouteFirstLabel": "Rute bermasalah",
+  "reportRouteFirstValue": "Dukuh Atas → Harjamukti",
+  "reportRouteSecondLabel": "Titik rute",
+  "reportRouteSecondValue": "Stasiun transit",
+  "reportRouteDesc": "Rute yang tampil tidak melewati stasiun transit yang benar.",
+  "reportRouteAction": "Kirim laporan rute",
+
+  "reportStationLabel": "Stasiun",
+  "reportStationTitle": "Lapor Stasiun",
+  "reportStationFirstLabel": "Nama stasiun",
+  "reportStationFirstValue": "Jakarta Kota",
+  "reportStationSecondLabel": "Info yang salah",
+  "reportStationSecondValue": "Peron / fasilitas",
+  "reportStationDesc": "Informasi stasiun tidak sesuai dengan kondisi di lokasi.",
+  "reportStationAction": "Kirim laporan stasiun",
+
+  "reportSubtitle": "Koreksi data perjalanan",
+  "reportWrongInfo": "Lapor info salah",
+  "reportTypePrefix": "Jenis laporan: {type}",
+  "@reportTypePrefix": {
+    "placeholders": { "type": { "type": "String" } }
+  },
+  "reportFieldsDesc": "Isian mengikuti jenis laporan yang dipilih.",
+  "reportTypeHeading": "Jenis laporan",
+  "reportDescLabel": "Deskripsi laporan",
+  "reportAttachScreenshot": "Lampirkan screenshot",
+  "reportAttachScreenshotMsg": "Pilih screenshot dari perangkat untuk dilampirkan.",
+  "reportPrepared": "Laporan {type} berhasil disiapkan.",
+  "@reportPrepared": {
+    "placeholders": { "type": { "type": "String" } }
+  },
+
+  "chatOnline": "Online",
+  "chatLocalReply": "Balasan lokal",
+  "chatToday": "Hari ini",
+  "chatUser": "Anda",
+  "chatAgent": "Petugas",
+  "chatAgentTyping": "Petugas sedang mengetik…",
+  "chatWriteMessage": "Tulis pesan…",
+  "chatWaitReply": "Menunggu balasan petugas…",
+  "chatSendMessage": "Kirim pesan",
+
+  "activeTicketReadyShare": "Kode tiket aktif siap dibagikan.",
+  "activeTicketTitle": "Detail tiket aktif",
+  "activeTicketShareCode": "Bagikan kode",
+  "activeTicketNeedHelp": "Butuh bantuan",
+  "activeTicketOfflineOnly": "Data tiket hanya tersimpan di perangkat ini.",
+  "activeTicketStatus": "Aktif",
+  "activeTicketCodeTitle": "Kode tiket aktif",
+  "activeTicketShowToStaff": "Tunjukkan kode ini kepada petugas",
+  "activeTicketCodeSemantic": "Kode tiket aktif {code}",
+  "@activeTicketCodeSemantic": {
+    "placeholders": { "code": { "type": "String" } }
+  },
+  "activeTicketSavedOffline": "Tersimpan offline",
+  "ticketStationOrigin": "Stasiun asal",
+  "ticketStationDest": "Tujuan",
+  "ticketStationDestFull": "Stasiun tujuan",
+  "ticketEta": "Perkiraan tiba",
+  "ticketType": "Jenis tiket",
+  "ticketTypeActive": "Tiket aktif",
+
+  "completedTicketReceiptReady": "Bukti perjalanan berhasil disiapkan.",
+  "completedTicketTitle": "Detail tiket selesai",
+  "completedTicketDownload": "Unduh bukti",
+  "completedTicketReport": "Laporkan masalah",
+  "completedTicketLocalHistory": "Detail selesai tetap tersimpan di riwayat lokal.",
+  "completedTicketStatus": "Selesai",
+  "completedTicketSummary": "Ringkasan perjalanan",
+  "completedTicketDepart": "Berangkat",
+  "completedTicketArrive": "Tiba",
+  "completedTicketDuration": "Durasi {minutes} menit",
+  "@completedTicketDuration": {
+    "placeholders": { "minutes": { "type": "String" } }
+  },
+  "completedTicketJourneyDone": "Perjalanan selesai",
+  "completedTicketCode": "Kode perjalanan",
+  "completedTicketTypeLocal": "Tiket lokal",
+
+  "actionBack": "Kembali",
+
+  "departureDetailTitle": "Detail Keberangkatan",
+  "departureFinalDestination": "Tujuan Akhir",
+  "departureArrivingIn": "Tiba Dalam",
+  "departurePlatformNumber": "Nomor Peron",
+  "departurePlatform": "Peron {platform}",
+  "@departurePlatform": { "placeholders": { "platform": { "type": "String" } } },
+  "departureStatusNormal": "Kereta beroperasi normal. Fasilitas prioritas tersedia di gerbong 3 dan 4.",
+  "departureNextStations": "Stasiun Berikutnya",
+  "departureArriveAt": "Tiba di {platform}",
+  "@departureArriveAt": { "placeholders": { "platform": { "type": "String" } } },
+  "departurePromoBadge": "PROMO",
+  "departurePromoTitle": "Diskon 50% Tiket Kereta Antarkota",
+  "departurePromoDesc": "Beli tiket mudik sekarang dan dapatkan potongan harga spesial menggunakan KAI Pay.",
+  "durationMinutes": "{minutes} Menit",
+  "@durationMinutes": { "placeholders": { "minutes": { "type": "String" } } },
+  "stationTransit": "{station} (Transit)",
+  "@stationTransit": { "placeholders": { "station": { "type": "String" } } },
+
+  "mapSearchHint": "Cari stasiun atau favorit",
+  "mapSubtitleLrtKrl": "LRT Jabodebek · KRL akses integrasi",
+  "mapSubtitleKrlTransit": "KRL · Transit utama",
+  "mapSubtitleKrl": "KRL Jabodetabek",
+  "mapSubtitleLrt": "LRT Jabodebek",
+
+  "mapActionFrom": "Dari",
+  "mapActionVia": "Lewat",
+  "mapActionTo": "Ke",
+  "mapActionInfo": "Info",
+
+  "mapLegendTitle": "Legenda Rute Utama",
+  "mapLegendBogor": "KRL Bogor",
+  "mapLegendCikarang": "KRL Cikarang Loop",
+  "mapLegendRangkasbitung": "KRL Rangkasbitung",
+  "mapLegendTangerang": "KRL Tangerang",
+  "mapLegendTanjungPriok": "KRL Tanjung Priok",
+  "mapLegendMrt": "MRT Utara Selatan",
+  "mapLegendLrtBekasi": "LRT Lin Bekasi",
+  "mapLegendLrtCibubur": "LRT Lin Cibubur",
+  "mapLegendLrtJakarta": "LRT Jakarta Selatan",
+  
+  "trainTypesJakarta": "KRL · LRT · MRT Jakarta",
+  "departFromStation": "Berangkat dari {station}",
+  "@departFromStation": {
+    "placeholders": {
+      "station": { "type": "String" }
+    }
+  },
+  "estimatedArrival": "Estimasi Tiba",
+
+  "alarmActiveSemantics": "Alarm perjalanan aktif, ketuk untuk menonaktifkan",
+  "alarmInactiveSemantics": "Aktifkan alarm perjalanan",
+  "alarmActiveTooltip": "Alarm aktif",
+  "alarmInactiveTooltip": "Aktifkan alarm",
+  "alarmDisableBoth": "Pengingat kereta datang dan pengingat turun atau transit akan dinonaktifkan.",
+  "alarmDisableDeparture": "Pengingat kereta datang akan dinonaktifkan.",
+  "alarmDisableDestination": "Pengingat turun atau transit akan dinonaktifkan.",
+  "alarmDisableNone": "Tidak ada pengingat perjalanan yang aktif.",
+  "alarmDisableTitle": "Matikan alarm perjalanan?",
+  "alarmDisableAction": "Matikan alarm",
+  "alarmSetupTitle": "Aktifkan pengingat perjalanan?",
+  "routeFromTo": "{from} ke {to}",
+  "@routeFromTo": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
+  "alarmDepartureSemantics": "Pengingat kereta datang",
+  "alarmDepartureTitle": "Kereta datang",
+  "alarmDepartureDesc": "Ingatkan 5 menit dan 1 menit sebelumnya",
+  "alarmDestinationSemantics": "Pengingat turun atau transit",
+  "alarmDestinationTitle": "Turun atau transit",
+  "alarmDestinationDesc": "Ingatkan 1 stasiun sebelum tujuan",
+  "alarmSimulationNote": "Pengingat ini merupakan simulasi dan aktif selama aplikasi dibuka.",
+  "alarmActivateBtn": "Aktifkan alarm",
+  "actionSkip": "Lewati",
+  "stateActive": "aktif",
+  "stateInactive": "nonaktif",
+  "alarmDepartureActive": "Kereta datang aktif",
+  "alarmDepartureInactive": "Kereta datang nonaktif",
+  "alarmDestinationActive": "Turun atau transit aktif",
+  "alarmDestinationInactive": "Turun atau transit nonaktif",
+  "viewTicketBtn": "Lihat tiket",
+  "cancelAlarmBtn": "Batalkan alarm",
+
+  "assistantChatAssistant": "Asisten",
+  "assistantTypeMessage": "Ketik pesan untuk Asisten",
+  "assistantSendMessage": "Kirim pesan",
+  "assistantUseThisRoute": "Pakai rute ini",
+  "assistantRepeat": "Ulangi",
+  "assistantCancel": "Batalkan",
+  "assistantBuyTicketToUseAlarm": "Beli atau pilih tiket aktif untuk menggunakan alarm perjalanan.",
+  "assistantSearchTrip": "Cari perjalanan",
+  "assistantOpenQuickAction": "Buka {action}",
+  "@assistantOpenQuickAction": {
+    "placeholders": { "action": { "type": "String" } }
+  },
+  "assistantRetry": "Coba lagi",
+
+  "voiceTapToSpeak": "Ketuk untuk bicara",
+  "voiceWhereToToday": "Mau ke mana hari ini?",
+  "voiceStartConversation": "Mulai percakapan suara",
+  "voiceListening": "Mendengarkan",
+  "voicePleaseStateDestination": "Silakan sebutkan tujuan perjalanan",
+  "voiceStopConversation": "Hentikan percakapan suara",
+  "voiceProcessingRequest": "Memproses permintaan",
+  "voiceSearchingForTrips": "Mencari pilihan perjalanan yang sesuai",
+  "voiceRequestBeingProcessed": "Permintaan sedang diproses",
+  "voiceAgentSpeaking": "Agent sedang berbicara",
+  "voiceReadingAnswer": "Jawaban perjalanan sedang dibacakan",
+  "voiceStopAssistant": "Hentikan suara asisten",
+  "voiceNeedsConfirmation": "Perlu konfirmasi",
+  "voiceChooseActionBeforeRoute": "Pilih tindakan sebelum membuka rute",
+  "voiceStartNewConversation": "Mulai percakapan baru",
+  "voiceUseVoiceOrQuickAction": "Gunakan suara atau pilih aksi cepat.",
+  "voiceRetryConversation": "Coba percakapan suara lagi",
+
+  "homeNextTrainFrom": "Kereta berikutnya dari {station}",
+  "@homeNextTrainFrom": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeClose": "Tutup",
+  "actionBack": "Kembali",
+  "homeShowAll": "Tampilkan Semua ({count})",
+  "@homeShowAll": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "homeTravelDuration": "Perjalanan {duration}",
+  "@homeTravelDuration": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "homePlatform": "Peron {platform}",
+  "@homePlatform": {
+    "placeholders": { "platform": { "type": "String" } }
+  },
+  "homeDestination": "Tujuan {destination}",
+  "@homeDestination": {
+    "placeholders": { "destination": { "type": "String" } }
+  },
+  "homeArrivingIn": "Datang {duration} lagi",
+  "@homeArrivingIn": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "homeAtStation": "di stasiun",
+  "homeStationFacilities": "Fasilitas Stasiun {station}",
+  "@homeStationFacilities": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeStationInformation": "Informasi Stasiun {station}",
+  "@homeStationInformation": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeConstructionType": "Tipe Konstruksi",
+  "homeConstructionTypeDesc": "Stasiun Layang (Elevated) · Ramah Aksesibilitas",
+  "homeOperationalHours": "Jam Operasional",
+  "homeOperationalHoursDesc": "05:00 - 23:30 WIB (Buka Setiap Hari)",
+  "homeTicketServices": "Layanan Tiket",
+  "homeTicketServicesDesc": "Kartu E-Money, KMT, QRIS, & Vending Machine",
+  "homeAccessibilityFeatures": "Fitur Aksesibilitas",
+  "homeAccessibilityFeaturesDesc": "Guiding Block, Ramp Khusus, & Pengumuman Audio TTS",
+  "homeExitGateGuide": "Panduan Pintu Keluar (Exit Gate)",
+  "homeExitNorth": "Pintu A (Utara)",
+  "homeExitNorthDesc": "Akses Utama Jalan Utama / Kebon Sirih",
+  "homeExitNorthIntegration": "Integrasi TransJakarta & Halte Busway",
+  "homeExitSouth": "Pintu B (Selatan)",
+  "homeExitSouthDesc": "Akses Jalan Srikaya & Area Komersial",
+  "homeExitSouthIntegration": "Area Drop-off Ojek Online & Parkir Kendaraan",
+  "homeCustomerServiceHeader": "Layanan Pelanggan & Bantuan CS",
+  "homeCSStation": "Customer Service Stasiun {station}",
+  "@homeCSStation": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeContactCenter": "Contact Center: 121 / (021) 121",
+  "homeWhatsApp": "WhatsApp Aksesibilitas: +62 811-1211-121",
+  "homeCallCSBtn": "Hubungi CS",
+  "homeCallCSSnackbar": "Menghubungi CS Stasiun {station} (121)...",
+  "@homeCallCSSnackbar": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+  "homeAskHelpBtn": "Minta Bantuan",
+  "homeAskHelpSnackbar": "Permintaan pendampingan petugas di {station} telah dikirim!",
+  "@homeAskHelpSnackbar": {
+    "placeholders": { "station": { "type": "String" } }
+  },
+
+  "homeLineKRL": "KRL Commuter Line",
+  "homeLineMRTJ": "MRT Jakarta",
+  "homeLineLRTJabo": "LRT Jabodebek",
+  "homeLineLRTJakarta": "LRT Jakarta",
+  "homeFilterBogor": "Lin Bogor & Nambo",
+  "homeFilterCikarang": "Lin Cikarang",
+  "homeFilterRangkas": "Lin Rangkasbitung",
+  "homeFilterTangerang": "Lin Tangerang",
+  "homeFilterPriok": "Lin Tanjung Priok",
+  "homeFilterMRTNorthSouth": "MRT Lin Utara - Selatan",
+  "homeFilterLRTBekasi": "Lin Bekasi",
+  "homeFilterLRTCibubur": "Lin Cibubur",
+  "homeFilterLRTPegangsaan": "Lin Pegangsaan Dua - Velodrome"
+}
