@@ -24,15 +24,15 @@ class AppColors {
   static const Color lineBogor = Color(0xFFE53935);           // Red Line
   static const Color lineRangkasbitung = Color(0xFF43A047);   // Green Line
   static const Color lineTangerang = Color(0xFF795548);       // Brown Line
-  static const Color lineCikarang = Color(0xFF1565C0);        // Blue Line
+  static const Color lineCikarang = Color(0xFF00BCD4);        // Cyan Line
   static const Color lineTanjungPriok = Color(0xFFE91E63);    // Pink Line
   // MRT Jakarta
-  static const Color lineMRT = Color(0xFF1E3A8A);             // Dark Blue
+  static const Color lineMRT = Color(0xFFD81B60);             // Pink-Red
   // LRT Jabodebek
-  static const Color lineLRT = Color(0xFFF58220);             // Orange (Batang Utama & Bekasi)
-  static const Color lineLRTCibubur = Color(0xFFFFB74D);      // Light Orange (Cibubur)
+  static const Color lineLRTBekasi = Color(0xFF007E33);       // Forest Green (Bekasi)
+  static const Color lineLRTCibubur = Color(0xFF003399);      // Royal Blue (Cibubur)
   // LRT Jakarta
-  static const Color lineLRTJakarta = Color(0xFF66BB6A);      // Light Green
+  static const Color lineLRTJakarta = Color(0xFFF16522);      // Orange LRT Jakarta
   // Legacy aliases (untuk badge di UI lama)
   static const Color lineKRL = Color(0xFF10B981);             // KRL Badge Green
   static const Color badgeLRT = Color(0xFF2563EB);            // LRT Badge Blue

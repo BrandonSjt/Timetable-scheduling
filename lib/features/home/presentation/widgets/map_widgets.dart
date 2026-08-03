@@ -25,7 +25,8 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
-  final TransformationController _transformController = TransformationController();
+  final TransformationController _transformController =
+      TransformationController();
 
   // ── State untuk deteksi tap manual via Listener ──
   // Listener menangkap raw pointer events SEBELUM gesture arena,
@@ -45,14 +46,15 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 350),
-    )..addListener(() {
-        if (_animationMatrix != null) {
-          _transformController.value = _animationMatrix!.value;
-        }
-      });
+    _animationController =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 350),
+        )..addListener(() {
+          if (_animationMatrix != null) {
+            _transformController.value = _animationMatrix!.value;
+          }
+        });
   }
 
   @override
@@ -102,6 +104,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 
     // Cek jarak tap ke setiap stasiun (threshold 25px di koordinat canvas)
     for (final station in stations) {
+      if (station.isWaypoint) continue;
       final d = (canvasPos - station.position).distance;
       if (d < 25) {
         widget.onStationSelected?.call(station.name);
@@ -111,7 +114,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   }
 
   /// Menganimasikan InteractiveViewer agar terfokus di stasiun tertentu
-  void _centerOnStation(String stationName, Size viewportSize, {bool animate = true}) {
+  void _centerOnStation(
+    String stationName,
+    Size viewportSize, {
+    bool animate = true,
+    double? scale,
+  }) {
     final station = stations.firstWhere(
       (s) => s.name.toLowerCase() == stationName.toLowerCase(),
       orElse: () => stations.first,
@@ -121,24 +129,35 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     final targetY = station.position.dy;
 
     // Tentukan zoom scale saat memfokuskan stasiun
-    const double targetScale = 1.8;
+    final double targetScale = scale ?? 1.8;
 
     // Hitung pergeseran (translation) agar target berada tepat di tengah viewport
-    final double translationX = (viewportSize.width / 2) - (targetX * targetScale);
+    final double translationX =
+        (viewportSize.width / 2) - (targetX * targetScale);
     // Geser titik tengah ke atas (- 160) agar stasiun tidak tertutup bottom sheet
-    final double translationY = (viewportSize.height / 2) - (targetY * targetScale) - 160;
+    // Jika tidak ada station yang di-select secara eksplisit (seperti saat initial load),
+    // kita tidak perlu menggeser ke atas sejauh itu, tapi karena fungsi ini 
+    // juga dipakai saat memilih stasiun, biarkan logic-nya. Untuk initial load,
+    // kita kurangi pergeserannya.
+    final double yOffset = (scale != null && scale < 1.5) ? 0 : 160;
+    final double translationY =
+        (viewportSize.height / 2) - (targetY * targetScale) - yOffset;
 
-    final Matrix4 targetMatrix = Matrix4.translationValues(translationX, translationY, 0.0)
-        * Matrix4.diagonal3Values(targetScale, targetScale, 1.0);
+    final Matrix4 targetMatrix =
+        Matrix4.translationValues(translationX, translationY, 0.0) *
+        Matrix4.diagonal3Values(targetScale, targetScale, 1.0);
 
     if (animate) {
-      _animationMatrix = Matrix4Tween(
-        begin: _transformController.value,
-        end: targetMatrix,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.fastOutSlowIn,
-      ));
+      _animationMatrix =
+          Matrix4Tween(
+            begin: _transformController.value,
+            end: targetMatrix,
+          ).animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.fastOutSlowIn,
+            ),
+          );
       _animationController.forward(from: 0.0);
     } else {
       _transformController.value = targetMatrix;
@@ -163,16 +182,17 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     final newTx = center.dx - (center.dx - tx) * scaleChange;
     final newTy = center.dy - (center.dy - ty) * scaleChange;
 
-    final targetMatrix = Matrix4.translationValues(newTx, newTy, 0.0)
-        * Matrix4.diagonal3Values(newScale, newScale, 1.0);
+    final targetMatrix =
+        Matrix4.translationValues(newTx, newTy, 0.0) *
+        Matrix4.diagonal3Values(newScale, newScale, 1.0);
 
-    _animationMatrix = Matrix4Tween(
-      begin: _transformController.value,
-      end: targetMatrix,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
+    _animationMatrix =
+        Matrix4Tween(
+          begin: _transformController.value,
+          end: targetMatrix,
+        ).animate(
+          CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+        );
     _animationController.forward(from: 0.0);
   }
 
@@ -199,6 +219,16 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               _hasInitialized = true;
             });
           }
+        } else if (!_hasInitialized) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _centerOnStation(
+              'Dukuh Atas LRT', // Default initial view position based on screenshot
+              viewportSize,
+              animate: false,
+              scale: 1.05,
+            );
+            _hasInitialized = true;
+          });
         }
 
         // Listener menangkap raw pointer events di luar gesture arena.
@@ -214,7 +244,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   minScale: 0.15,
                   maxScale: 4.0,
                   constrained: false,
-                  boundaryMargin: const EdgeInsets.all(200),
+                  boundaryMargin: const EdgeInsets.only(left: 350, top: 150, right: 150, bottom: 150),
                   child: SizedBox(
                     width: kMapWidth,
                     height: kMapHeight,
@@ -238,17 +268,19 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               top: 12,
               child: Column(
                 children: [
-                  _ZoomButton(
-                    icon: Icons.zoom_in,
-                    onTap: () => _zoom(1.4),
-                  ),
+                  _ZoomButton(icon: Icons.zoom_in, onTap: () => _zoom(1.4)),
                   const SizedBox(height: 8),
-                  _ZoomButton(
-                    icon: Icons.zoom_out,
-                    onTap: () => _zoom(0.7),
-                  ),
+                  _ZoomButton(icon: Icons.zoom_out, onTap: () => _zoom(0.7)),
                 ],
               ),
+            ),
+
+            // ── Legenda Rute (tengah kiri, bisa di-hide) ──
+            const Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: _MapLegendToggle(),
             ),
           ],
         );
@@ -282,16 +314,11 @@ class _ZoomButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(
-          icon,
-          color: AppColors.textPrimary,
-          size: 22,
-        ),
+        child: Icon(icon, color: AppColors.textPrimary, size: 22),
       ),
     );
   }
 }
-
 
 /// Chip kecil untuk menampilkan info transit (LRT/KRL + waktu tempuh)
 class TransitChip extends StatelessWidget {
@@ -323,10 +350,7 @@ class TransitChip extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
-              color: lineColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: lineColor, shape: BoxShape.circle),
             child: Center(
               child: Text(
                 lineType,
@@ -403,9 +427,7 @@ class _ActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
         child: Text(
           label,
           style: const TextStyle(
@@ -444,23 +466,228 @@ class LineFilterChip extends StatelessWidget {
           color: isDark
               ? AppColors.buttonDark
               : isSelected
-                  ? AppColors.primaryBlue
-                  : AppColors.surface,
+              ? AppColors.primaryBlue
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isDark
-                ? AppColors.buttonDark
-                : AppColors.primaryBlue,
+            color: isDark ? AppColors.buttonDark : AppColors.primaryBlue,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: (isDark || isSelected) ? Colors.white : AppColors.primaryBlue,
+            color: (isDark || isSelected)
+                ? Colors.white
+                : AppColors.primaryBlue,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Wrapper yang menampilkan legenda di tengah kiri dengan tombol hide/show
+class _MapLegendToggle extends StatefulWidget {
+  const _MapLegendToggle();
+
+  @override
+  State<_MapLegendToggle> createState() => _MapLegendToggleState();
+}
+
+class _MapLegendToggleState extends State<_MapLegendToggle>
+    with SingleTickerProviderStateMixin {
+  bool _isVisible = true;
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(-1.0, 0.0),
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    setState(() {
+      _isVisible = !_isVisible;
+      if (_isVisible) {
+        _controller.reverse();
+      } else {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Tombol Toggle (di atas legenda) ──
+            GestureDetector(
+              onTap: _toggle,
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: AppColors.surface.withValues(alpha: 0.95),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                child: AnimatedRotation(
+                  turns: _isVisible ? 0.0 : 0.5,
+                  duration: const Duration(milliseconds: 250),
+                  child: const Icon(
+                    Icons.chevron_left,
+                    size: 18,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 4),
+
+            // ── Panel Legenda (slide & fade) ──
+            SlideTransition(
+              position: _slideAnimation,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: const _MapLegend(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget Legenda Rute Kereta Api
+class _MapLegend extends StatelessWidget {
+  const _MapLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Legenda Rute Utama",
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: 8),
+          _LegendItem(code: "B", label: "KRL Bogor", color: AppColors.lineBogor),
+          _LegendItem(code: "C", label: "KRL Cikarang Loop", color: AppColors.lineCikarang),
+          _LegendItem(code: "R", label: "KRL Rangkasbitung", color: AppColors.lineRangkasbitung),
+          _LegendItem(code: "T", label: "KRL Tangerang", color: AppColors.lineTangerang),
+          _LegendItem(code: "TP", label: "KRL Tanjung Priok", color: AppColors.lineTanjungPriok),
+          _LegendItem(code: "M", label: "MRT Utara Selatan", color: AppColors.lineMRT),
+          _LegendItem(code: "BK", label: "LRT Bekasi", color: AppColors.lineLRTBekasi),
+          _LegendItem(code: "CB", label: "LRT Cibubur", color: AppColors.lineLRTCibubur),
+          _LegendItem(code: "S", label: "LRT Jakarta Selatan", color: AppColors.lineLRTJakarta),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  final String code;
+  final String label;
+  final Color color;
+
+  const _LegendItem({
+    required this.code,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: color, width: 2),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              code,
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 9,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

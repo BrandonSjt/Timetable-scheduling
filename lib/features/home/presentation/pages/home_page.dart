@@ -145,6 +145,92 @@ const Map<String, _StationInfo> _stationInfoMap = {
   ),
 };
 
+_StationInfo _getDynamicStationInfo(String stationName) {
+  if (_stationInfoMap.containsKey(stationName)) {
+    return _stationInfoMap[stationName]!;
+  }
+  
+  final nameLower = stationName.toLowerCase();
+  
+  if (nameLower.contains('lrt') || nameLower.contains('rasuna') || nameLower.contains('kuningan') || nameLower.contains('pancoran') || nameLower.contains('cikoko') || nameLower.contains('ciliwung') || nameLower.contains('jatibening') || nameLower.contains('cikunir') || nameLower.contains('jatimulya') || nameLower.contains('harjamukti') || nameLower.contains('ciracas') || nameLower.contains('rambutan') || nameLower.contains('taman mini')) {
+    return _StationInfo(
+      name: stationName,
+      departures: [
+        _DepartureInfo('LRT', 'Dukuh Atas', '4 menit', '1', '15 menit'),
+        _DepartureInfo('LRT', nameLower.contains('cibubur') || nameLower.contains('harjamukti') ? 'Harjamukti' : 'Jati Mulya', '8 menit', '2', '25 menit'),
+      ],
+    );
+  }
+  
+  if (nameLower.contains('mrt') || nameLower.contains('lebak') || nameLower.contains('fatmawati') || nameLower.contains('cipete') || nameLower.contains('haji nawi') || nameLower.contains('blok') || nameLower.contains('asean') || nameLower.contains('senayan') || nameLower.contains('istora') || nameLower.contains('bendungan') || nameLower.contains('hi')) {
+    return _StationInfo(
+      name: stationName,
+      departures: [
+        _DepartureInfo('MRT', 'Bundaran HI', '3 menit', '1', '12 menit'),
+        _DepartureInfo('MRT', 'Lebak Bulus', '6 menit', '2', '20 menit'),
+      ],
+    );
+  }
+  
+  if (nameLower.contains('rangkas') || nameLower.contains('palmerah') || nameLower.contains('kebayoran') || nameLower.contains('ranji') || nameLower.contains('jurangmangu') || nameLower.contains('sudimara') || nameLower.contains('buntu') || nameLower.contains('serpong') || nameLower.contains('cisauk') || nameLower.contains('parung') || nameLower.contains('tigaraksa') || nameLower.contains('maja')) {
+    return _StationInfo(
+      name: stationName,
+      departures: [
+        _DepartureInfo('KRL', 'Tanah Abang', '5 menit', '1', '25 menit'),
+        _DepartureInfo('KRL', 'Rangkasbitung', '10 menit', '2', '55 menit'),
+      ],
+    );
+  }
+  
+  if (nameLower.contains('tangerang') || nameLower.contains('grogol') || nameLower.contains('pesing') || nameLower.contains('taman kota') || nameLower.contains('bojong indah') || nameLower.contains('rawa buaya') || nameLower.contains('kalideres') || nameLower.contains('poris') || nameLower.contains('batu ceper')) {
+    return _StationInfo(
+      name: stationName,
+      departures: [
+        _DepartureInfo('KRL', 'Duri', '4 menit', '1', '18 menit'),
+        _DepartureInfo('KRL', 'Tangerang', '7 menit', '2', '22 menit'),
+      ],
+    );
+  }
+  
+  if (nameLower.contains('priok') || nameLower.contains('ancol') || nameLower.contains('jis') || nameLower.contains('stadium')) {
+    return _StationInfo(
+      name: stationName,
+      departures: [
+        _DepartureInfo('KRL', 'Jakarta Kota', '6 menit', '1', '10 menit'),
+        _DepartureInfo('KRL', 'Tanjung Priok', '12 menit', '2', '12 menit'),
+      ],
+    );
+  }
+  
+  if (nameLower.contains('velodrome') || nameLower.contains('pegangsaan') || nameLower.contains('boulevard') || nameLower.contains('pulomas') || nameLower.contains('equestrian')) {
+    return _StationInfo(
+      name: stationName,
+      departures: [
+        _DepartureInfo('LRT', 'Pegangsaan Dua', '5 menit', '1', '10 menit'),
+        _DepartureInfo('LRT', 'Velodrome', '8 menit', '2', '8 menit'),
+      ],
+    );
+  }
+
+  if (nameLower.contains('cikarang') || nameLower.contains('bekasi') || nameLower.contains('tambun') || nameLower.contains('cibitung') || nameLower.contains('klender') || nameLower.contains('buaran') || nameLower.contains('cakung') || nameLower.contains('kranji') || nameLower.contains('sentiong') || nameLower.contains('senen') || nameLower.contains('kemayoran') || nameLower.contains('rajawali')) {
+    return _StationInfo(
+      name: stationName,
+      departures: [
+        _DepartureInfo('KRL', 'Angke / Kp. Bandan', '5 menit', '1', '30 menit'),
+        _DepartureInfo('KRL', 'Cikarang', '9 menit', '2', '40 menit'),
+      ],
+    );
+  }
+
+  return _StationInfo(
+    name: stationName,
+    departures: [
+      _DepartureInfo('KRL', 'Jakarta Kota', '4 menit', '1', '25 menit'),
+      _DepartureInfo('KRL', 'Bogor', '7 menit', '2', '35 menit'),
+    ],
+  );
+}
+
 
 
 /// Halaman Beranda (Screen 3 di Figma)
@@ -160,6 +246,201 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? _selectedStation;
   String? _fromStation;
+  final DraggableScrollableController _sheetController = DraggableScrollableController();
+
+  final Set<String> _visibleLineIds = {
+    'bogor', 'bogor_nambo', 'cikarang_loop', 'cikarang_east', 'tanjung_priok', 'tangerang', 'rangkasbitung',
+    'mrt',
+    'lrt_bekasi', 'lrt_cibubur',
+    'lrt_jakarta',
+  };
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Widget _buildFilterOption(String label, List<String> lineIds, Color color) {
+    final isAllSelected = lineIds.every((id) => _visibleLineIds.contains(id));
+    
+    return Theme(
+      data: ThemeData(
+        unselectedWidgetColor: AppColors.textHint,
+      ),
+      child: CheckboxListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        title: Row(
+          children: [
+            Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        activeColor: AppColors.primaryBlue,
+        value: isAllSelected,
+        onChanged: (value) {
+          setState(() {
+            if (value == true) {
+              _visibleLineIds.addAll(lineIds);
+            } else {
+              _visibleLineIds.removeAll(lineIds);
+            }
+          });
+        },
+        controlAffinity: ListTileControlAffinity.trailing,
+      ),
+    );
+  }
+
+  Widget _buildEndDrawer() {
+    return Drawer(
+      backgroundColor: AppColors.background,
+      child: SafeArea(
+        bottom: false,
+        child: ListView(
+          padding: const EdgeInsets.only(top: 8),
+          children: [
+            // Filter Area/Kota (Region Selector)
+            ExpansionTile(
+              leading: const Icon(Icons.location_city_rounded, color: AppColors.primaryBlue),
+              title: const Text('Filter Kawasan', style: TextStyle(fontWeight: FontWeight.w600)),
+              initiallyExpanded: true,
+              shape: const Border(),
+              children: [
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text('Seluruh Jabodetabek', style: TextStyle(fontWeight: FontWeight.w600)),
+                  trailing: const Icon(Icons.check, color: AppColors.primaryBlue, size: 20),
+                  onTap: () {
+                    Navigator.pop(context); // Close drawer
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text('Jakarta Pusat', style: TextStyle(color: AppColors.textHint)),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text('Jakarta Selatan', style: TextStyle(color: AppColors.textHint)),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text('Jakarta Barat', style: TextStyle(color: AppColors.textHint)),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text('Jakarta Timur', style: TextStyle(color: AppColors.textHint)),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text('Jakarta Utara', style: TextStyle(color: AppColors.textHint)),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text('Bodetabek (Penyangga)', style: TextStyle(color: AppColors.textHint)),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter spesifik kawasan segera hadir')));
+                  },
+                ),
+              ],
+            ),
+            
+            const Divider(color: AppColors.cardBorder),
+            
+            // Filter Jalur (Line Filter)
+            ExpansionTile(
+              leading: const Icon(Icons.train_rounded, color: AppColors.primaryBlue),
+              title: const Text('Filter Jalur Transportasi', style: TextStyle(fontWeight: FontWeight.w600)),
+              initiallyExpanded: true,
+              shape: const Border(),
+              children: [
+                // Header KRL
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('KRL Commuter Line', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                  ),
+                ),
+                _buildFilterOption('Lin Bogor & Nambo', ['bogor', 'bogor_nambo'], AppColors.lineBogor),
+                _buildFilterOption('Lin Cikarang', ['cikarang_loop', 'cikarang_east'], AppColors.lineCikarang),
+                _buildFilterOption('Lin Rangkasbitung', ['rangkasbitung'], AppColors.lineRangkasbitung),
+                _buildFilterOption('Lin Tangerang', ['tangerang'], AppColors.lineTangerang),
+                _buildFilterOption('Lin Tanjung Priok', ['tanjung_priok'], AppColors.lineTanjungPriok),
+
+                const Divider(color: AppColors.cardBorder, height: 16),
+
+                // Header MRT
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('MRT Jakarta', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                  ),
+                ),
+                _buildFilterOption('MRT Lin Utara - Selatan', ['mrt'], AppColors.lineMRT),
+
+                const Divider(color: AppColors.cardBorder, height: 16),
+
+                // Header LRT Jabodebek
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('LRT Jabodebek', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                  ),
+                ),
+                _buildFilterOption('Lin Bekasi', ['lrt_bekasi'], AppColors.lineLRTBekasi),
+                _buildFilterOption('Lin Cibubur', ['lrt_cibubur'], AppColors.lineLRTCibubur),
+
+                const Divider(color: AppColors.cardBorder, height: 16),
+
+                // Header LRT Jakarta
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('LRT Jakarta', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                  ),
+                ),
+                _buildFilterOption('Lin Pegangsaan Dua - Velodrome', ['lrt_jakarta'], AppColors.lineLRTJakarta),
+
+                const SizedBox(height: 16),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _onStationSelected(String stationName) {
     setState(() {
@@ -198,13 +479,7 @@ class _HomePageState extends State<HomePage> {
 
     final info = currentStation != null
         ? (_stationInfoMap[currentStation] ??
-            _StationInfo(
-              name: currentStation,
-              departures: const [
-                _DepartureInfo('KRL', 'Arah Tujuan 1', '5 menit', '1', '15 menit'),
-                _DepartureInfo('KRL', 'Arah Tujuan 2', '12 menit', '2', '45 menit'),
-              ],
-            ))
+            _getDynamicStationInfo(currentStation))
         : null;
 
     return PopScope(
@@ -220,6 +495,8 @@ class _HomePageState extends State<HomePage> {
         }
       },
       child: Scaffold(
+      key: _scaffoldKey,
+      endDrawer: _buildEndDrawer(),
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
@@ -298,10 +575,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () {
-                      // TODO: Tampilkan opsi filter (misal: bottom sheet filter)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Filter map akan segera hadir!')),
-                      );
+                      _scaffoldKey.currentState?.openEndDrawer();
                     },
                     child: Container(
                       padding: const EdgeInsets.all(14),
@@ -311,7 +585,7 @@ class _HomePageState extends State<HomePage> {
                         border: Border.all(color: AppColors.cardBorder),
                       ),
                       child: const Icon(
-                        Icons.menu_rounded, // Menggunakan icon hamburger menu (burger icon)
+                        Icons.menu_rounded,
                         color: AppColors.primaryBlue,
                       ),
                     ),
@@ -330,219 +604,277 @@ class _HomePageState extends State<HomePage> {
                     child: MapView(
                       showColors: true,
                       selectedStation: currentStation,
-                      fromStation:
-                          _fromStation, // Pass the fromStation to highlight it
+                      fromStation: _fromStation,
+                      visibleLineIds: _visibleLineIds,
                       onStationSelected: _onStationSelected,
                     ),
                   ),
 
-                  // ── Panel Info Stasiun (muncul dari bawah saat stasiun diklik) ──
+                  // ── Panel Info Stasiun (DraggableSheet: tampilkan header saja, drag ke atas untuk detail) ──
                   if (info != null)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(24),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 16,
-                              offset: const Offset(0, -4),
+                    DraggableScrollableSheet(
+                      controller: _sheetController,
+                      initialChildSize: 0.23,
+                      minChildSize: 0.18,
+                      maxChildSize: 1.0,
+                      snap: true,
+                      snapSizes: const [0.23, 0.55, 1.0],
+                      builder: (context, scrollController) {
+                        final topInset = MediaQuery.of(context).padding.top;
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(24),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Drag Handle Pill removed based on user feedback
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryBlueLight,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: const Text(
-                                    'Stasiun Terpilih',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.primaryBlue,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 16,
+                                offset: const Offset(0, -4),
+                              ),
+                            ],
+                          ),
+                          child: SingleChildScrollView(
+                            controller: scrollController,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(16, topInset > 0 ? topInset + 6 : 10, 16, 32),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Drag handle & collapse bar
+                                  GestureDetector(
+                                    onTap: () {
+                                      _sheetController.animateTo(
+                                        0.23,
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 42,
+                                            height: 5,
+                                            margin: const EdgeInsets.only(bottom: 6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.shade400,
+                                              borderRadius: BorderRadius.circular(3),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      // Jika user ingin menutup panel, kita clear selected station
-                                      // tapi biarkan fromStation (bila ada) tetap menyala.
-                                      // _selectedStation akan ter-clear saat onTap rute go('/')
-                                      // Kita panggil context.go('/') untuk update URL & trigger perubahan
-                                    });
-                                    context.go('/');
-                                  },
-                                  icon: const Icon(
-                                    Icons.close_rounded,
-                                    color: AppColors.textSecondary,
-                                    size: 20,
-                                  ),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.all(6),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primaryBlue
-                                              .withValues(alpha: 0.1),
-                                          shape: BoxShape.circle,
+                                          color: AppColors.primaryBlueLight,
+                                          borderRadius: BorderRadius.circular(6),
                                         ),
-                                        child: const Icon(
-                                          Icons.swap_vert_rounded,
-                                          color: AppColors.primaryBlue,
-                                          size: 22,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        child: Text(
-                                          info.name,
-                                          style: const TextStyle(
-                                            fontSize: 24,
+                                        child: const Text(
+                                          'Stasiun Terpilih',
+                                          style: TextStyle(
+                                            fontSize: 11,
                                             fontWeight: FontWeight.w700,
-                                            color: AppColors.textPrimary,
+                                            color: AppColors.primaryBlue,
                                           ),
                                         ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _selectedStation = null;
+                                          });
+                                          context.go('/');
+                                        },
+                                        icon: const Icon(
+                                          Icons.close_rounded,
+                                          color: AppColors.textSecondary,
+                                          size: 20,
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
                                       ),
                                     ],
                                   ),
-                                ),
-                                Row(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _fromStation = currentStation;
-                                          _selectedStation = null;
-                                        });
-                                        context.go('/?from=$currentStation');
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.surface,
-                                        foregroundColor: AppColors.primaryBlue,
-                                        side: const BorderSide(
-                                          color: AppColors.primaryBlue,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 10,
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Dari',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        if (_fromStation != null) {
-                                          context.go(
-                                            '/rute?from=$_fromStation&to=$currentStation',
-                                          );
-                                        } else {
-                                          // Opsional: beritahu user untuk set 'Dari' dulu
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Pilih stasiun asal (Dari) terlebih dahulu!',
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primaryBlue
+                                                    .withValues(alpha: 0.1),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.swap_vert_rounded,
+                                                color: AppColors.primaryBlue,
+                                                size: 22,
                                               ),
                                             ),
-                                          );
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primaryBlue,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
+                                            const SizedBox(width: 10),
+                                            Flexible(
+                                              child: Text(
+                                                info.name,
+                                                style: const TextStyle(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: AppColors.textPrimary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _fromStation = currentStation;
+                                                _selectedStation = null;
+                                              });
+                                              context.go('/?from=$currentStation');
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: AppColors.surface,
+                                              foregroundColor:
+                                                  AppColors.primaryBlue,
+                                              side: const BorderSide(
+                                                color: AppColors.primaryBlue,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 10,
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              'Dari',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 12,
-                                        ),
+                                          const SizedBox(width: 8),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if (_fromStation != null) {
+                                                context.go(
+                                                  '/rute?from=$_fromStation&to=$currentStation',
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Pilih stasiun asal (Dari) terlebih dahulu!',
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primaryBlue,
+                                              foregroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 20,
+                                                vertical: 12,
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              'Ke',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      child: const Text(
-                                        'Ke',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+
+                                  const Divider(color: AppColors.cardBorder),
+                                  const SizedBox(height: 12),
+
+                                  _NextTrainBoard(
+                                    stationName: info.name,
+                                    departures: info.departures,
+                                    onDepartureTap: (dep) {
+                                      final uri = Uri(
+                                        path: '/departure-detail',
+                                        queryParameters: {
+                                          'lineType': dep.lineType,
+                                          'destination': dep.destination,
+                                          'duration': dep.duration,
+                                          'platform': dep.platform,
+                                        },
+                                      );
+                                      context.push(uri.toString());
+                                    },
+                                  ),
+
+                                  const SizedBox(height: 16),
+                                  const Divider(color: AppColors.cardBorder),
+                                  const SizedBox(height: 12),
+
+                                  // ── Fasilitas Stasiun ──
+                                  _StationFacilitiesSection(stationName: info.name),
+
+                                  const SizedBox(height: 16),
+                                  const Divider(color: AppColors.cardBorder),
+                                  const SizedBox(height: 12),
+
+                                  // ── Informasi Stasiun ──
+                                  _StationInfoSection(stationName: info.name),
+
+                                  const SizedBox(height: 16),
+                                  const Divider(color: AppColors.cardBorder),
+                                  const SizedBox(height: 12),
+
+                                  // ── Panduan Pintu Keluar ──
+                                  _StationExitGateSection(stationName: info.name),
+
+                                  const SizedBox(height: 16),
+                                  const Divider(color: AppColors.cardBorder),
+                                  const SizedBox(height: 12),
+
+                                  // ── Customer Service & Bantuan ──
+                                  _StationCustomerServiceSection(stationName: info.name),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 12),
-
-                            const SizedBox(height: 16),
-                            const Divider(color: AppColors.cardBorder),
-                            const SizedBox(height: 12),
-
-                            _NextTrainBoard(
-                              stationName: info.name,
-                              departures: info.departures,
-                              onDepartureTap: (dep) {
-                                final uri = Uri(
-                                  path: '/departure-detail',
-                                  queryParameters: {
-                                    'lineType': dep.lineType,
-                                    'destination': dep.destination,
-                                    'duration': dep.duration,
-                                    'platform': dep.platform,
-                                  },
-                                );
-                                context.push(uri.toString());
-                              },
-                            ),
-
-
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
                 ],
               ),
@@ -795,6 +1127,443 @@ class _NextTrainRow extends StatelessWidget {
             const Divider(height: 1, color: AppColors.cardBorder),
         ],
       ),
+    );
+  }
+}
+
+// ── Section Preview Fasilitas Stasiun ──
+class _StationFacilitiesSection extends StatelessWidget {
+  final String stationName;
+  const _StationFacilitiesSection({required this.stationName});
+
+  @override
+  Widget build(BuildContext context) {
+    final facilities = [
+      {'icon': Icons.accessible_rounded, 'label': 'Lift Aksesibel', 'color': AppColors.primaryBlue},
+      {'icon': Icons.escalator_rounded, 'label': 'Eskalator', 'color': AppColors.statusGreen},
+      {'icon': Icons.mosque_rounded, 'label': 'Musholla', 'color': Colors.amber.shade800},
+      {'icon': Icons.wc_rounded, 'label': 'Toilet Difabel', 'color': Colors.teal.shade700},
+      {'icon': Icons.power_rounded, 'label': 'Charger', 'color': Colors.orange.shade800},
+      {'icon': Icons.store_rounded, 'label': 'Minimarket', 'color': Colors.indigo.shade700},
+      {'icon': Icons.child_friendly_rounded, 'label': 'Menyusui', 'color': Colors.pink.shade600},
+      {'icon': Icons.local_atm_rounded, 'label': 'ATM Center', 'color': Colors.blue.shade800},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.stars_rounded, color: AppColors.primaryBlue, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Fasilitas Stasiun $stationName',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 0.95,
+          ),
+          itemCount: facilities.length,
+          itemBuilder: (context, index) {
+            final f = facilities[index];
+            final color = f['color'] as Color;
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(f['icon'] as IconData, color: color, size: 22),
+                  const SizedBox(height: 4),
+                  Text(
+                    f['label'] as String,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+// ── Section Informasi Stasiun ──
+class _StationInfoSection extends StatelessWidget {
+  final String stationName;
+  const _StationInfoSection({required this.stationName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, color: AppColors.primaryBlue, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Informasi Stasiun $stationName',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Column(
+            children: [
+              _buildInfoRow(
+                Icons.account_tree_outlined,
+                'Tipe Konstruksi',
+                'Stasiun Layang (Elevated) · Ramah Aksesibilitas',
+              ),
+              const Divider(height: 16, color: AppColors.cardBorder),
+              _buildInfoRow(
+                Icons.access_time_rounded,
+                'Jam Operasional',
+                '05:00 - 23:30 WIB (Buka Setiap Hari)',
+              ),
+              const Divider(height: 16, color: AppColors.cardBorder),
+              _buildInfoRow(
+                Icons.confirmation_number_outlined,
+                'Layanan Tiket',
+                'Kartu E-Money, KMT, QRIS, & Vending Machine',
+              ),
+              const Divider(height: 16, color: AppColors.cardBorder),
+              _buildInfoRow(
+                Icons.blind_rounded,
+                'Fitur Aksesibilitas',
+                'Guiding Block, Ramp Khusus, & Pengumuman Audio TTS',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: AppColors.primaryBlue),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Section Panduan Pintu Keluar ──
+class _StationExitGateSection extends StatelessWidget {
+  final String stationName;
+  const _StationExitGateSection({required this.stationName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.meeting_room_outlined, color: AppColors.primaryBlue, size: 20),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Panduan Pintu Keluar (Exit Gate)',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildExitCard(
+          gate: 'Pintu A (Utara)',
+          description: 'Akses Utama Jalan Utama / Kebon Sirih',
+          integrations: 'Integrasi TransJakarta & Halte Busway',
+          color: AppColors.primaryBlue,
+        ),
+        const SizedBox(height: 10),
+        _buildExitCard(
+          gate: 'Pintu B (Selatan)',
+          description: 'Akses Jalan Srikaya & Area Komersial',
+          integrations: 'Area Drop-off Ojek Online & Parkir Kendaraan',
+          color: AppColors.statusGreen,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExitCard({
+    required String gate,
+    required String description,
+    required String integrations,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.door_sliding_outlined, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  gate,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.directions_bus_filled_outlined, size: 12, color: AppColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        integrations,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Section Customer Service & Bantuan ──
+class _StationCustomerServiceSection extends StatelessWidget {
+  final String stationName;
+  const _StationCustomerServiceSection({required this.stationName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.support_agent_rounded, color: AppColors.primaryBlue, size: 20),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Layanan Pelanggan & Bantuan CS',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.primaryBlueLight.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryBlue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.headset_mic_rounded, color: Colors.white, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Customer Service Stasiun $stationName',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primaryBlue,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Contact Center: 121 / (021) 121',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'WhatsApp Aksesibilitas: +62 811-1211-121',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Menghubungi CS Stasiun $stationName (121)...'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.phone_rounded, size: 16),
+                      label: const Text('Hubungi CS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Permintaan pendampingan petugas di $stationName telah dikirim!'),
+                            backgroundColor: AppColors.statusGreen,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.accessible_rounded, size: 16),
+                      label: const Text('Minta Bantuan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primaryBlue,
+                        side: const BorderSide(color: AppColors.primaryBlue),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
