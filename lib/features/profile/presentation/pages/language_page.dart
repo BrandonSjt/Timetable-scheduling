@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
+import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/profile_detail_scaffold.dart';
-
-enum _AppLanguage { indonesia, english }
 
 /// Pilihan bahasa aplikasi untuk mode tamu.
 class LanguagePage extends StatefulWidget {
@@ -14,57 +14,55 @@ class LanguagePage extends StatefulWidget {
 }
 
 class _LanguagePageState extends State<LanguagePage> {
-  _AppLanguage _selectedLanguage = _AppLanguage.indonesia;
-
-  String get _languageLabel =>
-      _selectedLanguage == _AppLanguage.indonesia ? 'Indonesia' : 'English';
-
-  void _applyLanguage() {
-    final message = _selectedLanguage == _AppLanguage.indonesia
-        ? 'Bahasa Indonesia diterapkan.'
-        : 'English applied.';
+  void _applyLanguage(Locale newLocale) {
+    final notifier = LocaleScope.of(context);
+    notifier.value = newLocale;
+    
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(SnackBar(content: Text(l10n.languageAppliedSnackbar)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final useEnglish = _selectedLanguage == _AppLanguage.english;
+    final currentLocale = LocaleScope.of(context).value;
+    final useEnglish = currentLocale.languageCode == 'en';
+    final l10n = AppLocalizations.of(context)!;
 
     return ProfileDetailScaffold(
-      title: 'Bahasa',
-      subtitle: _languageLabel,
+      title: l10n.languagePageTitle,
+      subtitle: l10n.languagePageSubtitle,
       children: [
-        const Text(
-          'Bahasa aplikasi',
-          style: TextStyle(
+        Text(
+          l10n.languageApp,
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Pilih bahasa untuk navigasi dan pesan aplikasi',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        Text(
+          l10n.languageDescription,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const SizedBox(height: 24),
         _LanguageOption(
-          title: 'Indonesia',
-          subtitle: 'Bahasa yang sedang digunakan',
+          title: l10n.languageIndonesian,
+          subtitle: l10n.languagePageSubtitle,
           selected: !useEnglish,
           onTap: () {
-            setState(() => _selectedLanguage = _AppLanguage.indonesia);
+            _applyLanguage(const Locale('id'));
           },
         ),
         const SizedBox(height: 12),
         _LanguageOption(
-          title: 'English',
-          subtitle: 'Use English for app labels',
+          title: l10n.languageEnglish,
+          subtitle: l10n.languageEnglishDesc,
           selected: useEnglish,
           onTap: () {
-            setState(() => _selectedLanguage = _AppLanguage.english);
+            _applyLanguage(const Locale('en'));
           },
         ),
         const SizedBox(height: 52),
@@ -79,9 +77,9 @@ class _LanguagePageState extends State<LanguagePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Pratinjau',
-                style: TextStyle(
+              Text(
+                l10n.preview,
+                style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -89,7 +87,7 @@ class _LanguagePageState extends State<LanguagePage> {
               ),
               const SizedBox(height: 6),
               Text(
-                useEnglish ? 'Account' : 'Akun',
+                l10n.previewAccount,
                 style: const TextStyle(
                   color: Color(0xFF632BFF),
                   fontSize: 24,
@@ -99,7 +97,7 @@ class _LanguagePageState extends State<LanguagePage> {
               ),
               const SizedBox(height: 3),
               Text(
-                useEnglish ? 'Guest mode active' : 'Mode tamu aktif',
+                l10n.previewGuestActive,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
@@ -113,7 +111,12 @@ class _LanguagePageState extends State<LanguagePage> {
           width: double.infinity,
           height: 52,
           child: ElevatedButton(
-            onPressed: _applyLanguage,
+            onPressed: () {
+              // The language is applied instantly when the option is tapped,
+              // but we keep the button to dismiss or as a secondary confirmation if needed.
+              // In this prototype, we just go back.
+              Navigator.of(context).pop();
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryBlue,
               foregroundColor: Colors.white,
@@ -122,18 +125,18 @@ class _LanguagePageState extends State<LanguagePage> {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Text(
-              'Terapkan bahasa',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+            child: Text(
+              l10n.applyLanguage,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
             ),
           ),
         ),
         const SizedBox(height: 36),
-        const Center(
+        Center(
           child: Text(
-            'Perubahan diterapkan langsung setelah dipilih.',
+            l10n.languageAppliedNote,
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
           ),
         ),
       ],

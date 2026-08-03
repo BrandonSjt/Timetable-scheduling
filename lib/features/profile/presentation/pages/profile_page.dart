@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 
@@ -10,6 +12,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final currentLocale = LocaleScope.of(context).value;
+    final isEnglish = currentLocale.languageCode == 'en';
     const Color headerBgColor = Color(0xFF4F46E5); // Vibrant Indigo/Blue-Purple
 
     return Scaffold(
@@ -69,9 +74,9 @@ class ProfilePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Akun',
-                    style: TextStyle(
+                  Text(
+                    l10n.profileAccount,
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -80,7 +85,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Mode tamu aktif',
+                    l10n.profileGuestModeActive,
                     style: TextStyle(
                       fontSize: 15,
                       color: Colors.white.withValues(alpha: 0.9),
@@ -136,18 +141,18 @@ class ProfilePage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Tamu',
-                                style: TextStyle(
+                              Text(
+                                l10n.profileGuest,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                'Tidak perlu login untuk peta, ETA. jadwal, dan beli tiket.',
-                                style: TextStyle(
+                              Text(
+                                l10n.profileGuestDesc,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondary,
                                   height: 1.35,
@@ -158,9 +163,9 @@ class ProfilePage extends StatelessWidget {
                                 onTap: () {
                                   // Optional login placeholder action
                                 },
-                                child: const Text(
-                                  'Masuk opsional',
-                                  style: TextStyle(
+                                child: Text(
+                                  l10n.profileOptionalLogin,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                     color: Color(0xFF2563EB),
@@ -177,26 +182,26 @@ class ProfilePage extends StatelessWidget {
 
                   // Menu List
                   _buildMenuTile(
-                    title: 'Riwayat tiket lokal',
-                    subtitle: 'Tersimpan di perangkat ini',
+                    title: l10n.profileLocalTicketHistory,
+                    subtitle: l10n.profileSavedOnDevice,
                     onTap: () => context.push('/riwayat-tiket'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(
-                    title: 'Bahasa',
-                    subtitle: 'Indonesia',
+                    title: l10n.languagePageTitle,
+                    subtitle: isEnglish ? l10n.languageEnglish : l10n.languageIndonesian,
                     onTap: () => context.push('/bahasa'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(
-                    title: 'Aksesibilitas',
-                    subtitle: 'Teks besar dan bacakan rute',
+                    title: l10n.profileAccessibility,
+                    subtitle: l10n.profileLargeText,
                     onTap: () => context.push('/aksesibilitas'),
                   ),
                   const SizedBox(height: 12),
                   _buildMenuTile(
-                    title: 'Pusat Bantuan',
-                    subtitle: 'Kontak petugas dan laporan info salah',
+                    title: l10n.profileHelpCenter,
+                    subtitle: l10n.profileContactOfficer,
                     onTap: () => context.push('/pusat-bantuan'),
                   ),
                 ],

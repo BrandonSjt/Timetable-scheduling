@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
+
 /// Shell visual bersama untuk seluruh halaman detail dari menu Akun.
 ///
 /// Shell ini mempertahankan header indigo, permukaan atas membulat, tombol
@@ -15,6 +17,8 @@ class ProfileDetailScaffold extends StatelessWidget {
   final List<Widget> children;
   final String fallbackRoute;
   final EdgeInsetsGeometry bodyPadding;
+  final Widget? footer;
+  final ScrollController? scrollController;
 
   const ProfileDetailScaffold({
     super.key,
@@ -23,6 +27,8 @@ class ProfileDetailScaffold extends StatelessWidget {
     required this.children,
     this.fallbackRoute = '/akun',
     this.bodyPadding = const EdgeInsets.fromLTRB(28, 28, 28, 32),
+    this.footer,
+    this.scrollController,
   });
 
   void _goBack(BuildContext context) {
@@ -58,7 +64,7 @@ class ProfileDetailScaffold extends StatelessWidget {
                     children: [
                       Semantics(
                         button: true,
-                        label: 'Kembali',
+                        label: AppLocalizations.of(context)?.actionBack ?? 'Kembali',
                         child: Material(
                           color: Colors.white.withValues(alpha: 0.16),
                           shape: const CircleBorder(),
@@ -123,7 +129,18 @@ class ProfileDetailScaffold extends StatelessWidget {
                       top: Radius.circular(28),
                     ),
                   ),
-                  child: ListView(padding: bodyPadding, children: children),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView(
+                          controller: scrollController,
+                          padding: bodyPadding,
+                          children: children,
+                        ),
+                      ),
+                      ?footer,
+                    ],
+                  ),
                 ),
               ),
             ),
