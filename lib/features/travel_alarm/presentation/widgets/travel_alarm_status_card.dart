@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/travel_alarm_state.dart';
 
 class TravelAlarmStatusCard extends StatelessWidget {
@@ -21,6 +22,7 @@ class TravelAlarmStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final trip = state.activeTrip;
     return Container(
       width: double.infinity,
@@ -59,7 +61,7 @@ class TravelAlarmStatusCard extends StatelessWidget {
           if (trip != null) ...[
             const SizedBox(height: 8),
             Text(
-              '${trip.from} ke ${trip.to}',
+              l10n.routeFromTo(trip.from, trip.to),
               style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
@@ -71,15 +73,15 @@ class TravelAlarmStatusCard extends StatelessWidget {
           _AlarmStatusLine(
             isActive: state.departureAlarmEnabled,
             label: state.departureAlarmEnabled
-                ? 'Kereta datang aktif'
-                : 'Kereta datang nonaktif',
+                ? l10n.alarmDepartureActive
+                : l10n.alarmDepartureInactive,
           ),
           const SizedBox(height: 6),
           _AlarmStatusLine(
             isActive: state.destinationAlarmEnabled,
             label: state.destinationAlarmEnabled
-                ? 'Turun atau transit aktif'
-                : 'Turun atau transit nonaktif',
+                ? l10n.alarmDestinationActive
+                : l10n.alarmDestinationInactive,
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -89,13 +91,13 @@ class TravelAlarmStatusCard extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onViewTicket,
                 icon: const Icon(Icons.confirmation_num_outlined, size: 18),
-                label: const Text('Lihat tiket'),
+                label: Text(l10n.viewTicketBtn),
               ),
               if (canCancelAlarm ?? state.hasAnyAlarm)
                 TextButton.icon(
                   onPressed: onCancelAlarm,
                   icon: const Icon(Icons.alarm_off_rounded, size: 18),
-                  label: const Text('Batalkan alarm'),
+                  label: Text(l10n.cancelAlarmBtn),
                 ),
             ],
           ),

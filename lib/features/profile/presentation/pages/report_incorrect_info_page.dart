@@ -1,60 +1,80 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/help_flow_widgets.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
 enum _ReportType {
-  schedule(
-    label: 'Jadwal',
-    title: 'Lapor Jadwal',
-    firstLabel: 'Rute terkait',
-    firstValue: 'Bogor → Jakarta Kota',
-    secondLabel: 'Lokasi / stasiun',
-    secondValue: 'Bogor',
-    description: 'ETA di aplikasi berbeda dengan papan informasi stasiun.',
-    actionLabel: 'Kirim laporan jadwal',
-  ),
-  route(
-    label: 'Rute',
-    title: 'Lapor Rute',
-    firstLabel: 'Rute bermasalah',
-    firstValue: 'Dukuh Atas → Harjamukti',
-    secondLabel: 'Titik rute',
-    secondValue: 'Stasiun transit',
-    description: 'Rute yang tampil tidak melewati stasiun transit yang benar.',
-    actionLabel: 'Kirim laporan rute',
-  ),
-  station(
-    label: 'Stasiun',
-    title: 'Lapor Stasiun',
-    firstLabel: 'Nama stasiun',
-    firstValue: 'Jakarta Kota',
-    secondLabel: 'Info yang salah',
-    secondValue: 'Peron / fasilitas',
-    description: 'Informasi stasiun tidak sesuai dengan kondisi di lokasi.',
-    actionLabel: 'Kirim laporan stasiun',
-  );
+  schedule,
+  route,
+  station;
+}
 
-  final String label;
-  final String title;
-  final String firstLabel;
-  final String firstValue;
-  final String secondLabel;
-  final String secondValue;
-  final String description;
-  final String actionLabel;
+extension _ReportTypeL10n on _ReportType {
+  String label(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleLabel,
+      _ReportType.route => l10n.reportRouteLabel,
+      _ReportType.station => l10n.reportStationLabel,
+    };
+  }
 
-  const _ReportType({
-    required this.label,
-    required this.title,
-    required this.firstLabel,
-    required this.firstValue,
-    required this.secondLabel,
-    required this.secondValue,
-    required this.description,
-    required this.actionLabel,
-  });
+  String title(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleTitle,
+      _ReportType.route => l10n.reportRouteTitle,
+      _ReportType.station => l10n.reportStationTitle,
+    };
+  }
+
+  String firstLabel(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleFirstLabel,
+      _ReportType.route => l10n.reportRouteFirstLabel,
+      _ReportType.station => l10n.reportStationFirstLabel,
+    };
+  }
+
+  String firstValue(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleFirstValue,
+      _ReportType.route => l10n.reportRouteFirstValue,
+      _ReportType.station => l10n.reportStationFirstValue,
+    };
+  }
+
+  String secondLabel(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleSecondLabel,
+      _ReportType.route => l10n.reportRouteSecondLabel,
+      _ReportType.station => l10n.reportStationSecondLabel,
+    };
+  }
+
+  String secondValue(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleSecondValue,
+      _ReportType.route => l10n.reportRouteSecondValue,
+      _ReportType.station => l10n.reportStationSecondValue,
+    };
+  }
+
+  String description(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleDesc,
+      _ReportType.route => l10n.reportRouteDesc,
+      _ReportType.station => l10n.reportStationDesc,
+    };
+  }
+
+  String actionLabel(AppLocalizations l10n) {
+    return switch (this) {
+      _ReportType.schedule => l10n.reportScheduleAction,
+      _ReportType.route => l10n.reportRouteAction,
+      _ReportType.station => l10n.reportStationAction,
+    };
+  }
 }
 
 class ReportIncorrectInfoPage extends StatefulWidget {
@@ -68,52 +88,54 @@ class ReportIncorrectInfoPage extends StatefulWidget {
 class _ReportIncorrectInfoPageState extends State<ReportIncorrectInfoPage> {
   _ReportType _type = _ReportType.schedule;
 
-  void _selectType(String label) {
+  void _selectType(String label, AppLocalizations l10n) {
     setState(() {
-      _type = _ReportType.values.firstWhere((type) => type.label == label);
+      _type = _ReportType.values.firstWhere((type) => type.label(l10n) == label);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return ProfileDetailScaffold(
-      title: _type.title,
-      subtitle: 'Koreksi data perjalanan',
+      title: _type.title(l10n),
+      subtitle: l10n.reportSubtitle,
       fallbackRoute: '/pusat-bantuan',
       children: [
         HelpIntroCard(
           icon: Icons.add_rounded,
           accentColor: AppColors.accentOrange,
           iconBackground: const Color(0xFFFFF1E8),
-          title: 'Lapor info salah',
-          status: 'Jenis laporan: ${_type.label}',
-          description: 'Isian mengikuti jenis laporan yang dipilih.',
+          title: l10n.reportWrongInfo,
+          status: l10n.reportTypePrefix(_type.label(l10n)),
+          description: l10n.reportFieldsDesc,
         ),
         const SizedBox(height: 28),
-        const HelpSectionHeading(title: 'Jenis laporan'),
+        HelpSectionHeading(title: l10n.reportTypeHeading),
         const SizedBox(height: 16),
         HelpChoiceGrid(
-          options: _ReportType.values.map((type) => type.label).toList(),
-          selected: _type.label,
-          onSelected: _selectType,
+          options: _ReportType.values.map((type) => type.label(l10n)).toList(),
+          selected: _type.label(l10n),
+          onSelected: (label) => _selectType(label, l10n),
           columns: 3,
           accentColor: AppColors.accentOrange,
           selectedBackground: const Color(0xFFFFF1E8),
         ),
         const SizedBox(height: 22),
-        HelpFieldCard(label: _type.firstLabel, value: _type.firstValue),
+        HelpFieldCard(label: _type.firstLabel(l10n), value: _type.firstValue(l10n)),
         const SizedBox(height: 14),
-        HelpFieldCard(label: _type.secondLabel, value: _type.secondValue),
+        HelpFieldCard(label: _type.secondLabel(l10n), value: _type.secondValue(l10n)),
         const SizedBox(height: 14),
-        HelpFieldCard(label: 'Deskripsi laporan', value: _type.description),
+        HelpFieldCard(label: l10n.reportDescLabel, value: _type.description(l10n)),
         const SizedBox(height: 22),
         OutlinedButton.icon(
           onPressed: () => showHelpMessage(
             context,
-            'Pilih screenshot dari perangkat untuk dilampirkan.',
+            l10n.reportAttachScreenshotMsg,
           ),
           icon: const Icon(Icons.add_rounded),
-          label: const Text('Lampirkan screenshot'),
+          label: Text(l10n.reportAttachScreenshot),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.accentOrange,
             minimumSize: const Size.fromHeight(52),
@@ -131,11 +153,11 @@ class _ReportIncorrectInfoPageState extends State<ReportIncorrectInfoPage> {
         ),
         const SizedBox(height: 16),
         HelpPrimaryButton(
-          label: _type.actionLabel,
+          label: _type.actionLabel(l10n),
           color: AppColors.accentOrange,
           onPressed: () => showHelpMessage(
             context,
-            'Laporan ${_type.label.toLowerCase()} berhasil disiapkan.',
+            l10n.reportPrepared(_type.label(l10n).toLowerCase()),
           ),
         ),
       ],

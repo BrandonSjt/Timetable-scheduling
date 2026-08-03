@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class TravelAlarmButton extends StatelessWidget {
   const TravelAlarmButton({
@@ -14,9 +15,10 @@ class TravelAlarmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final semanticsLabel = isActive
-        ? 'Alarm perjalanan aktif, ketuk untuk menonaktifkan'
-        : 'Aktifkan alarm perjalanan';
+        ? l10n.alarmActiveSemantics
+        : l10n.alarmInactiveSemantics;
 
     return Semantics(
       button: true,
@@ -25,7 +27,7 @@ class TravelAlarmButton extends StatelessWidget {
       onTap: onPressed,
       child: ExcludeSemantics(
         child: Tooltip(
-          message: isActive ? 'Alarm aktif' : 'Aktifkan alarm',
+          message: isActive ? l10n.alarmActiveTooltip : l10n.alarmInactiveTooltip,
           child: Material(
             color: isActive ? AppColors.statusRed : AppColors.surface,
             elevation: 5,

@@ -1,70 +1,89 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/help_flow_widgets.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
 enum _ScheduleIssue {
-  late(
-    label: 'ETA terlambat',
-    title: 'ETA Terlambat',
-    activeLabel: 'ETA terlambat',
-    route: 'Bogor → Jakarta Kota',
-    routeDetail: 'ETA aplikasi: 09:32 WIB',
-    note: 'Papan stasiun menunjukkan 09:40 WIB.',
-    guidance: 'Koreksi membantu akurasi ETA rute ini.',
-    actionLabel: 'Kirim koreksi ETA',
-  ),
-  missingTrain(
-    label: 'Kereta hilang',
-    title: 'Kereta Hilang',
-    activeLabel: 'Kereta tidak muncul',
-    route: 'Bekasi → Manggarai',
-    routeDetail: 'Kereta terdekat tidak tampil',
-    note: 'Kereta terlihat di stasiun, tetapi tidak ada di aplikasi.',
-    guidance: 'Laporan melengkapi data keberangkatan.',
-    actionLabel: 'Laporkan kereta hilang',
-  ),
-  changedSchedule(
-    label: 'Jadwal berubah',
-    title: 'Jadwal Berubah',
-    activeLabel: 'Jadwal berubah',
-    route: 'Dukuh Atas → Harjamukti',
-    routeDetail: 'Jadwal aplikasi: 15:18 WIB',
-    note: 'Jadwal di stasiun berubah menjadi 15:30 WIB.',
-    guidance: 'Laporan membantu sinkronisasi jadwal.',
-    actionLabel: 'Kirim perubahan jadwal',
-  ),
-  differentPlatform(
-    label: 'Peron berbeda',
-    title: 'Peron Berbeda',
-    activeLabel: 'Peron berbeda',
-    route: 'Bogor → Jakarta Kota',
-    routeDetail: 'Peron aplikasi: Peron 2',
-    note: 'Petugas mengarahkan penumpang ke Peron 4.',
-    guidance: 'Laporan membantu memperbaiki info peron.',
-    actionLabel: 'Kirim koreksi peron',
-  );
+  late,
+  missingTrain,
+  changedSchedule,
+  differentPlatform;
+}
 
-  final String label;
-  final String title;
-  final String activeLabel;
-  final String route;
-  final String routeDetail;
-  final String note;
-  final String guidance;
-  final String actionLabel;
+extension _ScheduleIssueL10n on _ScheduleIssue {
+  String label(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaLabel,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainLabel,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleLabel,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformLabel,
+    };
+  }
 
-  const _ScheduleIssue({
-    required this.label,
-    required this.title,
-    required this.activeLabel,
-    required this.route,
-    required this.routeDetail,
-    required this.note,
-    required this.guidance,
-    required this.actionLabel,
-  });
+  String title(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaTitle,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainTitle,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleTitle,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformTitle,
+    };
+  }
+
+  String activeLabel(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaActive,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainActive,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleActive,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformActive,
+    };
+  }
+
+  String route(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaRoute,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainRoute,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleRoute,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformRoute,
+    };
+  }
+
+  String routeDetail(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaRouteDetail,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainRouteDetail,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleRouteDetail,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformRouteDetail,
+    };
+  }
+
+  String note(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaNote,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainNote,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleNote,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformNote,
+    };
+  }
+
+  String guidance(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaGuidance,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainGuidance,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleGuidance,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformGuidance,
+    };
+  }
+
+  String actionLabel(AppLocalizations l10n) {
+    return switch (this) {
+      _ScheduleIssue.late => l10n.issueLateEtaAction,
+      _ScheduleIssue.missingTrain => l10n.issueMissingTrainAction,
+      _ScheduleIssue.changedSchedule => l10n.issueChangedScheduleAction,
+      _ScheduleIssue.differentPlatform => l10n.issueDiffPlatformAction,
+    };
+  }
 }
 
 class ScheduleIssuePage extends StatefulWidget {
@@ -77,54 +96,56 @@ class ScheduleIssuePage extends StatefulWidget {
 class _ScheduleIssuePageState extends State<ScheduleIssuePage> {
   _ScheduleIssue _issue = _ScheduleIssue.late;
 
-  void _selectIssue(String label) {
+  void _selectIssue(String label, AppLocalizations l10n) {
     setState(() {
       _issue = _ScheduleIssue.values.firstWhere(
-        (issue) => issue.label == label,
+        (issue) => issue.label(l10n) == label,
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return ProfileDetailScaffold(
-      title: _issue.title,
-      subtitle: 'Laporkan ketidaksesuaian',
+      title: _issue.title(l10n),
+      subtitle: l10n.issueReportMismatch,
       fallbackRoute: '/pusat-bantuan',
       children: [
         HelpIntroCard(
           icon: Icons.add_rounded,
           accentColor: AppColors.accentOrange,
           iconBackground: const Color(0xFFFFF1E8),
-          title: 'Jadwal & ETA',
-          status: 'Masalah aktif: ${_issue.activeLabel}',
-          description: 'Detail laporan mengikuti masalah yang dipilih.',
+          title: l10n.issueScheduleAndEta,
+          status: l10n.issueActiveProblem(_issue.activeLabel(l10n)),
+          description: l10n.issueDetailFollows,
         ),
         const SizedBox(height: 28),
         HelpFieldCard(
-          label: 'Rute dipantau',
-          value: _issue.route,
-          supportingText: _issue.routeDetail,
+          label: l10n.issueMonitoredRoute,
+          value: _issue.route(l10n),
+          supportingText: _issue.routeDetail(l10n),
         ),
         const SizedBox(height: 28),
-        const HelpSectionHeading(title: 'Masalah yang terjadi'),
+        HelpSectionHeading(title: l10n.issueProblemOccurred),
         const SizedBox(height: 16),
         HelpChoiceGrid(
-          options: _ScheduleIssue.values.map((issue) => issue.label).toList(),
-          selected: _issue.label,
-          onSelected: _selectIssue,
+          options: _ScheduleIssue.values.map((issue) => issue.label(l10n)).toList(),
+          selected: _issue.label(l10n),
+          onSelected: (label) => _selectIssue(label, l10n),
           columns: 2,
           accentColor: AppColors.accentOrange,
           selectedBackground: const Color(0xFFFFF1E8),
         ),
         const SizedBox(height: 28),
-        HelpFieldCard(label: 'Catatan', value: _issue.note),
+        HelpFieldCard(label: l10n.issueNotes, value: _issue.note(l10n)),
         const SizedBox(height: 18),
         HelpSurfaceCard(
           color: const Color(0xFFE8F8F0),
           borderColor: const Color(0xFFB7E9D2),
           child: Text(
-            _issue.guidance,
+            _issue.guidance(l10n),
             style: const TextStyle(
               color: Color(0xFF079669),
               fontSize: 13,
@@ -134,11 +155,11 @@ class _ScheduleIssuePageState extends State<ScheduleIssuePage> {
         ),
         const SizedBox(height: 22),
         HelpPrimaryButton(
-          label: _issue.actionLabel,
+          label: _issue.actionLabel(l10n),
           color: AppColors.accentOrange,
           onPressed: () => showHelpMessage(
             context,
-            'Koreksi ${_issue.activeLabel.toLowerCase()} berhasil disiapkan.',
+            l10n.issueCorrectionPrepared(_issue.activeLabel(l10n).toLowerCase()),
           ),
         ),
       ],

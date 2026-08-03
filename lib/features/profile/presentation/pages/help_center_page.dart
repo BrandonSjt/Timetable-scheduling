@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
 class _HelpTopic {
@@ -12,20 +13,20 @@ class _HelpTopic {
   const _HelpTopic(this.title, this.subtitle, this.route);
 }
 
-const _helpTopics = [
+List<_HelpTopic> _getHelpTopics(AppLocalizations l10n) => [
   _HelpTopic(
-    'Cara membeli tiket lokal',
-    'Panduan untuk KRL dan LRT',
+    l10n.helpTopicBuyTicket,
+    l10n.helpTopicBuyTicketDesc,
     '/bantuan/chat',
   ),
   _HelpTopic(
-    'Jadwal atau ETA tidak sesuai',
-    'Kirim laporan dari detail rute',
+    l10n.helpTopicScheduleIssue,
+    l10n.helpTopicScheduleIssueDesc,
     '/bantuan/jadwal-eta',
   ),
   _HelpTopic(
-    'Masalah pembayaran',
-    'Cek status transaksi terakhir',
+    l10n.helpTopicPaymentIssue,
+    l10n.helpTopicPaymentIssueDesc,
     '/bantuan/pembayaran',
   ),
 ];
@@ -41,10 +42,11 @@ class HelpCenterPage extends StatefulWidget {
 class _HelpCenterPageState extends State<HelpCenterPage> {
   String _query = '';
 
-  List<_HelpTopic> get _visibleTopics {
+  List<_HelpTopic> _getVisibleTopics(AppLocalizations l10n) {
     final query = _query.trim().toLowerCase();
-    if (query.isEmpty) return _helpTopics;
-    return _helpTopics
+    final topics = _getHelpTopics(l10n);
+    if (query.isEmpty) return topics;
+    return topics
         .where(
           (topic) =>
               topic.title.toLowerCase().contains(query) ||
@@ -61,17 +63,18 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final topics = _visibleTopics;
+    final l10n = AppLocalizations.of(context)!;
+    final topics = _getVisibleTopics(l10n);
 
     return ProfileDetailScaffold(
-      title: 'Pusat Bantuan',
-      subtitle: 'Kontak petugas dan laporan',
+      title: l10n.helpCenterTitle,
+      subtitle: l10n.helpCenterSubtitle,
       children: [
         TextField(
           onChanged: (value) => setState(() => _query = value),
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            hintText: 'Cari bantuan, stasiun, atau tiket',
+            hintText: l10n.helpSearchHint,
             prefixIcon: const Icon(Icons.search_rounded),
             filled: true,
             fillColor: Colors.white,
@@ -90,18 +93,18 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
           ),
         ),
         const SizedBox(height: 28),
-        const Text(
-          'Aksi cepat',
-          style: TextStyle(
+        Text(
+          l10n.helpQuickActions,
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Pilih bantuan yang paling sering dipakai',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        Text(
+          l10n.helpQuickActionsDesc,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const SizedBox(height: 20),
         Row(
@@ -109,7 +112,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             Expanded(
               child: _QuickHelpAction(
                 icon: Icons.chat_bubble_outline_rounded,
-                label: 'Chat petugas',
+                label: l10n.helpChatStaff,
                 iconColor: AppColors.primaryBlue,
                 iconBackground: const Color(0xFFEFF6FF),
                 onTap: () => context.push('/bantuan/chat'),
@@ -119,7 +122,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             Expanded(
               child: _QuickHelpAction(
                 icon: Icons.report_outlined,
-                label: 'Lapor info salah',
+                label: l10n.helpReportInfo,
                 iconColor: AppColors.accentOrange,
                 iconBackground: const Color(0xFFFFF1E8),
                 onTap: () => context.push('/bantuan/lapor'),
@@ -128,9 +131,9 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
           ],
         ),
         const SizedBox(height: 36),
-        const Text(
-          'Topik bantuan',
-          style: TextStyle(
+        Text(
+          l10n.helpTopicsTitle,
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w800,
@@ -145,10 +148,10 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppColors.cardBorder),
             ),
-            child: const Text(
-              'Topik bantuan tidak ditemukan.',
+            child: Text(
+              l10n.helpNoTopicsFound,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
           )
         else
@@ -168,15 +171,15 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
-            onTap: () => _showMessage('Menghubungi KAI melalui 121.'),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 17),
+            onTap: () => _showMessage(l10n.helpCallKaiSnack),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 17),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Hubungi KAI: 121',
-                      style: TextStyle(
+                      l10n.helpCallKai,
+                      style: const TextStyle(
                         color: AppColors.accentOrange,
                         fontSize: 14,
                         fontWeight: FontWeight.w800,

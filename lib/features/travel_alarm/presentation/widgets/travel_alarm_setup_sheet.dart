@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class TravelAlarmSelection {
   const TravelAlarmSelection({
@@ -54,6 +55,7 @@ class _TravelAlarmSetupSheetState extends State<_TravelAlarmSetupSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: SingleChildScrollView(
@@ -78,19 +80,19 @@ class _TravelAlarmSetupSheetState extends State<_TravelAlarmSetupSheet> {
               ),
             ),
             const SizedBox(height: 18),
-            const Row(
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
+                const Icon(
                   Icons.alarm_add_rounded,
                   color: AppColors.primaryBlue,
                   size: 26,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Aktifkan pengingat perjalanan?',
-                    style: TextStyle(
+                    l10n.alarmSetupTitle,
+                    style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -101,7 +103,7 @@ class _TravelAlarmSetupSheetState extends State<_TravelAlarmSetupSheet> {
             ),
             const SizedBox(height: 8),
             Text(
-              '${widget.from} ke ${widget.to}',
+              l10n.routeFromTo(widget.from, widget.to),
               style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 14,
@@ -110,9 +112,9 @@ class _TravelAlarmSetupSheetState extends State<_TravelAlarmSetupSheet> {
             ),
             const SizedBox(height: 18),
             _AlarmToggleRow(
-              semanticsLabel: 'Pengingat kereta datang',
-              title: 'Kereta datang',
-              description: 'Ingatkan 5 menit dan 1 menit sebelumnya',
+              semanticsLabel: l10n.alarmDepartureSemantics,
+              title: l10n.alarmDepartureTitle,
+              description: l10n.alarmDepartureDesc,
               icon: Icons.train_rounded,
               switchKey: const Key('departure-alarm-toggle'),
               value: _departureEnabled,
@@ -120,18 +122,18 @@ class _TravelAlarmSetupSheetState extends State<_TravelAlarmSetupSheet> {
             ),
             const Divider(height: 1, color: AppColors.divider),
             _AlarmToggleRow(
-              semanticsLabel: 'Pengingat turun atau transit',
-              title: 'Turun atau transit',
-              description: 'Ingatkan 1 stasiun sebelum tujuan',
+              semanticsLabel: l10n.alarmDestinationSemantics,
+              title: l10n.alarmDestinationTitle,
+              description: l10n.alarmDestinationDesc,
               icon: Icons.transfer_within_a_station_rounded,
               switchKey: const Key('destination-alarm-toggle'),
               value: _destinationEnabled,
               onChanged: (value) => setState(() => _destinationEnabled = value),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Pengingat ini merupakan simulasi dan aktif selama aplikasi dibuka.',
-              style: TextStyle(
+            Text(
+              l10n.alarmSimulationNote,
+              style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
                 height: 1.4,
@@ -151,7 +153,7 @@ class _TravelAlarmSetupSheetState extends State<_TravelAlarmSetupSheet> {
                       )
                     : null,
                 icon: const Icon(Icons.alarm_on_rounded),
-                label: const Text('Aktifkan alarm'),
+                label: Text(l10n.alarmActivateBtn),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   foregroundColor: AppColors.textOnPrimary,
@@ -167,7 +169,7 @@ class _TravelAlarmSetupSheetState extends State<_TravelAlarmSetupSheet> {
               width: double.infinity,
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Lewati'),
+                child: Text(l10n.actionSkip),
               ),
             ),
           ],
@@ -198,10 +200,11 @@ class _AlarmToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Semantics(
       container: true,
       label: semanticsLabel,
-      value: value ? 'aktif' : 'nonaktif',
+      value: value ? l10n.stateActive : l10n.stateInactive,
       toggled: value,
       onTap: () => onChanged(!value),
       child: ExcludeSemantics(
