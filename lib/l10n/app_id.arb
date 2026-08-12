@@ -16,8 +16,8 @@
   "previewAccount": "Akun",
   "previewGuestActive": "Mode tamu aktif",
   "applyLanguage": "Terapkan bahasa",
-  "languageAppliedNote": "Perubahan diterapkan langsung setelah dipilih.",
-  "languageAppliedSnackbar": "Bahasa Indonesia diterapkan.",
+  "languageAppliedNote": "Perubahan langsung diterapkan dan disimpan untuk kunjungan berikutnya.",
+  "languageAppliedSnackbar": "Bahasa diterapkan.",
   "languageSaveFailedSnackbar": "Bahasa diubah untuk sesi ini, tetapi preferensi Anda tidak dapat disimpan.",
   
   "profileAccount": "Akun",

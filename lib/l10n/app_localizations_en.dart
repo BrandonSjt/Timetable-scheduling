@@ -25,10 +25,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageIndonesian => 'Indonesia';
 
   @override
+  String get languageIndonesianDesc => 'Use Indonesian for app labels';
+
+  @override
   String get languageEnglish => 'English';
 
   @override
   String get languageEnglishDesc => 'Use English for app labels';
+
+  @override
+  String get languageSimplifiedChinese => '简体中文';
+
+  @override
+  String get languageSimplifiedChineseDesc =>
+      'Use Simplified Chinese for app labels';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageArabicDesc => 'Use Arabic for app labels';
 
   @override
   String get preview => 'Preview';
@@ -44,10 +60,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageAppliedNote =>
-      'This language selection will be saved and applied to all app pages on your next visit.';
+      'Changes are applied immediately and saved for future visits.';
 
   @override
-  String get languageAppliedSnackbar => 'English applied.';
+  String get languageAppliedSnackbar => 'Language applied.';
+
+  @override
+  String get languageSaveFailedSnackbar =>
+      'Language changed for this session, but your preference could not be saved.';
 
   @override
   String get profileAccount => 'Account';

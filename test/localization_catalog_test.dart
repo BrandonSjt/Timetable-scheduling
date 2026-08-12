@@ -11,6 +11,10 @@ Set<String> messageKeys(Map<String, Object?> arb) => arb.keys
     .where((key) => !key.startsWith('@'))
     .toSet();
 
+Set<String> metadataKeys(Map<String, Object?> arb) => arb.keys
+    .where((key) => key.startsWith('@') && key != '@@locale')
+    .toSet();
+
 Set<String> placeholders(Object? value) {
   if (value is! String) return const <String>{};
   return RegExp(
@@ -32,20 +36,41 @@ double scriptCoverage(Map<String, Object?> arb, RegExp script) {
 void main() {
   final english = readArb('lib/l10n/app_en.arb');
 
-  for (final locale in const <String>['id', 'zh_Hans', 'ar']) {
-    test('$locale catalog has complete message and placeholder parity', () {
+  for (final locale in const <String>['id', 'zh', 'zh_Hans', 'ar']) {
+    test('$locale catalog has a complete localization contract', () {
       final catalog = readArb('lib/l10n/app_$locale.arb');
       expect(messageKeys(catalog), messageKeys(english));
+      expect(metadataKeys(catalog), metadataKeys(english));
 
       for (final key in messageKeys(english)) {
+        expect(
+          (catalog[key] as String).trim(),
+          isNotEmpty,
+          reason: 'Empty translation for $locale.$key',
+        );
         expect(
           placeholders(catalog[key]),
           placeholders(english[key]),
           reason: 'Placeholder mismatch for $locale.$key',
         );
       }
+
+      for (final key in metadataKeys(english)) {
+        expect(
+          catalog[key],
+          english[key],
+          reason: 'Metadata or placeholder type mismatch for $locale.$key',
+        );
+      }
     });
   }
+
+  test('Chinese base fallback stays synchronized with zh_Hans', () {
+    final chineseBase = readArb('lib/l10n/app_zh.arb')..remove('@@locale');
+    final simplifiedChinese = readArb('lib/l10n/app_zh_Hans.arb')
+      ..remove('@@locale');
+    expect(chineseBase, simplifiedChinese);
+  });
 
   test('Simplified Chinese contains Chinese text instead of bulk fallback', () {
     final chinese = readArb('lib/l10n/app_zh_Hans.arb');

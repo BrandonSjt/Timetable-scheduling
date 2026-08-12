@@ -1,0 +1,979 @@
+{
+  "@@locale": "ar",
+  "languagePageTitle": "لغة",
+  "languagePageSubtitle": "اللغة المستخدمة حاليا",
+  "languageApp": "لغة التطبيق",
+  "languageDescription": "اختر لغة للتنقل في التطبيق والرسائل",
+  "languageIndonesian": "Indonesia",
+  "languageIndonesianDesc": "استخدم اللغة الإندونيسية لتسميات التطبيقات",
+  "languageEnglish": "English",
+  "languageEnglishDesc": "استخدم اللغة الإنجليزية لتسميات التطبيق",
+  "languageSimplifiedChinese": "????",
+  "languageSimplifiedChineseDesc": "استخدم اللغة الصينية المبسطة لتسميات التطبيقات",
+  "languageArabic": "???????",
+  "languageArabicDesc": "استخدم اللغة العربية لتسميات التطبيق",
+  "preview": "معاينة",
+  "previewAccount": "حساب",
+  "previewGuestActive": "وضع الضيف نشط",
+  "applyLanguage": "تطبيق اللغة",
+  "languageAppliedNote": "تُطبَّق التغييرات فورًا وتُحفظ للزيارات القادمة.",
+  "languageSaveFailedSnackbar": "تم تغيير اللغة لهذه الجلسة، ولكن لا يمكن حفظ تفضيلاتك.",
+  "navHome": "الرئيسية",
+  "navSchedule": "المواعيد",
+  "navTickets": "التذاكر",
+  "navAssistant": "مساعد",
+  "navAccount": "حساب",
+  "filterArea": "مرشح المنطقة",
+  "areaJabodetabek": "Greater Jakarta Area",
+  "filterAreaComingSoon": "مرشحات منطقة محددة قريبا",
+  "filterLine": "مرشح خط النقل",
+  "searchStationHint": "اكتب اسم المحطة أو الخط أو المنطقة",
+  "startFrom": "البداية من: {station}",
+  "selectedStation": "المحطة المختارة",
+  "from": "من",
+  "to": "ل",
+  "selectFromFirst": "الرجاء تحديد محطة البداية (من) أولاً!",
+  "nearestDepartures": "أقرب المغادرين",
+  "languageAppliedSnackbar": "تم تطبيق اللغة.",
+  "profileAccount": "حساب",
+  "profileGuestModeActive": "وضع الضيف نشط",
+  "profileGuest": "ضيف",
+  "profileGuestDesc": "لا حاجة لتسجيل الدخول للخرائط، ETA، والجداول الزمنية، والتذاكر.",
+  "profileOptionalLogin": "تسجيل دخول اختياري",
+  "profileLocalTicketHistory": "تاريخ التذاكر المحلية",
+  "profileSavedOnDevice": "تم الحفظ على هذا الجهاز",
+  "profileAccessibility": "إمكانية الوصول",
+  "profileLargeText": "نص كبير وطرق القراءة",
+  "profileHelpCenter": "مركز المساعدة",
+  "profileContactOfficer": "الاتصال بالمسؤول والإبلاغ عن الأخطاء",
+  "allStations": "جميع المحطات",
+  "all": "الجميع",
+  "selectOriginStation": "حدد محطة الأصل",
+  "searchStationHint2": "اسم محطة البحث (على سبيل المثال، Manggarai، حليم...)",
+  "weekday": "أيام الأسبوع",
+  "weekend": "عطلة نهاية الأسبوع",
+  "trainSchedule": "جدول القطار",
+  "searchDestinationHint": "ابحث عن محطة الوجهة أو رقم القطار...",
+  "filterOriginAll": "مرشح محطة الأصل (جميع المحطات)",
+  "originStation": "محطة الانطلاق: {station}",
+  "scheduleNotFound": "لم يتم العثور على الجدول الزمني",
+  "tryChangingFilter": "حاول تغيير المحطة أو مرشح اليوم.",
+  "alarmActivated": "تم تفعيل إنذار السفر",
+  "alarmDeactivated": "تم إلغاء تنشيط إنذار السفر",
+  "tickets": "التذاكر",
+  "validUntil": "صالح حتى الساعة 23:59",
+  "payBefore": "ادفع قبل الساعة 23:59",
+  "usedToday": "يستخدم اليوم، 09:12",
+  "unpaid": "غير مدفوعة الأجر",
+  "active": "نشيط",
+  "completed": "مكتمل",
+  "travelTicket": "تذكرة سفر",
+  "ticketStatusSummary": "{active} تذاكر نشطة · {pending} غير مدفوعة · {completed} مكتملة",
+  "notPaid": "لم تدفع",
+  "alreadyUsed": "تستخدم بالفعل",
+  "readyToScan": "جاهز للمسح",
+  "payNow": "ادفع الآن",
+  "detail": "التفاصيل",
+  "viewQR": "عرض QR",
+  "ticketAlreadyUsed": "لقد تم استخدام هذه التذكرة بالفعل.",
+  "qrValidUntil": "QR صالحة حتى",
+  "choosePayment": "اختر الدفع",
+  "qrisDesc": "لا يوجد حساب، جميع المحافظ الإلكترونية",
+  "creditCard": "بطاقة الخصم/الائتمان",
+  "virtualAccount": "فا / نقل",
+  "vaDesc": "رمز الدفع لمرة واحدة",
+  "optionalContact": "الهاتف / البريد الإلكتروني الاختياري",
+  "optionalContactDesc": "فقط لإرسال نسخة التذكرة. لم يتم إنشاء أي حساب.",
+  "payAmount": "ادفع {amount}",
+  "paymentSuccess": "تم الدفع بنجاح",
+  "scanQrAtGate": "قم بمسح QR عند بوابة الدخول.",
+  "validGateInBefore": "صالحة للدخول من قبل",
+  "today2359": "23:59 اليوم",
+  "withoutAccount": "لا يوجد حساب",
+  "guest": "ضيف",
+  "ticketSaved": "تم حفظ التذكرة في معرض الهاتف!",
+  "saveTicket": "حفظ التذكرة",
+  "sharingTicketLink": "رابط مشاركة التذكرة...",
+  "share": "يشارك",
+  "a11yQrInfo": "A11Y: يحتوي QR على رمز نصي احتياطي لمساعدة الموظفين.",
+  "assistantReady": "على استعداد للمساعدة",
+  "assistantListening": "الاستماع",
+  "assistantProcessing": "يعالج",
+  "assistantSpeaking": "تكلم",
+  "assistantWaiting": "في انتظار التأكيد",
+  "assistantError": "يحتاج إلى المحاولة مرة أخرى",
+  "voiceStart": "ابدأ المحادثة الصوتية",
+  "voiceStop": "إيقاف المحادثة الصوتية",
+  "voiceProcessing": "الطلب قيد المعالجة",
+  "voiceStopSpeaking": "إيقاف صوت المساعد",
+  "voiceNew": "ابدأ محادثة جديدة",
+  "voiceRetry": "حاول المحادثة الصوتية مرة أخرى",
+  "quickActions": "إجراءات سريعة",
+  "planTrip": "خطط لرحلة",
+  "nextTrain": "القطار القادم",
+  "myTickets": "التذاكر الخاصة بي",
+  "officerHelp": "مساعدة الموظفين",
+  "travelAssistant": "مساعد السفر",
+  "assistantStatusLabel": "حالة المساعد: {status}",
+  "wakeWordMode": "وضع كلمة التنبيه مرحبًا بالمساعد",
+  "inactive": "غير نشط",
+  "listenWakeWord": "الاستماع إلى \"مرحبا مساعد\"",
+  "wakeWordActiveText": "كلمة التنبيه مفعّلة",
+  "wakeWordPageOnly": "نشط فقط على هذه الصفحة",
+  "back": "خلف",
+  "selectDestination": "اختر محطة الوجهة",
+  "searchStationTitle": "محطة البحث",
+  "startTripFrom": "ابدأ الرحلة من: {station}",
+  "serviceFilter": "مرشح الخدمة",
+  "accessible": "يمكن الوصول إليها",
+  "quickResults": "نتائج سريعة",
+  "stationNotFound": "لم يتم العثور على المحطة",
+  "withoutLogin": "لا تسجيل الدخول",
+  "favoriteHistoryLocal": "يتم حفظ المفضلة والتاريخ محليًا على الجهاز.",
+  "routeGuideTitle": "دليل طريق الرحلة",
+  "fastest": "الأسرع",
+  "minTransit": "دقيقة العبور",
+  "travelEstimate": "تقدير السفر",
+  "minutesOnly": "دقائق",
+  "stopsAndService": "{stops} محطات · {serviceInfo}",
+  "travelFare": "أجرة السفر",
+  "routeTimeline": "الجدول الزمني للطريق",
+  "exitGateInfo": "معلومات بوابة الخروج عند {to}",
+  "buyTicketDirect": "شراء التذكرة مباشرة ({fare})",
+  "readRouteToast": "جارٍ قراءة المسار من {from} إلى {to}: المدة {travelTime} دقيقة.",
+  "readRouteBtn": "قراءة الطريق",
+  "viewOnMapBtn": "عرض على الخريطة",
+  "a11yAudioRoute": "الصوت الميسّر A11Y: المسار من {from} إلى {to} ({travelTime} دقيقة، {stops} محطات).",
+  "nextTrainLive": "القطار التالي (البث المباشر)",
+  "noTripNeeded": "لا حاجة لرحلة",
+  "sameOriginDest": "الأصل والوجهة هي نفسها.",
+  "alreadyAtDest": "أنت بالفعل في محطة الوجهة.",
+  "minuteShort": "دقيقة",
+  "lineNoTransit": "{lineName} · لا يوجد نقل عام",
+  "boardLineFrom": "اركب {lineName} من محطة {from}.",
+  "departureTime": "المغادرة: 08:35 صباحًا",
+  "platformDirection": "الرصيف {platform} · باتجاه {to}",
+  "directTripTo": "رحلة مباشرة إلى {to} (محطات {stops})",
+  "estDuration": "نحو {duration} دقيقة",
+  "skipStops": "تخطي محطات {stops} مباشرة",
+  "arriveAtDest": "الوصول إلى الوجهة {to}",
+  "totalDuration": "الإجمالي {duration} دقيقة",
+  "elevatedStation": "محطة مرتفعة",
+  "gateA": "البوابة A (الشمالية): {gate}",
+  "gateB": "البوابة B (الجنوبية): {gate}",
+  "mainAccessGate": "الوصول إلى الطريق الرئيسي وتكامل TransJakarta",
+  "dropOffGate": "خدمة التوصيل عبر الإنترنت من Ojek وموقف سيارات الأجرة ومواقف السيارات",
+  "oneTransitAt": "وسيلة نقل واحدة · التغيير في {station}",
+  "alightAt": "انزل في محطة {station} ({stops} محطات)",
+  "prepareTransitAt": "الاستعداد لتغيير الخطوط في محطة {station}.",
+  "transitToLine": "بدّل في {station}: انتقل إلى رصيف {line}",
+  "transitPlatform1To2": "النقل من المنصة 1 إلى المنصة 2 (مصعد الوصول وكتلة التوجيه)",
+  "boardLineTo": "اركب {line} باتجاه محطة {to} ({stops} محطات)",
+  "nextTrainAtPlatform": "يصل القطار التالي خلال {minutes} دقيقة إلى الرصيف {platform}",
+  "a11yReadingPreview": "القراءة: من Dukuh Atas إلى Harjamukti، الرصيف 2، ستصل خلال 4 دقائق.",
+  "a11yTitle": "إمكانية الوصول",
+  "a11ySubtitle": "النص والصوت",
+  "a11yDisplaySettings": "إعدادات العرض",
+  "a11yMakeEasier": "اجعل التطبيق أسهل في القراءة والاستماع",
+  "a11yLargeText": "نص كبير",
+  "a11yLargeTextDesc": "تكبير التسميات ومعلومات الطريق",
+  "a11yReadRoute": "قراءة الطريق",
+  "a11yReadRouteDesc": "تمكين قراءة المحطة والاتجاه",
+  "a11yRoutePreviewSemantic": "معاينة الطريق. من Dukuh Atas إلى Harjamukti. الرصيف 2 سيصل خلال 4 دقائق",
+  "a11yRoutePreviewTitle": "معاينة الطريق",
+  "a11yRoutePreviewRoute": "Dukuh Atas → Harjamukti",
+  "a11yRoutePreviewDetail": "الرصيف 2، سيصل خلال 4 دقائق",
+  "a11yReadBtn": "يقرأ",
+  "historyCleared": "تم مسح سجل التذكرة من هذا الجهاز.",
+  "historyTitle": "تاريخ التذاكر",
+  "historyCompleted": "اكتمل التاريخ",
+  "historySubtitle": "تم الحفظ على هذا الجهاز",
+  "historyLastTicket": "التذكرة الأخيرة",
+  "historySortRecent": "مرتبة حسب الرحلات الأخيرة",
+  "historyKrl": "KRL Commuter Line",
+  "historyKrlRoute": "Bogor → Jakarta Kota",
+  "historyKrlDate": "اليوم، 08:12",
+  "historyLrt": "LRT Jabodebek",
+  "historyLrtRoute": "Dukuh Atas → Harjamukti",
+  "historyLrtDate": "الثلاثاء 7 يوليو 2026",
+  "historyGuestMode": "وضع الضيف",
+  "historyGuestDesc": "هذا السجل موجود فقط على هذا الجهاز.",
+  "historyNoTickets": "لا يوجد سجل التذاكر بعد",
+  "historyClearHistory": "مسح التاريخ",
+  "historyClearDesc": "احذف البيانات من هذا الجهاز.",
+  "helpTopicBuyTicket": "كيفية شراء التذاكر المحلية",
+  "helpTopicBuyTicketDesc": "دليل KRL وLRT",
+  "helpTopicScheduleIssue": "الجدول الزمني أو عدم تطابق ETA",
+  "helpTopicScheduleIssueDesc": "إرسال تقرير من تفاصيل الطريق",
+  "helpTopicPaymentIssue": "مشكلة الدفع",
+  "helpTopicPaymentIssueDesc": "التحقق من حالة المعاملة الأخيرة",
+  "helpCenterTitle": "مركز المساعدة",
+  "helpCenterSubtitle": "الاتصال بالموظفين والتقارير",
+  "helpSearchHint": "ابحث عن المساعدة أو المحطة أو التذكرة",
+  "helpQuickActions": "إجراءات سريعة",
+  "helpQuickActionsDesc": "اختر المساعدة المستخدمة بشكل متكرر",
+  "helpChatStaff": "الدردشة مع الموظفين",
+  "helpReportInfo": "الإبلاغ عن معلومات خاطئة",
+  "helpTopicsTitle": "مواضيع المساعدة",
+  "helpNoTopicsFound": "لم يتم العثور على مواضيع مساعدة.",
+  "helpCallKaiSnack": "التواصل مع KAI عبر 121.",
+  "helpCallKai": "الاتصال KAI: 121",
+  "chatLiveHelp": "مساعدة حية",
+  "chatWithStaff": "الدردشة مع الموظفين",
+  "chatActiveTopic": "الموضوع النشط: {topic}",
+  "chatContentTailored": "محتوى الدردشة مصمم حسب اختيارك.",
+  "chatServiceStatus": "حالة الخدمة",
+  "chatWaitEstimate": "تقدير الانتظار الحالي",
+  "chatSelectTopic": "حدد الموضوع",
+  "chatInitialMessage": "الرسالة الأولية",
+  "chatSharedData": "البيانات المشتركة",
+  "issueLateEtaTitle": "أواخر ETA",
+  "issueLateEtaLabel": "أواخر ETA",
+  "issueLateEtaActive": "ETA متأخر",
+  "issueLateEtaRoute": "Bogor → Jakarta Kota",
+  "issueLateEtaRouteDetail": "التطبيق ETA: 09:32",
+  "issueLateEtaNote": "تظهر لوحة المحطة 09:40.",
+  "issueLateEtaGuidance": "يساعد التصحيح على دقة ETA لهذا المسار.",
+  "issueLateEtaAction": "إرسال تصحيح ETA",
+  "issueMissingTrainTitle": "القطار المفقود",
+  "issueMissingTrainLabel": "القطار المفقود",
+  "issueMissingTrainActive": "القطار لم يظهر",
+  "issueMissingTrainRoute": "بيكاسي → Manggarai",
+  "issueMissingTrainRouteDetail": "أقرب قطار لا يظهر",
+  "issueMissingTrainNote": "وينظر القطار في المحطة، ولكن ليس في التطبيق.",
+  "issueMissingTrainGuidance": "التقرير يكمل بيانات المغادرة.",
+  "issueMissingTrainAction": "الإبلاغ عن القطار المفقود",
+  "issueChangedScheduleTitle": "تم تغيير الجدول الزمني",
+  "issueChangedScheduleLabel": "تم تغيير الجدول الزمني",
+  "issueChangedScheduleActive": "تم تغيير الجدول الزمني",
+  "issueChangedScheduleRoute": "Dukuh Atas → Harjamukti",
+  "issueChangedScheduleRouteDetail": "جدول التطبيق: 15:18",
+  "issueChangedScheduleNote": "تم تغيير الجدول الزمني في المحطة إلى الساعة 15:30.",
+  "issueChangedScheduleGuidance": "يساعد التقرير في جدولة المزامنة.",
+  "issueChangedScheduleAction": "إرسال تغيير الجدول الزمني",
+  "issueDiffPlatformTitle": "منصة مختلفة",
+  "issueDiffPlatformLabel": "منصة مختلفة",
+  "issueDiffPlatformActive": "منصة مختلفة",
+  "issueDiffPlatformRoute": "Bogor → Jakarta Kota",
+  "issueDiffPlatformRouteDetail": "منصة التطبيق: المنصة 2",
+  "issueDiffPlatformNote": "يقوم الموظفون بتوجيه الركاب إلى المنصة 4.",
+  "issueDiffPlatformGuidance": "يساعد التقرير في إصلاح معلومات النظام الأساسي.",
+  "issueDiffPlatformAction": "إرسال تصحيح المنصة",
+  "issueReportMismatch": "الإبلاغ عن عدم التطابق",
+  "issueScheduleAndEta": "الجدول الزمني وETA",
+  "issueActiveProblem": "المشكلة النشطة: {problem}",
+  "issueDetailFollows": "تفاصيل التقرير تتبع المشكلة المحددة.",
+  "issueMonitoredRoute": "طريق مراقب",
+  "issueProblemOccurred": "حدثت مشكلة",
+  "issueNotes": "ملحوظات",
+  "issueCorrectionPrepared": "تم إعداد تصحيح {problem} بنجاح.",
+  "topicTicketLabel": "تذكرة",
+  "topicTicketTitle": "دردشة التذاكر",
+  "topicTicketAgent": "موظفي التذاكر",
+  "topicTicketAvailability": "موظفو التذاكر متاحون",
+  "topicTicketWait": "يتم الرد عادةً خلال دقيقتين",
+  "topicTicketOpening": "أحتاج إلى مساعدة بشأن التذكرة",
+  "topicTicketShared": "وضع الضيف ومعرف التذكرة والمسار الأخير",
+  "topicTicketAction": "ابدأ محادثة التذاكر",
+  "topicTicketGreeting": "مرحبًا، أنا راني من خدمة التذاكر. وصلتني بيانات التذكرة الخاصة بك. ماذا تريد أن تحقق؟",
+  "topicScheduleLabel": "جدول",
+  "topicScheduleTitle": "جدولة الدردشة",
+  "topicScheduleAgent": "جدولة الموظفين",
+  "topicScheduleAvailability": "جدول الموظفين المتاحة",
+  "topicScheduleWait": "عادة ما يتم الرد خلال 3 دقائق",
+  "topicScheduleOpening": "أحتاج إلى مساعدة في الجدول الزمني أو ETA",
+  "topicScheduleShared": "المسار الأخير ووجهة الأصل ووقت السفر",
+  "topicScheduleAction": "ابدأ جدولة الدردشة",
+  "topicScheduleGreeting": "مرحبًا، أنا ديماس من خدمة الجدول الزمني. رأيت طريقك. ما هو الجدول الزمني أو ETA الذي تريد التحقق منه؟",
+  "topicPaymentLabel": "قسط",
+  "topicPaymentTitle": "دردشة الدفع",
+  "topicPaymentAgent": "موظفي الدفع",
+  "topicPaymentAvailability": "متوفر موظفين الدفع",
+  "topicPaymentWait": "عادة ما يتم الرد خلال 4 دقائق",
+  "topicPaymentOpening": "أحتاج إلى مساعدة في دفع التذاكر",
+  "topicPaymentShared": "حالة المعاملة الأخيرة ورمز التذكرة والوقت",
+  "topicPaymentAction": "ابدأ محادثة الدفع",
+  "topicPaymentGreeting": "مرحبا، أنا ساري من خدمة الدفع. لقد تلقيت حالة المعاملة الخاصة بك. ما هي المشكلة؟",
+  "chatReplyTicketNotFound": "حسنًا، سأساعدك في التحقق. حاول فتح التذاكر الخاصة بي وإعادة تحميل الصفحة. إذا لم تظهر التذكرة بعد، أرسل رمز التذكرة هنا.",
+  "chatReplyTicketBuy": "لشراء تذكرة، حدد طريقًا من الصفحة الرئيسية، وقم بتعيين الرحلة، ثم تابع عملية الدفع. ستظهر التذاكر في قائمة التذاكر بعد الدفع الناجح.",
+  "chatReplyTicketActive": "يمكن فتح التذاكر النشطة من قائمة التذاكر. تأكد من أن رمز QR مرئي بوضوح قبل المسح عند البوابة.",
+  "chatReplyTicketDefault": "أنا على استعداد للمساعدة في التحقق من تذكرتك. اشرح حالة التذكرة أو الخطوات التي تواجه مشكلة فيها.",
+  "chatReplyScheduleLate": "يمكن لـ ETA تغيير موضع القطار التالي. اسمحوا لي أن أعرف طريقك والمحطة حتى أتمكن من المساعدة في مطابقة أحدث المعلومات.",
+  "chatReplySchedulePlatform": "يمكن أن تتغير معلومات النظام الأساسي في المحطة. اتبع إعلانات الموظفين وأرسل اسم المحطة إذا كانت معلومات التطبيق مختلفة.",
+  "chatReplyScheduleMissing": "سأساعد في ملاحظة القطار المفقود. أرسل المحطة والوجهة ووقت المغادرة المقدر.",
+  "chatReplyScheduleDefault": "يرجى إرسال المسار والمحطة ووقت السفر الذي تريد التحقق منه.",
+  "chatReplyPaymentDeducted": "إذا تم خصم الرصيد ولكن التذكرة غير نشطة، فانتظر دقيقتين ثم تحقق من سجل التذكرة. أرسل رمز المعاملة إذا لم تتغير الحالة.",
+  "chatReplyPaymentRefund": "سأساعدك في التحقق من استرداد الأموال. أرسل رمز المعاملة وسبب طلب استرداد الأموال.",
+  "chatReplyPaymentFailed": "حاول مرة أخرى باستخدام شبكة مستقرة أو استخدم طريقة دفع أخرى. قم بإرسال رسالة الفشل الموضحة في حالة استمرار المشكلة.",
+  "chatReplyPaymentDefault": "اشرح حالة المعاملة أو طريقة الدفع التي تواجه مشكلة فيها حتى أتمكن من مساعدتك.",
+  "payDeductedLabel": "تم خصم الرصيد",
+  "payDeductedTitle": "تم خصم الرصيد",
+  "payDeductedStatus": "قيد المعالجة",
+  "payDeductedDetail": "تم خصم 8.000 روبية، التذكرة غير نشطة",
+  "payDeductedAdvice": "تحقق من سجل التذاكر بعد دقيقتين.\nأرسل المساعدة إذا لم تتغير الحالة.",
+  "payDeductedAction": "الإبلاغ عن الرصيد المخصوم",
+  "payMissingLabel": "التذكرة مفقودة",
+  "payMissingTitle": "التذكرة مفقودة",
+  "payMissingStatus": "نجاح",
+  "payMissingDetail": "تم الدفع بنجاح، التذكرة لا تظهر",
+  "payMissingAdvice": "إعادة تحميل صفحة التذاكر الخاصة بي.\nإذا كان لا يزال فارغًا، أرسل رمز المعاملة.",
+  "payMissingAction": "الإبلاغ عن تذكرة مفقودة",
+  "payRefundLabel": "استرداد",
+  "payRefundTitle": "استرداد",
+  "payRefundStatus": "مُقَدَّم",
+  "payRefundDetail": "استرداد التذكرة",
+  "payRefundAdvice": "استرداد الأموال يتبع حالة المعاملة الأخيرة.\nاحتفظ برمز التذكرة حتى تنتهي العملية.",
+  "payRefundAction": "إرسال استرداد",
+  "payMethodLabel": "طريقة الدفع",
+  "payMethodTitle": "طريقة الدفع",
+  "payMethodStatus": "فشل",
+  "payMethodDetail": "لا يمكن استخدام طريقة الدفع",
+  "payMethodAdvice": "حاول طريقة دفع أخرى.\nالإبلاغ في حالة فشل جميع الطرق.",
+  "payMethodAction": "الإبلاغ عن طريقة الدفع",
+  "payCheckStatusSubtitle": "التحقق من حالة المعاملة",
+  "payIssueTitle": "مشكلة الدفع",
+  "payActiveIssue": "العدد النشط: {issue}",
+  "payIssueDescription": "النصائح والإجراءات تتبع المشكلة المحددة.",
+  "payLastTransaction": "المعاملة الأخيرة",
+  "paySelectIssue": "حدد المشكلة",
+  "payQuickAdvice": "نصيحة سريعة",
+  "payHelpPrepared": "تم إعداد المساعدة {issue} بنجاح.",
+  "reportScheduleLabel": "جدول",
+  "reportScheduleTitle": "جدول التقرير",
+  "reportScheduleFirstLabel": "الطريق ذات الصلة",
+  "reportScheduleFirstValue": "Bogor → Jakarta Kota",
+  "reportScheduleSecondLabel": "الموقع / المحطة",
+  "reportScheduleSecondValue": "Bogor",
+  "reportScheduleDesc": "يختلف تطبيق ETA عن لوحة المحطة.",
+  "reportScheduleAction": "إرسال تقرير الجدول الزمني",
+  "reportRouteLabel": "طريق",
+  "reportRouteTitle": "الإبلاغ عن المسار",
+  "reportRouteFirstLabel": "طريق إشكالي",
+  "reportRouteFirstValue": "Dukuh Atas → Harjamukti",
+  "reportRouteSecondLabel": "نقطة الطريق",
+  "reportRouteSecondValue": "محطة العبور",
+  "reportRouteDesc": "المسار المعروض لا يمر بمحطة النقل الصحيحة.",
+  "reportRouteAction": "إرسال تقرير الطريق",
+  "reportStationLabel": "محطة",
+  "reportStationTitle": "محطة التقارير",
+  "reportStationFirstLabel": "اسم المحطة",
+  "reportStationFirstValue": "Jakarta Kota",
+  "reportStationSecondLabel": "معلومات غير صحيحة",
+  "reportStationSecondValue": "منصة / منشأة",
+  "reportStationDesc": "معلومات المحطة لا تتطابق مع ظروف الموقع.",
+  "reportStationAction": "إرسال تقرير المحطة",
+  "reportSubtitle": "بيانات السفر الصحيحة",
+  "reportWrongInfo": "الإبلاغ عن معلومات خاطئة",
+  "reportTypePrefix": "نوع التقرير: {type}",
+  "reportFieldsDesc": "تتبع الحقول نوع التقرير المحدد.",
+  "reportTypeHeading": "نوع التقرير",
+  "reportDescLabel": "وصف التقرير",
+  "reportAttachScreenshot": "إرفاق لقطة الشاشة",
+  "reportAttachScreenshotMsg": "حدد لقطة شاشة من الجهاز لإرفاقها.",
+  "reportPrepared": "تم إعداد التقرير {type} بنجاح.",
+  "chatOnline": "متصل",
+  "chatLocalReply": "الرد المحلي",
+  "chatToday": "اليوم",
+  "chatUser": "أنت",
+  "chatAgent": "طاقم عمل",
+  "chatAgentTyping": "فريق العمل يكتب…",
+  "chatWriteMessage": "اكتب رسالة…",
+  "chatWaitReply": "في انتظار رد الموظفين…",
+  "chatSendMessage": "أرسل رسالة",
+  "activeTicketReadyShare": "رمز التذكرة النشط جاهز للمشاركة.",
+  "activeTicketTitle": "تفاصيل التذكرة النشطة",
+  "activeTicketShareCode": "رمز المشاركة",
+  "activeTicketNeedHelp": "بحاجة الى مساعدة",
+  "activeTicketOfflineOnly": "يتم حفظ بيانات التذكرة على هذا الجهاز فقط.",
+  "activeTicketStatus": "نشيط",
+  "activeTicketCodeTitle": "رمز التذكرة النشط",
+  "activeTicketShowToStaff": "أظهر هذا الرمز للموظفين",
+  "activeTicketCodeSemantic": "رمز التذكرة النشطة {code}",
+  "activeTicketSavedOffline": "تم الحفظ بلا اتصال",
+  "ticketStationOrigin": "محطة الأصل",
+  "ticketStationDest": "وجهة",
+  "ticketStationDestFull": "محطة الوجهة",
+  "ticketEta": "الوصول المقدر",
+  "ticketType": "نوع التذكرة",
+  "ticketTypeActive": "تذكرة نشطة",
+  "completedTicketReceiptReady": "تم إعداد إيصال الرحلة بنجاح.",
+  "completedTicketTitle": "تفاصيل التذكرة المكتملة",
+  "completedTicketDownload": "تنزيل الإيصال",
+  "completedTicketReport": "الإبلاغ عن مشكلة",
+  "completedTicketLocalHistory": "التفاصيل المكتملة تبقى في التاريخ المحلي.",
+  "completedTicketStatus": "مكتمل",
+  "completedTicketSummary": "ملخص الرحلة",
+  "completedTicketDepart": "المغادرة",
+  "completedTicketArrive": "الوصول",
+  "completedTicketDuration": "المدة {minutes} دقيقة",
+  "completedTicketJourneyDone": "اكتملت الرحلة",
+  "completedTicketCode": "كود الرحلة",
+  "completedTicketTypeLocal": "تذكرة محلية",
+  "actionBack": "رجوع",
+  "departureDetailTitle": "تفاصيل المغادرة",
+  "departureFinalDestination": "الوجهة النهائية",
+  "departureArrivingIn": "الوصول إلى",
+  "departurePlatformNumber": "رقم المنصة",
+  "departurePlatform": "الرصيف {platform}",
+  "departureStatusNormal": "القطار يعمل بشكل طبيعي التسهيلات ذات الأولوية متوفرة في العربات 3 و 4.",
+  "departureNextStations": "المحطات القادمة",
+  "departureArriveAt": "الوصول إلى {platform}",
+  "departurePromoBadge": "عرض ترويجي",
+  "departurePromoTitle": "خصم 50% على تذاكر القطار بين المدن",
+  "departurePromoDesc": "قم بشراء تذاكر العودة للوطن الآن واحصل على خصم خاص باستخدام KAI Pay.",
+  "durationMinutes": "{minutes} دقيقة",
+  "stationTransit": "{station} (تبديل)",
+  "mapSearchHint": "محطة البحث أو المفضلة",
+  "mapSubtitleLrtKrl": "LRT Jabodebek · الوصول إلى التكامل KRL",
+  "mapSubtitleKrlTransit": "KRL · العبور الرئيسي",
+  "mapSubtitleKrl": "KRL Jabodetabek",
+  "mapSubtitleLrt": "LRT Jabodebek",
+  "mapActionFrom": "من",
+  "mapActionVia": "عبر",
+  "mapActionTo": "ل",
+  "mapActionInfo": "معلومات",
+  "mapLegendTitle": "أسطورة الطريق الرئيسي",
+  "mapLegendBogor": "Bogor KRL",
+  "mapLegendCikarang": "Cikarang Loop KRL",
+  "mapLegendRangkasbitung": "Rangkasbitung KRL",
+  "mapLegendTangerang": "Tangerang KRL",
+  "mapLegendTanjungPriok": "Tanjung Priok KRL",
+  "mapLegendMrt": "North-South MRT",
+  "mapLegendLrtBekasi": "Bekasi LRT",
+  "mapLegendLrtCibubur": "Cibubur LRT",
+  "mapLegendLrtJakarta": "جنوب Jakarta LRT",
+  "trainTypesJakarta": "KRL · LRT · MRT Jakarta",
+  "departFromStation": "المغادرة من {station}",
+  "estimatedArrival": "الوصول المتوقع",
+  "alarmActiveSemantics": "إنذار السفر نشط، انقر لتعطيله",
+  "alarmInactiveSemantics": "تفعيل إنذار السفر",
+  "alarmActiveTooltip": "التنبيه نشط",
+  "alarmInactiveTooltip": "تفعيل التنبيه",
+  "alarmDisableBoth": "سيتم تعطيل تذكيرات وصول القطار والنزول/العبور.",
+  "alarmDisableDeparture": "سيتم تعطيل تذكير وصول القطار.",
+  "alarmDisableDestination": "سيتم تعطيل تذكير النزول أو العبور.",
+  "alarmDisableNone": "لا توجد تذكيرات سفر نشطة.",
+  "alarmDisableTitle": "هل تريد تعطيل إنذار السفر؟",
+  "alarmDisableAction": "تعطيل التنبيه",
+  "alarmSetupTitle": "تفعيل تذكير السفر؟",
+  "routeFromTo": "من {from} إلى {to}",
+  "alarmDepartureSemantics": "تذكير بوصول القطار",
+  "alarmDepartureTitle": "وصول القطار",
+  "alarmDepartureDesc": "ذكرني قبل 5 دقائق ودقيقة واحدة",
+  "alarmDestinationSemantics": "تذكير بالنزول أو العبور",
+  "alarmDestinationTitle": "النزول أو العبور",
+  "alarmDestinationDesc": "ذكرني بمحطة واحدة قبل الوجهة",
+  "alarmSimulationNote": "هذه التذكيرات عبارة عن محاكاة وتكون نشطة عندما يكون التطبيق مفتوحًا.",
+  "alarmActivateBtn": "تفعيل التنبيه",
+  "actionSkip": "يتخطى",
+  "stateActive": "نشيط",
+  "stateInactive": "غير نشط",
+  "alarmDepartureActive": "وصول القطار نشط",
+  "alarmDepartureInactive": "وصول القطار غير نشط",
+  "alarmDestinationActive": "النزول أو العبور نشط",
+  "alarmDestinationInactive": "النزول أو العبور غير نشط",
+  "viewTicketBtn": "عرض التذكرة",
+  "cancelAlarmBtn": "إلغاء التنبيه",
+  "assistantChatAssistant": "مساعد",
+  "assistantTypeMessage": "اكتب رسالة للمساعد",
+  "assistantSendMessage": "أرسل رسالة",
+  "assistantUseThisRoute": "استخدم هذا الطريق",
+  "assistantRepeat": "يكرر",
+  "assistantCancel": "يلغي",
+  "assistantBuyTicketToUseAlarm": "قم بشراء أو تحديد تذكرة نشطة لاستخدام إنذار السفر.",
+  "assistantSearchTrip": "رحلة البحث",
+  "assistantOpenQuickAction": "فتح {action}",
+  "assistantRetry": "أعد المحاولة",
+  "voiceTapToSpeak": "انقر للتحدث",
+  "voiceWhereToToday": "إلى أين اليوم؟",
+  "voiceStartConversation": "ابدأ المحادثة الصوتية",
+  "voiceListening": "الاستماع",
+  "voicePleaseStateDestination": "يرجى ذكر وجهتك",
+  "voiceStopConversation": "إيقاف المحادثة الصوتية",
+  "voiceProcessingRequest": "طلب المعالجة",
+  "voiceSearchingForTrips": "البحث عن خيارات السفر المناسبة",
+  "voiceRequestBeingProcessed": "جاري معالجة الطلب",
+  "voiceAgentSpeaking": "الوكيل يتحدث",
+  "voiceReadingAnswer": "تتم قراءة إجابة السفر",
+  "voiceStopAssistant": "إيقاف صوت المساعد",
+  "voiceNeedsConfirmation": "يحتاج إلى تأكيد",
+  "voiceChooseActionBeforeRoute": "اختر إجراءً قبل فتح الطريق",
+  "voiceStartNewConversation": "ابدأ محادثة جديدة",
+  "voiceUseVoiceOrQuickAction": "استخدم الصوت أو اختر الإجراء السريع.",
+  "voiceRetryConversation": "حاول المحادثة الصوتية مرة أخرى",
+  "homeNextTrainFrom": "القطار التالي من {station}",
+  "homeClose": "إغلاق",
+  "homeShowAll": "إظهار الكل ({count})",
+  "homeTravelDuration": "مدة الرحلة {duration}",
+  "homePlatform": "الرصيف {platform}",
+  "homeDestination": "الوجهة {destination}",
+  "homeArrivingIn": "الوصول خلال {duration}",
+  "homeAtStation": "في المحطة",
+  "homeStationFacilities": "مرافق محطة {station}",
+  "homeStationInformation": "معلومات محطة {station}",
+  "homeConstructionType": "نوع البناء",
+  "homeConstructionTypeDesc": "محطة مرتفعة · سهولة الوصول",
+  "homeOperationalHours": "ساعات العمل",
+  "homeOperationalHoursDesc": "05:00 - 23:30 بتوقيت غرب إندونيسيا (مفتوح يوميًا)",
+  "homeTicketServices": "خدمات التذاكر",
+  "homeTicketServicesDesc": "بطاقة النقود الإلكترونية، KMT، QRIS، وآلة البيع",
+  "homeAccessibilityFeatures": "ميزات إمكانية الوصول",
+  "homeAccessibilityFeaturesDesc": "الكتلة التوجيهية، والمنحدر الخاص، والإعلانات الصوتية TTS",
+  "homeExitGateGuide": "دليل بوابة الخروج",
+  "homeExitNorth": "البوابة أ (شمال)",
+  "homeExitNorthDesc": "الوصول الرئيسي إلى الطريق الرئيسي / Kebon Sirih",
+  "homeExitNorthIntegration": "TransJakarta وتكامل إيقاف Busway",
+  "homeExitSouth": "البوابة ب (جنوب)",
+  "homeExitSouthDesc": "Srikaya Road والوصول إلى المنطقة التجارية",
+  "homeExitSouthIntegration": "إنزال سيارات الأجرة والدراجات النارية عبر الإنترنت ومواقف السيارات",
+  "homeCustomerServiceHeader": "خدمة العملاء والمساعدة",
+  "homeCSStation": "خدمة العملاء في محطة {station}",
+  "homeContactCenter": "مركز الاتصال: 121 / (021) 121",
+  "homeWhatsApp": "إمكانية الوصول واتساب: +62 811-1211-121",
+  "homeCallCSBtn": "اتصل بـ CS",
+  "homeCallCSSnackbar": "جارٍ الاتصال بمحطة CS {station} (121)...",
+  "homeAskHelpBtn": "اطلب المساعدة",
+  "homeAskHelpSnackbar": "تم إرسال طلب المساعدة للموظفين في {station}!",
+  "homeLineKRL": "KRL Commuter Line",
+  "homeLineMRTJ": "MRT Jakarta",
+  "homeLineLRTJabo": "LRT Jabodebek",
+  "homeLineLRTJakarta": "LRT Jakarta",
+  "homeFilterBogor": "Bogor وNambo Line",
+  "homeFilterCikarang": "Cikarang Line",
+  "homeFilterRangkas": "Rangkasbitung Line",
+  "homeFilterTangerang": "Tangerang Line",
+  "homeFilterPriok": "Tanjung Priok Line",
+  "homeFilterMRTNorthSouth": "الشمال - South MRT Line",
+  "homeFilterLRTBekasi": "Bekasi Line",
+  "homeFilterLRTCibubur": "Cibubur Line",
+  "homeFilterLRTPegangsaan": "Pegangsaan Dua - Velodrome Line",
+  "@startFrom": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@originStation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@ticketStatusSummary": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "pending": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "@payAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@assistantStatusLabel": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@startTripFrom": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@stopsAndService": {
+    "placeholders": {
+      "stops": {
+        "type": "int"
+      },
+      "serviceInfo": {
+        "type": "String"
+      }
+    }
+  },
+  "@exitGateInfo": {
+    "placeholders": {
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@buyTicketDirect": {
+    "placeholders": {
+      "fare": {
+        "type": "String"
+      }
+    }
+  },
+  "@readRouteToast": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "travelTime": {
+        "type": "int"
+      }
+    }
+  },
+  "@a11yAudioRoute": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "travelTime": {
+        "type": "int"
+      },
+      "stops": {
+        "type": "int"
+      }
+    }
+  },
+  "@lineNoTransit": {
+    "placeholders": {
+      "lineName": {
+        "type": "String"
+      }
+    }
+  },
+  "@boardLineFrom": {
+    "placeholders": {
+      "lineName": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "@platformDirection": {
+    "placeholders": {
+      "platform": {
+        "type": "int"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@directTripTo": {
+    "placeholders": {
+      "to": {
+        "type": "String"
+      },
+      "stops": {
+        "type": "int"
+      }
+    }
+  },
+  "@estDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "int"
+      }
+    }
+  },
+  "@skipStops": {
+    "placeholders": {
+      "stops": {
+        "type": "int"
+      }
+    }
+  },
+  "@arriveAtDest": {
+    "placeholders": {
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@totalDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "int"
+      }
+    }
+  },
+  "@gateA": {
+    "placeholders": {
+      "gate": {
+        "type": "String"
+      }
+    }
+  },
+  "@gateB": {
+    "placeholders": {
+      "gate": {
+        "type": "String"
+      }
+    }
+  },
+  "@oneTransitAt": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@alightAt": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "stops": {
+        "type": "int"
+      }
+    }
+  },
+  "@prepareTransitAt": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@transitToLine": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "line": {
+        "type": "String"
+      }
+    }
+  },
+  "@boardLineTo": {
+    "placeholders": {
+      "line": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "stops": {
+        "type": "int"
+      }
+    }
+  },
+  "@nextTrainAtPlatform": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "platform": {
+        "type": "int"
+      }
+    }
+  },
+  "@chatActiveTopic": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "@issueActiveProblem": {
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      }
+    }
+  },
+  "@issueCorrectionPrepared": {
+    "placeholders": {
+      "problem": {
+        "type": "String"
+      }
+    }
+  },
+  "@payActiveIssue": {
+    "placeholders": {
+      "issue": {
+        "type": "String"
+      }
+    }
+  },
+  "@payHelpPrepared": {
+    "placeholders": {
+      "issue": {
+        "type": "String"
+      }
+    }
+  },
+  "@reportTypePrefix": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "@reportPrepared": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "@activeTicketCodeSemantic": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@completedTicketDuration": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "@departurePlatform": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@departureArriveAt": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "@stationTransit": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@departFromStation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@routeFromTo": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@assistantOpenQuickAction": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeNextTrainFrom": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeShowAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@homeTravelDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@homePlatform": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeDestination": {
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeArrivingIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeStationFacilities": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeStationInformation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeCSStation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeCallCSSnackbar": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "@homeAskHelpSnackbar": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  }
+}

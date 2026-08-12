@@ -16,7 +16,7 @@
   "previewAccount": "Account",
   "previewGuestActive": "Guest mode active",
   "applyLanguage": "Apply language",
-  "languageAppliedNote": "This language selection will be saved and applied to all app pages on your next visit.",
+  "languageAppliedNote": "Changes are applied immediately and saved for future visits.",
   "languageSaveFailedSnackbar": "Language changed for this session, but your preference could not be saved.",
   "navHome": "Home",
   "navSchedule": "Schedule",
@@ -41,7 +41,7 @@
   "to": "To",
   "selectFromFirst": "Please select a starting station (From) first!",
   "nearestDepartures": "Nearest Departures",
-  "languageAppliedSnackbar": "English applied.",
+  "languageAppliedSnackbar": "Language applied.",
   
   "profileAccount": "Account",
   "profileGuestModeActive": "Guest mode active",
