@@ -13,6 +13,8 @@ import 'package:timetable/features/travel_alarm/presentation/controllers/travel_
 import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
 import 'package:timetable/main.dart';
 
+import 'helpers/localized_test_app.dart';
+
 void main() {
   testWidgets('Tickets and Assistant share one travel alarm controller', (
     WidgetTester tester,
@@ -38,7 +40,9 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
-    final context = tester.element(find.text('Cari stasiun LRT atau KRL'));
+    final context = tester.element(
+      find.text('Ketik nama stasiun, jalur, atau area'),
+    );
     final alarms = TravelAlarmScope.of(context);
     alarms.completePurchase(from: 'Setiabudi', to: 'Manggarai');
     alarms.configureAlarms(departure: true, destination: false);
@@ -58,12 +62,13 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Cari stasiun LRT atau KRL'), findsOneWidget);
+    expect(find.text('Ketik nama stasiun, jalur, atau area'), findsOneWidget);
     expect(find.byIcon(Icons.menu_rounded), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.menu_rounded));
-    await tester.pump();
-    expect(find.text('Filter map akan segera hadir!'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Filter Kawasan'), findsOneWidget);
+    expect(find.text('Filter Jalur Transportasi'), findsOneWidget);
     expect(
       find.text(
         'A11Y: Ada daftar rute dan tombol bacakan, peta bukan satu-satunya navigasi.',
@@ -168,7 +173,7 @@ void main() {
     expect(find.text('Mode tamu aktif'), findsOneWidget);
   });
 
-  testWidgets('Account opens language page and updates its preview', (
+  testWidgets('Account opens language page and switches to English', (
     WidgetTester tester,
   ) async {
     appRouter.go('/akun');
@@ -185,21 +190,20 @@ void main() {
 
     expect(find.text('Bahasa aplikasi'), findsOneWidget);
     expect(find.text('Home'), findsNothing);
-    expect(find.text('Mode tamu aktif'), findsOneWidget);
+    for (final label in const <String>[
+      'Indonesia',
+      'English',
+      '简体中文',
+      'العربية',
+    ]) {
+      expect(find.text(label, skipOffstage: false), findsWidgets);
+    }
 
     await tester.tap(find.text('English'));
-    await tester.pumpAndSettle();
-    expect(find.text('Account'), findsOneWidget);
-    expect(find.text('Guest mode active'), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.text('Terapkan bahasa'),
-      180,
-      scrollable: find.byType(Scrollable),
-    );
-    await tester.tap(find.text('Terapkan bahasa'));
     await tester.pump();
-    expect(find.text('English applied.'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('App Language'), findsOneWidget);
+    expect(find.text('Language applied.'), findsOneWidget);
   });
 
   testWidgets('Active history opens active ticket detail without bottom nav', (
@@ -528,7 +532,7 @@ void main() {
     final alarms = TravelAlarmController();
     addTearDown(alarms.dispose);
     await tester.pumpWidget(
-      MaterialApp(home: TicketsPage(alarmController: alarms)),
+      localizedTestApp(home: TicketsPage(alarmController: alarms)),
     );
 
     await tester.tap(find.text('Bayar sekarang'));
@@ -557,7 +561,7 @@ void main() {
     final alarms = TravelAlarmController();
     addTearDown(alarms.dispose);
     await tester.pumpWidget(
-      MaterialApp(home: TicketsPage(alarmController: alarms)),
+      localizedTestApp(home: TicketsPage(alarmController: alarms)),
     );
 
     await tester.tap(find.text('Bayar sekarang'));
@@ -595,7 +599,7 @@ void main() {
     alarms.configureAlarms(departure: true, destination: true);
 
     await tester.pumpWidget(
-      MaterialApp(home: TicketsPage(alarmController: alarms)),
+      localizedTestApp(home: TicketsPage(alarmController: alarms)),
     );
 
     expect(find.text('Setiabudi -> Pancoran Bank BJB'), findsOneWidget);
@@ -623,7 +627,7 @@ void main() {
     addTearDown(alarms.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(home: TicketsPage(alarmController: alarms)),
+      localizedTestApp(home: TicketsPage(alarmController: alarms)),
     );
     await tester.tap(
       find.byKey(const Key('ticket-action-Manggarai-Tanah Abang')),
@@ -648,7 +652,7 @@ void main() {
       alarms.dispose();
     });
     await tester.pumpWidget(
-      MaterialApp(home: TicketsPage(alarmController: alarms)),
+      localizedTestApp(home: TicketsPage(alarmController: alarms)),
     );
 
     await tester.tap(find.text('Bayar sekarang'));
@@ -717,7 +721,7 @@ void main() {
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(home: AssistantPage(controller: controller)),
+      localizedTestApp(home: AssistantPage(controller: controller)),
     );
 
     expect(find.text('Asisten Perjalanan'), findsOneWidget);
@@ -775,7 +779,7 @@ void main() {
     addTearDown(alarms.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: AssistantPage(
           alarmController: alarms,
           conversationController: conversation,
@@ -821,7 +825,7 @@ void main() {
     addTearDown(voice.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: AssistantPage(
           controller: voice,
           alarmController: alarms,
@@ -879,7 +883,7 @@ void main() {
     });
 
     await tester.pumpWidget(
-      MaterialApp(home: AssistantPage(alarmController: alarms)),
+      localizedTestApp(home: AssistantPage(alarmController: alarms)),
     );
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
@@ -899,7 +903,7 @@ void main() {
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(home: AssistantPage(controller: controller)),
+      localizedTestApp(home: AssistantPage(controller: controller)),
     );
 
     await tester.tap(find.byKey(const Key('assistant-microphone-button')));
@@ -1036,14 +1040,14 @@ void main() {
     );
     addTearDown(controller.dispose);
     await tester.pumpWidget(
-      MaterialApp(home: AssistantPage(controller: controller)),
+      localizedTestApp(home: AssistantPage(controller: controller)),
     );
 
     controller.startConversation();
     await tester.pump();
     expect(controller.state, AssistantInteractionState.listening);
 
-    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(localizedTestApp(home: const SizedBox.shrink()));
     await tester.pump(const Duration(milliseconds: 20));
 
     expect(controller.state, AssistantInteractionState.ready);
@@ -1066,7 +1070,7 @@ void main() {
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(
             context,
@@ -1098,7 +1102,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: AssistantPage()));
+    await tester.pumpWidget(localizedTestApp(home: const AssistantPage()));
 
     final field = find.byKey(const Key('assistant-message-field'));
     await tester.tap(field);
