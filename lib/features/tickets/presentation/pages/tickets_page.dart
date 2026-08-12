@@ -176,6 +176,7 @@ class _TicketsPageState extends State<TicketsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Parameter perjalanan dinamis atau nilai default
     final fromSt = widget.from ?? 'Setiabudi';
     final toSt = widget.to ?? 'Pancoran Bank BJB';
@@ -183,8 +184,9 @@ class _TicketsPageState extends State<TicketsPage> {
     final dur = widget.duration ?? '18';
     final isTransit = widget.transit == '1';
 
-    final serviceInfo =
-        'LRT Jabodebek · $dur menit · ${isTransit ? "transit Setiabudi" : "tanpa transit"}';
+    final serviceInfo = isTransit
+        ? 'LRT Jabodebek · ${l10n.durationMinutes(dur)} · ${l10n.oneTransitAt('Setiabudi')}'
+        : '${l10n.lineNoTransit('LRT Jabodebek')} · ${l10n.durationMinutes(dur)}';
     final tickets = _buildTicketItems(fromSt, toSt, fareVal, serviceInfo);
     final currentTicket = _selectedTicket ?? tickets.first;
 

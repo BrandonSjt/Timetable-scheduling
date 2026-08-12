@@ -11,11 +11,52 @@ import 'package:timetable/features/assistant/presentation/pages/assistant_page.d
 import 'package:timetable/features/tickets/presentation/pages/tickets_page.dart';
 import 'package:timetable/features/travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
+import 'package:timetable/l10n/app_localizations.dart';
 import 'package:timetable/main.dart';
 
 import 'helpers/localized_test_app.dart';
 
 void main() {
+  for (final locale in const <Locale>[
+    Locale('en'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    Locale('ar'),
+  ]) {
+    testWidgets('Ticket service info follows ${locale.toLanguageTag()}', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        localizedTestApp(
+          locale: locale,
+          home: const TicketsPage(duration: '18', transit: '0'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final context = tester.element(find.byType(TicketsPage));
+      final l10n = AppLocalizations.of(context)!;
+      final expected =
+          '${l10n.lineNoTransit('LRT Jabodebek')} · ${l10n.durationMinutes('18')}';
+
+      expect(find.text(expected), findsOneWidget);
+      expect(find.textContaining('menit'), findsNothing);
+      expect(find.textContaining('tanpa transit'), findsNothing);
+
+      await tester.pumpWidget(
+        localizedTestApp(
+          locale: locale,
+          home: const TicketsPage(duration: '18', transit: '1'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final expectedWithTransit =
+          'LRT Jabodebek · ${l10n.durationMinutes('18')} · ${l10n.oneTransitAt('Setiabudi')}';
+      expect(find.text(expectedWithTransit), findsOneWidget);
+      expect(find.textContaining('menit'), findsNothing);
+    });
+  }
+
   testWidgets('Tickets and Assistant share one travel alarm controller', (
     WidgetTester tester,
   ) async {
