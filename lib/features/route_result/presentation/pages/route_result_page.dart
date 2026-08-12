@@ -155,8 +155,6 @@ class _RouteContent extends StatelessWidget {
         const SizedBox(height: 16),
         _timeline(l10n),
         const SizedBox(height: 16),
-        _stationSequence(),
-        const SizedBox(height: 16),
         _exitGates(l10n),
         const SizedBox(height: 20),
         ElevatedButton.icon(
@@ -521,40 +519,6 @@ class _RouteContent extends StatelessWidget {
             ),
           );
         }),
-      ],
-    ),
-  );
-
-  Widget _stationSequence() => Container(
-    padding: const EdgeInsets.all(18),
-    decoration: _cardDecoration(),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Urutan stasiun',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: route.stationSequence
-              .map(
-                (station) => Chip(
-                  avatar: CircleAvatar(
-                    backgroundColor: _color(station.line.color),
-                    radius: 5,
-                  ),
-                  label: Text(
-                    station.nodeCode == null
-                        ? station.name
-                        : '${station.name} (${station.nodeCode})',
-                  ),
-                ),
-              )
-              .toList(growable: false),
-        ),
       ],
     ),
   );

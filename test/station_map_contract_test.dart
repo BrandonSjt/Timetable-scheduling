@@ -31,6 +31,17 @@ bool _pixelMatches(ByteData pixels, Offset point, Color target) {
   return difference < 40;
 }
 
+bool _regionContainsColor(ByteData pixels, Rect region, Color target) {
+  for (var y = region.top.floor(); y <= region.bottom.ceil(); y++) {
+    for (var x = region.left.floor(); x <= region.right.ceil(); x++) {
+      if (_pixelMatches(pixels, Offset(x.toDouble(), y.toDouble()), target)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 void main() {
   StationData station(String id) =>
       stations.firstWhere((item) => item.id == id);
@@ -72,6 +83,34 @@ void main() {
     expect(
       transitLines.firstWhere((line) => line.id == 'tanjung_priok').stationIds,
       containsAllInOrder(['ancol', 'jis', 'tanjung_priok']),
+    );
+    expect(station('cawang_krl').position, const Offset(1555, 1575));
+    expect(station('cikoko_bk').position, const Offset(1600, 1644));
+    expect(station('cikoko_cb').position, const Offset(1600, 1656));
+  });
+
+  test('Cikoko to Cawang is a separate black walking overlay', () async {
+    expect(walkingConnections, hasLength(1));
+    expect(walkingConnections.single.fromStationId, 'cawang_krl');
+    expect(walkingConnections.single.toStationId, 'cikoko_bk');
+    expect(walkingConnections.single.walkingMinutes, 5);
+    expect(
+      transitLines.every(
+        (line) =>
+            !line.stationIds.contains('cawang_krl') ||
+            !line.stationIds.contains('cikoko_bk'),
+      ),
+      isTrue,
+    );
+
+    final pixels = await _renderMapPixels();
+    expect(
+      _regionContainsColor(
+        pixels,
+        const Rect.fromLTRB(1585, 1590, 1604, 1634),
+        Colors.black,
+      ),
+      isTrue,
     );
   });
 

@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../route_result/data/services/native_route_speech_service.dart';
 import '../../data/datasources/station_remote_data_source.dart';
 import '../../data/repositories/station_repository_impl.dart';
+import '../../domain/entities/station.dart';
+import '../../domain/services/station_voice_guide.dart';
 import '../controllers/station_controller.dart';
 import '../widgets/station_card.dart';
 
@@ -17,7 +22,9 @@ class SearchStationPage extends StatefulWidget {
 
 class _SearchStationPageState extends State<SearchStationPage> {
   final _search = TextEditingController();
+  final _speech = const NativeRouteSpeechService();
   late final StationController _controller;
+  bool _isSpeaking = false;
 
   @override
   void initState() {
@@ -29,16 +36,37 @@ class _SearchStationPageState extends State<SearchStationPage> {
 
   @override
   void dispose() {
+    unawaited(_speech.stop());
     _search.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  Color _statusColor(String? value) {
-    final hex = value?.replaceFirst('#', '');
-    return hex != null && hex.length == 6
-        ? Color(int.parse('FF$hex', radix: 16))
-        : AppColors.statusGreen;
+  Future<void> _toggleVoiceGuide(List<Station> stations) async {
+    if (_isSpeaking) {
+      await _speech.stop();
+      if (mounted) setState(() => _isSpeaking = false);
+      return;
+    }
+
+    final languageCode = Localizations.localeOf(context).languageCode;
+    setState(() => _isSpeaking = true);
+    try {
+      await _speech.speak(
+        buildStationVoiceGuide(stations, languageCode),
+        languageCode,
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.stationVoiceGuideError),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSpeaking = false);
+    }
   }
 
   @override
@@ -79,6 +107,8 @@ class _SearchStationPageState extends State<SearchStationPage> {
                               },
                             ).toString(),
                           ),
+                          isSpeaking: _isSpeaking,
+                          onVoiceGuide: () => _toggleVoiceGuide(stations),
                         ),
                         if (selectingDestination && fromStation != null) ...[
                           const SizedBox(height: 12),
@@ -130,7 +160,6 @@ class _SearchStationPageState extends State<SearchStationPage> {
                               _filter('LRT', 'LRT'),
                               _filter('KRL', 'KRL'),
                               _filter('MRT', 'MRT'),
-                              _filter(l10n.accessible, 'accessible'),
                             ],
                           ),
                         ),
@@ -159,10 +188,8 @@ class _SearchStationPageState extends State<SearchStationPage> {
                           ...stations.map(
                             (station) => StationCard(
                               name: station.name,
-                              code: station.codes,
+                              code: '',
                               lineInfo: station.lineInfo ?? station.services,
-                              statusText: station.statusText ?? '',
-                              statusColor: _statusColor(station.statusColor),
                               onTap: () => context.go(
                                 Uri(
                                   path: '/',
@@ -200,9 +227,16 @@ class _SearchStationPageState extends State<SearchStationPage> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.title, required this.onBack});
+  const _Header({
+    required this.title,
+    required this.onBack,
+    required this.isSpeaking,
+    required this.onVoiceGuide,
+  });
   final String title;
   final VoidCallback onBack;
+  final bool isSpeaking;
+  final VoidCallback onVoiceGuide;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -218,11 +252,26 @@ class _Header extends StatelessWidget {
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ),
-      const CircleAvatar(
-        backgroundColor: AppColors.a11yYellow,
-        child: Text(
-          'A11Y',
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+      Semantics(
+        button: true,
+        label: isSpeaking
+            ? AppLocalizations.of(context)!.stationVoiceGuideStop
+            : AppLocalizations.of(context)!.stationVoiceGuide,
+        child: ExcludeSemantics(
+          child: IconButton.filled(
+            onPressed: onVoiceGuide,
+            tooltip: isSpeaking
+                ? AppLocalizations.of(context)!.stationVoiceGuideStop
+                : AppLocalizations.of(context)!.stationVoiceGuide,
+            icon: Icon(
+              isSpeaking ? Icons.stop_rounded : Icons.volume_up_rounded,
+            ),
+            color: AppColors.textPrimary,
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.a11yYellow,
+              minimumSize: const Size.square(48),
+            ),
+          ),
         ),
       ),
     ],

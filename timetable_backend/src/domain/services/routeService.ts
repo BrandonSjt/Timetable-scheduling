@@ -235,16 +235,21 @@ export class RouteService {
         isTransit: false,
         isDestination: false,
       },
-      ...transferConnections.map((connection) => ({
-        text: `Transit di ${stationDisplayName(connection.fromNode.station)}`,
-        durationText: `${connection.travelTime} menit`,
-        detailNote: `Pindah ke ${connection.toNode.line.name}`,
-        icon: 'directions_walk',
-        color: connection.toNode.line.color,
-        isHeader: false,
-        isTransit: true,
-        isDestination: false,
-      })),
+      ...transferConnections.map((connection) => {
+        const isWalkingTransfer = connection.fromNode.stationId !== connection.toNode.stationId;
+        return {
+          text: isWalkingTransfer
+            ? `Berjalan dari ${stationDisplayName(connection.fromNode.station)} menuju Stasiun ${stationDisplayName(connection.toNode.station)}`
+            : `Transit di ${stationDisplayName(connection.fromNode.station)}`,
+          durationText: `${connection.travelTime} menit`,
+          detailNote: `Pindah ke ${connection.toNode.line.name}`,
+          icon: 'directions_walk',
+          color: connection.toNode.line.color,
+          isHeader: false,
+          isTransit: true,
+          isDestination: false,
+        };
+      }),
       {
         text: `Tiba di ${stationDisplayName(toStation)}`,
         durationText: `${travelTime} menit`,

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Widget card stasiun dengan ikon dot, nama, jalur, dan info tambahan.
+/// Widget card stasiun dengan ikon dot, nama, dan informasi jalur.
 class StationCard extends StatelessWidget {
   final String name;
   final String code;
   final String lineInfo;
-  final String statusText;
-  final Color statusColor;
   final VoidCallback? onTap;
 
   const StationCard({
@@ -15,8 +13,6 @@ class StationCard extends StatelessWidget {
     required this.name,
     this.code = '',
     required this.lineInfo,
-    required this.statusText,
-    this.statusColor = AppColors.primaryBlue,
     this.onTap,
   });
 
@@ -75,19 +71,6 @@ class StationCard extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-            ),
-
-            // ── Status / info ──
-            Flexible(
-              child: Text(
-                statusText,
-                textAlign: TextAlign.end,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: statusColor,
-                  fontWeight: FontWeight.w500,
-                ),
               ),
             ),
           ],

@@ -506,6 +506,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get stationNotFound => 'Stasiun tidak ditemukan';
 
   @override
+  String get stationVoiceGuide => 'Panduan suara';
+
+  @override
+  String get stationVoiceGuideStop => 'Hentikan panduan suara';
+
+  @override
+  String get stationVoiceGuideError =>
+      'Panduan suara tidak dapat digunakan. Coba lagi.';
+
+  @override
   String get withoutLogin => 'Tanpa login';
 
   @override

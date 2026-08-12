@@ -507,6 +507,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stationNotFound => 'Station not found';
 
   @override
+  String get stationVoiceGuide => 'Voice guide';
+
+  @override
+  String get stationVoiceGuideStop => 'Stop voice guide';
+
+  @override
+  String get stationVoiceGuideError => 'Voice guide is unavailable. Try again.';
+
+  @override
   String get withoutLogin => 'No login';
 
   @override

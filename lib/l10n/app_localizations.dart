@@ -1040,6 +1040,24 @@ abstract class AppLocalizations {
   /// **'Stasiun tidak ditemukan'**
   String get stationNotFound;
 
+  /// No description provided for @stationVoiceGuide.
+  ///
+  /// In id, this message translates to:
+  /// **'Panduan suara'**
+  String get stationVoiceGuide;
+
+  /// No description provided for @stationVoiceGuideStop.
+  ///
+  /// In id, this message translates to:
+  /// **'Hentikan panduan suara'**
+  String get stationVoiceGuideStop;
+
+  /// No description provided for @stationVoiceGuideError.
+  ///
+  /// In id, this message translates to:
+  /// **'Panduan suara tidak dapat digunakan. Coba lagi.'**
+  String get stationVoiceGuideError;
+
   /// No description provided for @withoutLogin.
   ///
   /// In id, this message translates to:

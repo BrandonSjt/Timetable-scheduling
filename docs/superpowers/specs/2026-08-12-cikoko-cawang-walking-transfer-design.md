@@ -23,7 +23,7 @@ Represent the official integration between LRT Jabodebek Cikoko and KRL Cawang a
 ## Mobile schematic
 
 - Draw a short black connector between the Cikoko LRT interchange marker and KRL Cawang `B11`, matching the supplied reference.
-- Add a small walking icon at the connector midpoint.
+- Keep the connector unlabelled on the dense schematic; walking semantics are conveyed in route results and TTS, avoiding overlap with station labels.
 - Render the connector as a separate pedestrian overlay after the existing railway paths; it must never be inserted into or reshape a railway path.
 - Keep every railway line solid and in its existing service color so the black connector is understood as a pedestrian link rather than another rail service.
 - Keep both station labels; do not merge Cikoko and Cawang into one interchange label.

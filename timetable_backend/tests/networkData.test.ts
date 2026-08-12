@@ -19,10 +19,10 @@ const officialNameFor = (shortName: string) => {
 };
 
 test('mobile network snapshot keeps physical stations and line nodes unique', () => {
-  assert.equal(networkData.stations.length, 123);
+  assert.equal(networkData.stations.length, 124);
   assert.equal(
     networkData.stations.filter((station) => station.nodes.length > 0).length,
-    121,
+    122,
   );
 
   const stationNames = networkData.stations.map((station) => station.name);
@@ -113,9 +113,25 @@ test('interchange stations preserve all mobile node codes', () => {
       ?.nodes.map((node) => node.code)
       .sort();
 
-  assert.deepEqual(nodesFor('Cawang'), ['B11', 'BK08', 'CB08']);
+  assert.deepEqual(nodesFor('Cawang'), ['B11']);
+  assert.deepEqual(nodesFor('Cawang LRT'), ['BK08', 'CB08']);
   assert.deepEqual(nodesFor('Duri'), ['C09', 'T01']);
   assert.deepEqual(nodesFor('Jakarta Kota'), ['B01', 'TP01']);
   assert.deepEqual(nodesFor('Manggarai'), ['B09', 'C13']);
   assert.deepEqual(nodesFor('Tanah Abang'), ['C10', 'R01']);
+});
+
+test('Cikoko connects to KRL Cawang only through a five-minute walking transfer', () => {
+  assert.deepEqual(
+    networkData.transfers.find(({ from, to }) => from === 'Cikoko' && to === 'Cawang'),
+    { from: 'Cikoko', to: 'Cawang', walkingTime: 5 },
+  );
+  assert.equal(
+    networkData.transfers.some(
+      ({ from, to }) =>
+        (from === 'Cikoko' && to === 'Cawang LRT') ||
+        (from === 'Cawang LRT' && to === 'Cikoko'),
+    ),
+    false,
+  );
 });

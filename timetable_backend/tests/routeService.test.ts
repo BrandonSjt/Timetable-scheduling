@@ -30,3 +30,16 @@ test('priority-queue Dijkstra follows mobile nodes and supports transfers', asyn
     assert.ok(minimumTransfers.travelTime >= fastest.travelTime);
   }
 });
+
+test('Dijkstra models Cikoko to KRL Cawang as a five-minute pedestrian transfer', async () => {
+  const route = await RouteService.planRoute('Cikoko', 'Tebet', 1, 'FASTEST');
+  const walkingStep = route.steps.find(({ icon }) => icon === 'directions_walk');
+
+  assert.equal(route.stationSequence[0].name, 'Cikoko');
+  assert.equal(route.stationSequence.at(-1)?.name, 'Tebet');
+  assert.equal(route.transferCount, 1);
+  assert.equal(walkingStep?.text, 'Berjalan dari Cikoko menuju Stasiun Cawang');
+  assert.equal(walkingStep?.durationText, '5 menit');
+  assert.equal(walkingStep?.detailNote, 'Pindah ke KRL Lin Bogor');
+  assert.ok(route.stationSequence.some(({ line }) => line.slug === 'bogor'));
+});

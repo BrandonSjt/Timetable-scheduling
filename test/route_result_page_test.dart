@@ -75,6 +75,8 @@ void main() {
   testWidgets('route page renders backend result and accessible controls', (
     tester,
   ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     final controller = RouteController(
       _Repository(() async => testRoute),
       _Speech(),
@@ -87,6 +89,7 @@ void main() {
     expect(find.text('134'), findsOneWidget);
     expect(find.text('Rp10.000'), findsWidgets);
     expect(find.text('Transit di Duri'), findsOneWidget);
+    expect(find.text('Urutan stasiun'), findsNothing);
 
     await tester.tap(find.text('Aksesibel'));
     await tester.pumpAndSettle();

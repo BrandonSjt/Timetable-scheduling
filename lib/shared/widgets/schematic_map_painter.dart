@@ -44,6 +44,27 @@ class LineData {
   });
 }
 
+/// Koneksi antarmoda yang ditempuh dengan berjalan kaki, bukan jalur rel.
+class WalkingConnectionData {
+  final String fromStationId;
+  final String toStationId;
+  final int walkingMinutes;
+
+  const WalkingConnectionData({
+    required this.fromStationId,
+    required this.toStationId,
+    required this.walkingMinutes,
+  });
+}
+
+const List<WalkingConnectionData> walkingConnections = [
+  WalkingConnectionData(
+    fromStationId: 'cawang_krl',
+    toStationId: 'cikoko_bk',
+    walkingMinutes: 5,
+  ),
+];
+
 /// Data model untuk landmark / tempat penting
 class LandmarkData {
   final String id;
@@ -1708,13 +1729,15 @@ class SchematicMapPainter extends CustomPainter {
     // Background text removed based on user request
     // 1. Draw lines with rounded corners
     _drawLines(canvas);
-    // 2. Draw landmarks
+    // 2. Draw pedestrian transfers as an independent overlay
+    _drawWalkingConnections(canvas);
+    // 3. Draw landmarks
     _drawLandmarks(canvas);
-    // 3. Draw station nodes (dots, code badges)
+    // 4. Draw station nodes (dots, code badges)
     _drawStations(canvas);
-    // 4. Draw station labels
+    // 5. Draw station labels
     _drawAllLabels(canvas);
-    // 5. Draw line route identity badges
+    // 6. Draw line route identity badges
     _drawLineBadges(canvas);
   }
 
@@ -1739,6 +1762,42 @@ class SchematicMapPainter extends CustomPainter {
         if (station != null) points.add(station.position);
       }
       _drawRoundedPath(canvas, points, paint);
+    }
+  }
+
+  void _drawWalkingConnections(Canvas canvas) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 7
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    for (final connection in walkingConnections) {
+      final from = _findStation(connection.fromStationId);
+      final to = _findStation(connection.toStationId);
+      if (from == null || to == null) continue;
+
+      final paired = _findStation(kMergedStationPairs[to.id] ?? '');
+      final destination = paired == null
+          ? to.position
+          : Offset(
+              (to.position.dx + paired.position.dx) / 2,
+              (to.position.dy + paired.position.dy) / 2,
+            );
+      final start = from.position.translate(0, 12);
+      final end = destination.translate(0, -14);
+      final path = Path()
+        ..moveTo(start.dx, start.dy)
+        ..cubicTo(
+          start.dx,
+          start.dy + 18,
+          end.dx,
+          start.dy + 18,
+          end.dx,
+          end.dy,
+        );
+      canvas.drawPath(path, paint);
     }
   }
 

@@ -624,11 +624,11 @@ export const networkData = {
     {
       "slug": "cawang",
       "name": "Cawang",
-      "lineInfo": "KRL Lin Bogor & LRT Jabodebek",
-      "statusText": "Transit Aksesibel · 6 menit",
+      "lineInfo": "KRL Lin Bogor & transit pejalan kaki ke LRT Cikoko",
+      "statusText": "Transit Cikoko · 5 menit berjalan kaki",
       "isTransit": true,
       "isAccessible": true,
-      "isLrt": true,
+      "isLrt": false,
       "isKrl": true,
       "isMrt": false,
       "aliases": [],
@@ -641,7 +641,22 @@ export const networkData = {
           "x": 1555,
           "y": 1575,
           "isTransit": false
-        },
+        }
+      ]
+    },
+    {
+      "slug": "cawang-lrt",
+      "name": "Cawang LRT",
+      "officialName": "Cawang",
+      "lineInfo": "LRT Jabodebek Lin Bekasi & Cibubur",
+      "statusText": "Transit antarlini LRT",
+      "isTransit": true,
+      "isAccessible": true,
+      "isLrt": true,
+      "isKrl": false,
+      "isMrt": false,
+      "aliases": ["LRT Cawang"],
+      "nodes": [
         {
           "mapId": "cawang_lrt_bk",
           "code": "BK08",
@@ -3283,6 +3298,11 @@ export const networkData = {
       "from": "Setiabudi",
       "to": "Setiabudi LRT",
       "walkingTime": 7
+    },
+    {
+      "from": "Cikoko",
+      "to": "Cawang",
+      "walkingTime": 5
     }
   ]
 } as const satisfies NetworkData;
