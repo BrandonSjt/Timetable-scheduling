@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class LocaleScope extends InheritedNotifier<ValueNotifier<Locale>> {
+import 'locale_controller.dart';
+
+class LocaleScope extends InheritedNotifier<LocaleController> {
   const LocaleScope({
     super.key,
-    required ValueNotifier<Locale> super.notifier,
+    required LocaleController super.notifier,
     required super.child,
   });
 
-  static ValueNotifier<Locale> of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<LocaleScope>()!
-        .notifier!;
+  static LocaleController of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<LocaleScope>()!.notifier!;
   }
 }

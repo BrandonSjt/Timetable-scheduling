@@ -36,14 +36,22 @@ class AssistantConversationTimeline extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var index = 0; index < items.length; index++) ...[
-          _buildItem(context, items[index], isLatest: index == items.length - 1),
+          _buildItem(
+            context,
+            items[index],
+            isLatest: index == items.length - 1,
+          ),
           if (index != items.length - 1) const SizedBox(height: 10),
         ],
       ],
     );
   }
 
-  Widget _buildItem(BuildContext context, AssistantConversationItem item, {required bool isLatest}) {
+  Widget _buildItem(
+    BuildContext context,
+    AssistantConversationItem item, {
+    required bool isLatest,
+  }) {
     final l10n = AppLocalizations.of(context)!;
     final sender = item.author == AssistantMessageAuthor.user
         ? l10n.chatUser
@@ -184,7 +192,9 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isUser
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 310),
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),

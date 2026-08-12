@@ -4,6 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../models/app_locale_presentation.dart';
 
 /// Halaman Akun Mode Tamu (Screen 11 di Figma)
 /// Menampilkan profil tamu dan opsi konfigurasi aksesibilitas aplikasi.
@@ -14,7 +15,6 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final currentLocale = LocaleScope.of(context).value;
-    final isEnglish = currentLocale.languageCode == 'en';
     const Color headerBgColor = Color(0xFF4F46E5); // Vibrant Indigo/Blue-Purple
 
     return Scaffold(
@@ -189,7 +189,7 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildMenuTile(
                     title: l10n.languagePageTitle,
-                    subtitle: isEnglish ? l10n.languageEnglish : l10n.languageIndonesian,
+                    subtitle: currentLocale.localizedName(l10n),
                     onTap: () => context.push('/bahasa'),
                   ),
                   const SizedBox(height: 12),

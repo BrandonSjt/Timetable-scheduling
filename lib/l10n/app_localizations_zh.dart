@@ -33,13 +33,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get languageEnglishDesc => '使用英文作为应用标签';
 
   @override
-  String get languageSimplifiedChinese => '????';
+  String get languageSimplifiedChinese => '简体中文';
 
   @override
   String get languageSimplifiedChineseDesc => '使用简体中文作为应用标签';
 
   @override
-  String get languageArabic => '???????';
+  String get languageArabic => 'العربية';
 
   @override
   String get languageArabicDesc => '使用阿拉伯语作为应用标签';
@@ -1794,13 +1794,13 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get languageEnglishDesc => '使用英文作为应用标签';
 
   @override
-  String get languageSimplifiedChinese => '????';
+  String get languageSimplifiedChinese => '简体中文';
 
   @override
   String get languageSimplifiedChineseDesc => '使用简体中文作为应用标签';
 
   @override
-  String get languageArabic => '???????';
+  String get languageArabic => 'العربية';
 
   @override
   String get languageArabicDesc => '使用阿拉伯语作为应用标签';

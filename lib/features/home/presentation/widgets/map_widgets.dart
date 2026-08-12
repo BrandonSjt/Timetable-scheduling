@@ -289,7 +289,6 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     );
   }
 }
-
 /// Tombol zoom bulat dengan ikon magnifier glass
 class _ZoomButton extends StatelessWidget {
   final IconData icon;
@@ -543,7 +542,7 @@ class _MapLegendToggleState extends State<_MapLegendToggle>
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(left: 12),
+        padding: const EdgeInsetsDirectional.only(start: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

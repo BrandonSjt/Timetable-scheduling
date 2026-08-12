@@ -323,7 +323,7 @@ class _HomePageState extends State<HomePage> {
               shape: const Border(),
               children: [
                 ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
                   title: Text(l10n.areaJabodetabek, style: const TextStyle(fontWeight: FontWeight.w600)),
                   trailing: const Icon(Icons.check, color: AppColors.primaryBlue, size: 20),
                   onTap: () {
@@ -331,42 +331,42 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
                   title: const Text('Jakarta Pusat', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
                   title: const Text('Jakarta Selatan', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
                   title: const Text('Jakarta Barat', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
                   title: const Text('Jakarta Timur', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
                   title: const Text('Jakarta Utara', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
                   title: const Text('Bodetabek (Penyangga)', style: TextStyle(color: AppColors.textHint)),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
@@ -388,7 +388,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Text(l10n.homeLineKRL, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
@@ -404,7 +404,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Text(l10n.homeLineMRTJ, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
@@ -416,7 +416,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Text(l10n.homeLineLRTJabo, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
@@ -429,7 +429,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Text(l10n.homeLineLRTJakarta, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
                   ),
                 ),
@@ -563,11 +563,15 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             const Icon(Icons.search_rounded, color: AppColors.textHint),
                             const SizedBox(width: 12),
-                            Text(
-                              l10n.searchStationHint,
-                              style: const TextStyle(
-                                color: AppColors.textHint,
-                                fontSize: 14,
+                            Expanded(
+                              child: Text(
+                                l10n.searchStationHint,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.textHint,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
@@ -892,7 +896,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
 class _NextTrainBoard extends StatefulWidget {
   final String stationName;
   final List<_DepartureInfo> departures;
@@ -1105,7 +1108,7 @@ class _NextTrainRow extends StatelessWidget {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.homeArrivingIn(departure.duration),
-                      textAlign: TextAlign.right,
+                      textAlign: TextAlign.end,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,

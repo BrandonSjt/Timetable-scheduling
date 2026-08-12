@@ -139,7 +139,7 @@ class _ReportIncorrectInfoPageState extends State<ReportIncorrectInfoPage> {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.accentOrange,
             minimumSize: const Size.fromHeight(52),
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             side: const BorderSide(color: Color(0xFFFDBA74)),
             shape: RoundedRectangleBorder(

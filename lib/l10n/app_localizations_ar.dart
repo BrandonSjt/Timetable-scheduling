@@ -34,14 +34,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get languageEnglishDesc => 'استخدم اللغة الإنجليزية لتسميات التطبيق';
 
   @override
-  String get languageSimplifiedChinese => '????';
+  String get languageSimplifiedChinese => '简体中文';
 
   @override
   String get languageSimplifiedChineseDesc =>
       'استخدم اللغة الصينية المبسطة لتسميات التطبيقات';
 
   @override
-  String get languageArabic => '???????';
+  String get languageArabic => 'العربية';
 
   @override
   String get languageArabicDesc => 'استخدم اللغة العربية لتسميات التطبيق';

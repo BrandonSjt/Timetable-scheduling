@@ -43,12 +43,14 @@ void main() {
       Locale('fr'),
       Locale('zh', 'TW'),
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+      Locale.fromSubtags(
+        languageCode: 'zh',
+        scriptCode: 'Hant',
+        countryCode: 'CN',
+      ),
     ]) {
       expect(
-        AppLocale.resolve(
-          savedTag: 'broken',
-          deviceLocales: <Locale>[locale],
-        ),
+        AppLocale.resolve(savedTag: 'broken', deviceLocales: <Locale>[locale]),
         AppLocale.english,
       );
     }
@@ -57,10 +59,7 @@ void main() {
   test('maps only canonical saved tags', () {
     expect(AppLocale.fromStorageTag('id'), AppLocale.indonesian);
     expect(AppLocale.fromStorageTag('en'), AppLocale.english);
-    expect(
-      AppLocale.fromStorageTag('zh-Hans'),
-      AppLocale.simplifiedChinese,
-    );
+    expect(AppLocale.fromStorageTag('zh-Hans'), AppLocale.simplifiedChinese);
     expect(AppLocale.fromStorageTag('ar'), AppLocale.arabic);
     expect(AppLocale.fromStorageTag('zh-TW'), isNull);
     expect(AppLocale.fromStorageTag(null), isNull);

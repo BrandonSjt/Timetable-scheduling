@@ -26,7 +26,7 @@ class ProfileDetailScaffold extends StatelessWidget {
     required this.subtitle,
     required this.children,
     this.fallbackRoute = '/akun',
-    this.bodyPadding = const EdgeInsets.fromLTRB(28, 28, 28, 32),
+    this.bodyPadding = const EdgeInsetsDirectional.fromSTEB(28, 28, 28, 32),
     this.footer,
     this.scrollController,
   });
@@ -59,23 +59,27 @@ class ProfileDetailScaffold extends StatelessWidget {
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 24, 50),
+                  padding: const EdgeInsetsDirectional.fromSTEB(20, 24, 24, 50),
                   child: Row(
                     children: [
                       Semantics(
                         button: true,
-                        label: AppLocalizations.of(context)?.actionBack ?? 'Kembali',
+                        label:
+                            AppLocalizations.of(context)?.actionBack ??
+                            'Kembali',
                         child: Material(
                           color: Colors.white.withValues(alpha: 0.16),
                           shape: const CircleBorder(),
                           child: InkWell(
                             customBorder: const CircleBorder(),
                             onTap: () => _goBack(context),
-                            child: const SizedBox(
+                            child: SizedBox(
                               width: 48,
                               height: 48,
                               child: Icon(
-                                Icons.chevron_left_rounded,
+                                Directionality.of(context) == TextDirection.rtl
+                                    ? Icons.chevron_right_rounded
+                                    : Icons.chevron_left_rounded,
                                 color: Colors.white,
                                 size: 36,
                               ),

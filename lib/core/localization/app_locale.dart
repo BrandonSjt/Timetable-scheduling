@@ -28,9 +28,12 @@ enum AppLocale {
     if (locale.languageCode == 'ar') return AppLocale.arabic;
     if (locale.languageCode != 'zh') return null;
 
-    if (locale.scriptCode == 'Hans' ||
-        locale.countryCode == 'CN' ||
-        locale.countryCode == 'SG') {
+    final scriptCode = locale.scriptCode;
+    if (scriptCode != null) {
+      return scriptCode == 'Hans' ? AppLocale.simplifiedChinese : null;
+    }
+
+    if (locale.countryCode == 'CN' || locale.countryCode == 'SG') {
       return AppLocale.simplifiedChinese;
     }
     return null;

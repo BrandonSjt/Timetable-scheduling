@@ -418,7 +418,7 @@ class _TicketsPageState extends State<TicketsPage> {
             ) {
               final isSelected = _selectedFilter == filter || (_selectedFilter == 'Semua' && filter == l10n.all);
               return Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsetsDirectional.only(end: 8),
                 child: ChoiceChip(
                   label: Text(filter),
                   selected: isSelected,
