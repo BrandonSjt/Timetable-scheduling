@@ -22,11 +22,12 @@ Represent the official integration between LRT Jabodebek Cikoko and KRL Cawang a
 
 ## Mobile schematic
 
-- Draw a short neutral gray dashed connector between the Cikoko LRT interchange marker and KRL Cawang `B11`.
+- Draw a short black connector between the Cikoko LRT interchange marker and KRL Cawang `B11`, matching the supplied reference.
 - Add a small walking icon at the connector midpoint.
-- Keep railway lines solid and in their existing service colors so the pedestrian connector cannot be mistaken for another rail line.
+- Render the connector as a separate pedestrian overlay after the existing railway paths; it must never be inserted into or reshape a railway path.
+- Keep every railway line solid and in its existing service color so the black connector is understood as a pedestrian link rather than another rail service.
 - Keep both station labels; do not merge Cikoko and Cawang into one interchange label.
-- The connector is visual metadata only and must not alter existing node positions or rail geometry.
+- The connector is visual metadata only and must not alter existing node positions, railway geometry, line definitions, station order, or rail connections.
 
 ## Route response and accessibility
 
@@ -46,10 +47,11 @@ Represent the official integration between LRT Jabodebek Cikoko and KRL Cawang a
 ## Verification
 
 - A station identity test proves `B11` is not grouped with `BK08/CB08`.
-- A network invariant test proves all rail node coordinates and line order remain unchanged.
+- A before/after topology snapshot proves every existing rail node ID, coordinate, line order, railway path, and rail connection remains byte-for-byte equivalent.
 - A seed/route test proves Cikoko–Cawang produces a bidirectional five-minute, zero-fare transfer edge.
 - A route service test proves Dijkstra can travel from an LRT origin through Cikoko to a KRL destination and emits the pedestrian instruction.
 - A painter contract test proves the walking connector exists without modifying either endpoint coordinate.
+- A painter regression test proves existing railway path commands are unchanged and the black walking connector is painted only as an additional overlay.
 - Backend tests/build and Flutter tests/analyzer/build pass before handoff.
 
 ## Source
