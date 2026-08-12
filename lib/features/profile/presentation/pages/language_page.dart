@@ -17,11 +17,14 @@ class _LanguagePageState extends State<LanguagePage> {
   void _applyLanguage(Locale newLocale) {
     final notifier = LocaleScope.of(context);
     notifier.value = newLocale;
-    
-    final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l10n.languageAppliedSnackbar)));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.languageAppliedSnackbar)));
+    });
   }
 
   @override
@@ -136,7 +139,10 @@ class _LanguagePageState extends State<LanguagePage> {
           child: Text(
             l10n.languageAppliedNote,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+            ),
           ),
         ),
       ],

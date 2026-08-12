@@ -1206,39 +1206,6 @@ class SchematicMapPainter extends CustomPainter {
     }
   }
 
-  /// Kode stasiun badge (pill kecil berwarna)
-  void _drawCodeBadge(Canvas canvas, StationData station) {
-    if (station.code.isEmpty) return;
-
-    final color = _getStationColor(station);
-
-    final codeSpan = TextSpan(
-      text: station.code,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 9, // Diperbesar dari 7
-        fontWeight: FontWeight.w800,
-      ),
-    );
-    final codeTp = TextPainter(text: codeSpan, textDirection: TextDirection.ltr)
-      ..layout();
-    final badgeRect = _codeBadgeRect(station, codeTp.width);
-
-    final badgeRRect = RRect.fromRectAndRadius(
-      badgeRect,
-      const Radius.circular(6),
-    );
-    canvas.drawRRect(badgeRRect, Paint()..color = color);
-
-    codeTp.paint(
-      canvas,
-      Offset(
-        badgeRect.center.dx - codeTp.width / 2,
-        badgeRect.center.dy - codeTp.height / 2,
-      ),
-    );
-  }
-
   Rect _codeBadgeRect(StationData station, [double? textWidth]) {
     final codeWidth =
         textWidth ??
@@ -1375,7 +1342,9 @@ class SchematicMapPainter extends CustomPainter {
       if (_majorTransitIds.contains(station.id)) continue;
       // Skip labels for merged stations (nama sudah di dalam pill gabungan)
       if (_mergedStationPairs.containsKey(station.id) ||
-          _mergedStationPairs.containsValue(station.id)) continue;
+          _mergedStationPairs.containsValue(station.id)) {
+        continue;
+      }
 
       bool stationVisible = true;
       if (visibleLineIds != null) {
@@ -1740,7 +1709,6 @@ class SchematicMapPainter extends CustomPainter {
 
   void _drawSingleLineBadge(Canvas canvas, _LineBadgeInfo badge) {
     const double outerRadius = 18.0;
-    const double innerRadius = 15.0;
     final center = badge.position;
 
     // Lingkaran putih (latar)

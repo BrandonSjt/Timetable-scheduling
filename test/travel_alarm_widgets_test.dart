@@ -6,13 +6,15 @@ import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alar
 import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_disable_dialog.dart';
 import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_setup_sheet.dart';
 
+import 'localized_test_app.dart';
+
 void main() {
   testWidgets('alarm setup enables both categories by default', (
     WidgetTester tester,
   ) async {
     TravelAlarmSelection? result;
     await tester.pumpWidget(
-      MaterialApp(
+      LocalizedTestApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
@@ -68,7 +70,7 @@ void main() {
   ) async {
     TravelAlarmSelection? result;
     await tester.pumpWidget(
-      MaterialApp(
+      LocalizedTestApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
@@ -99,7 +101,7 @@ void main() {
   ) async {
     var active = false;
     await tester.pumpWidget(
-      MaterialApp(
+      LocalizedTestApp(
         home: StatefulBuilder(
           builder: (context, setState) => Scaffold(
             body: TravelAlarmButton(
@@ -129,7 +131,7 @@ void main() {
   ) async {
     bool? result;
     await tester.pumpWidget(
-      MaterialApp(
+      LocalizedTestApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
@@ -163,7 +165,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      MaterialApp(
+      LocalizedTestApp(
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(
             context,
