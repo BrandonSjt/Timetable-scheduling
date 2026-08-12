@@ -64,7 +64,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Tidak perlu login untuk peta, ETA. jadwal, dan beli tiket.';
 
   @override
-  String get profileOptionalLogin => 'Masuk opsional';
+  String get profileOptionalLogin => 'Masuk atau Buat Akun';
 
   @override
   String get profileLocalTicketHistory => 'Riwayat tiket lokal';
@@ -83,6 +83,117 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get profileContactOfficer => 'Kontak petugas dan laporan info salah';
+
+  @override
+  String get authSignInTitle => 'Masuk ke akun';
+
+  @override
+  String get authSignInSubtitle =>
+      'Akun bersifat opsional. Gunakan untuk menyinkronkan profil dan riwayat tiket.';
+
+  @override
+  String get authRegisterTitle => 'Buat akun';
+
+  @override
+  String get authRegisterSubtitle =>
+      'Daftar tanpa mengubah akses guest untuk jadwal, rute, dan pembelian tiket.';
+
+  @override
+  String get authName => 'Nama lengkap';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPhoneOptional => 'Nomor telepon (opsional)';
+
+  @override
+  String get authPassword => 'Kata sandi';
+
+  @override
+  String get authPasswordConfirmation => 'Ulangi kata sandi';
+
+  @override
+  String get authEmailInvalid => 'Masukkan alamat email yang valid.';
+
+  @override
+  String get authNameRequired => 'Nama minimal 2 karakter.';
+
+  @override
+  String get authPasswordMin => 'Kata sandi minimal 8 karakter.';
+
+  @override
+  String get authPasswordMismatch => 'Konfirmasi kata sandi belum sama.';
+
+  @override
+  String get authShowPassword => 'Tampilkan kata sandi';
+
+  @override
+  String get authHidePassword => 'Sembunyikan kata sandi';
+
+  @override
+  String get authSubmitLogin => 'Masuk';
+
+  @override
+  String get authSubmitRegister => 'Daftar';
+
+  @override
+  String get authCreateAccount => 'Belum punya akun? Daftar';
+
+  @override
+  String get authBackToLogin => 'Sudah punya akun? Masuk';
+
+  @override
+  String get authGuestStillAvailable =>
+      'Tanpa akun, kamu tetap bisa melihat jadwal, mencari rute, dan membeli tiket sebagai guest.';
+
+  @override
+  String get authInvalidCredentials => 'Email atau kata sandi tidak sesuai.';
+
+  @override
+  String get authEmailUsed => 'Email ini sudah terdaftar.';
+
+  @override
+  String get authNetworkError =>
+      'Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.';
+
+  @override
+  String get authGenericError => 'Permintaan belum dapat diproses. Coba lagi.';
+
+  @override
+  String get profileSignedIn => 'Akun aktif';
+
+  @override
+  String get profileOfflineSession => 'Akun tersimpan • sedang offline';
+
+  @override
+  String get profileOfflineHint =>
+      'Beberapa perubahan akan tersedia saat koneksi kembali.';
+
+  @override
+  String get profileEdit => 'Edit profil';
+
+  @override
+  String get profileLogout => 'Keluar';
+
+  @override
+  String get profileLogoutConfirm =>
+      'Keluar dari akun di perangkat ini? Fitur guest tetap dapat digunakan.';
+
+  @override
+  String get profileCancel => 'Batal';
+
+  @override
+  String get profileAccountTicketHistory => 'Riwayat tiket akun';
+
+  @override
+  String get profileSyncedAccount => 'Tersinkron dengan akun ini';
+
+  @override
+  String get editProfileTitle => 'Edit profil';
+
+  @override
+  String get saveChanges => 'Simpan perubahan';
 
   @override
   String get navHome => 'Beranda';

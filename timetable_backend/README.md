@@ -119,3 +119,31 @@ npm run build
 ```
 
 The seed is idempotent and can be re-run with `npx prisma db seed`. External KAI realtime data and production fare accuracy still require credentials/contract access from the official provider.
+# Optional account authentication
+
+Guest mode remains the default and still supports stations, schedules, route
+planning, ticket orders, Xendit checkout, and locally retained QR tickets.
+Accounts only add a persistent profile and authenticated ticket ownership.
+
+Authentication endpoints under `/api/v1`:
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
+- `GET/PATCH /profile` with `Authorization: Bearer <access-token>`
+
+Access tokens expire after 15 minutes. Opaque refresh tokens use a sliding
+90-day lifetime, rotate after every refresh, and are stored in PostgreSQL only
+as SHA-256 hashes in `AuthSession`. Configure a strong `JWT_SECRET` in `.env`;
+never copy the Xendit or JWT secret into Flutter.
+
+Apply the schema and start development:
+
+```powershell
+npx prisma migrate deploy
+npm run dev
+```
+
+The Android emulator reaches this server through
+`http://10.0.2.2:3000/api/v1`.

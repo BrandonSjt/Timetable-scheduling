@@ -108,7 +108,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       if (station.isWaypoint) continue;
       final d = (canvasPos - station.position).distance;
       if (d < 25) {
-        widget.onStationSelected?.call(station.name);
+        final selectionName = stationSelectionName(station);
+        if (selectionName.isNotEmpty) {
+          widget.onStationSelected?.call(selectionName);
+        }
         return;
       }
     }
@@ -137,7 +140,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         (viewportSize.width / 2) - (targetX * targetScale);
     // Geser titik tengah ke atas (- 160) agar stasiun tidak tertutup bottom sheet
     // Jika tidak ada station yang di-select secara eksplisit (seperti saat initial load),
-    // kita tidak perlu menggeser ke atas sejauh itu, tapi karena fungsi ini 
+    // kita tidak perlu menggeser ke atas sejauh itu, tapi karena fungsi ini
     // juga dipakai saat memilih stasiun, biarkan logic-nya. Untuk initial load,
     // kita kurangi pergeserannya.
     final double yOffset = (scale != null && scale < 1.5) ? 0 : 160;
@@ -245,7 +248,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   minScale: 0.15,
                   maxScale: 4.0,
                   constrained: false,
-                  boundaryMargin: const EdgeInsets.only(left: 350, top: 150, right: 150, bottom: 150),
+                  boundaryMargin: const EdgeInsets.only(
+                    left: 350,
+                    top: 150,
+                    right: 150,
+                    bottom: 150,
+                  ),
                   child: SizedBox(
                     width: kMapWidth,
                     height: kMapHeight,
@@ -406,10 +414,22 @@ class StationActionBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionFrom, onTap: () {}),
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionVia, onTap: () {}),
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionTo, onTap: () {}),
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionInfo, onTap: () {}),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionFrom,
+            onTap: () {},
+          ),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionVia,
+            onTap: () {},
+          ),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionTo,
+            onTap: () {},
+          ),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionInfo,
+            onTap: () {},
+          ),
         ],
       ),
     );
@@ -514,12 +534,11 @@ class _MapLegendToggleState extends State<_MapLegendToggle>
     _slideAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(-1.0, 0.0),
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _fadeAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -628,15 +647,51 @@ class _MapLegend extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _LegendItem(code: "B", label: AppLocalizations.of(context)!.mapLegendBogor, color: AppColors.lineBogor),
-          _LegendItem(code: "C", label: AppLocalizations.of(context)!.mapLegendCikarang, color: AppColors.lineCikarang),
-          _LegendItem(code: "R", label: AppLocalizations.of(context)!.mapLegendRangkasbitung, color: AppColors.lineRangkasbitung),
-          _LegendItem(code: "T", label: AppLocalizations.of(context)!.mapLegendTangerang, color: AppColors.lineTangerang),
-          _LegendItem(code: "TP", label: AppLocalizations.of(context)!.mapLegendTanjungPriok, color: AppColors.lineTanjungPriok),
-          _LegendItem(code: "M", label: AppLocalizations.of(context)!.mapLegendMrt, color: AppColors.lineMRT),
-          _LegendItem(code: "BK", label: AppLocalizations.of(context)!.mapLegendLrtBekasi, color: AppColors.lineLRTBekasi),
-          _LegendItem(code: "CB", label: AppLocalizations.of(context)!.mapLegendLrtCibubur, color: AppColors.lineLRTCibubur),
-          _LegendItem(code: "S", label: AppLocalizations.of(context)!.mapLegendLrtJakarta, color: AppColors.lineLRTJakarta),
+          _LegendItem(
+            code: "B",
+            label: AppLocalizations.of(context)!.mapLegendBogor,
+            color: AppColors.lineBogor,
+          ),
+          _LegendItem(
+            code: "C",
+            label: AppLocalizations.of(context)!.mapLegendCikarang,
+            color: AppColors.lineCikarang,
+          ),
+          _LegendItem(
+            code: "R",
+            label: AppLocalizations.of(context)!.mapLegendRangkasbitung,
+            color: AppColors.lineRangkasbitung,
+          ),
+          _LegendItem(
+            code: "T",
+            label: AppLocalizations.of(context)!.mapLegendTangerang,
+            color: AppColors.lineTangerang,
+          ),
+          _LegendItem(
+            code: "TP",
+            label: AppLocalizations.of(context)!.mapLegendTanjungPriok,
+            color: AppColors.lineTanjungPriok,
+          ),
+          _LegendItem(
+            code: "M",
+            label: AppLocalizations.of(context)!.mapLegendMrt,
+            color: AppColors.lineMRT,
+          ),
+          _LegendItem(
+            code: "BK",
+            label: AppLocalizations.of(context)!.mapLegendLrtBekasi,
+            color: AppColors.lineLRTBekasi,
+          ),
+          _LegendItem(
+            code: "CB",
+            label: AppLocalizations.of(context)!.mapLegendLrtCibubur,
+            color: AppColors.lineLRTCibubur,
+          ),
+          _LegendItem(
+            code: "S",
+            label: AppLocalizations.of(context)!.mapLegendLrtJakarta,
+            color: AppColors.lineLRTJakarta,
+          ),
         ],
       ),
     );

@@ -20,6 +20,8 @@ import '../../features/profile/presentation/pages/active_ticket_detail_page.dart
 import '../../features/profile/presentation/pages/completed_ticket_detail_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
 import '../../features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
+import '../../features/auth/presentation/pages/auth_page.dart';
+import '../../features/auth/presentation/pages/edit_profile_page.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
 /// Semua rute halaman didefinisikan di sini.
@@ -80,6 +82,15 @@ final GoRouter appRouter = GoRouter(
       path: '/akun',
       pageBuilder: (context, state) =>
           const NoTransitionPage(child: ProfilePage()),
+    ),
+    GoRoute(path: '/masuk', builder: (context, state) => const AuthPage()),
+    GoRoute(
+      path: '/daftar',
+      builder: (context, state) => const AuthPage(register: true),
+    ),
+    GoRoute(
+      path: '/profil-saya',
+      builder: (context, state) => const EditProfilePage(),
     ),
 
     // Pengaturan Aksesibilitas

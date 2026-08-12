@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/widgets/auth_scope.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
 /// Pilihan bahasa aplikasi untuk mode tamu.
@@ -14,10 +15,15 @@ class LanguagePage extends StatefulWidget {
 }
 
 class _LanguagePageState extends State<LanguagePage> {
-  void _applyLanguage(Locale newLocale) {
+  Future<void> _applyLanguage(Locale newLocale) async {
     final notifier = LocaleScope.of(context);
     notifier.value = newLocale;
-    
+
+    final auth = AuthScope.of(context, listen: false);
+    if (auth.isAuthenticated) {
+      await auth.updateProfile(language: newLocale.languageCode);
+    }
+    if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -136,7 +142,10 @@ class _LanguagePageState extends State<LanguagePage> {
           child: Text(
             l10n.languageAppliedNote,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+            ),
           ),
         ),
       ],

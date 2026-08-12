@@ -63,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No login needed for maps, ETA, schedules, and tickets.';
 
   @override
-  String get profileOptionalLogin => 'Optional login';
+  String get profileOptionalLogin => 'Sign in or Create Account';
 
   @override
   String get profileLocalTicketHistory => 'Local ticket history';
@@ -82,6 +82,118 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileContactOfficer => 'Contact officer and report errors';
+
+  @override
+  String get authSignInTitle => 'Sign in';
+
+  @override
+  String get authSignInSubtitle =>
+      'Accounts are optional. Sign in to sync your profile and ticket history.';
+
+  @override
+  String get authRegisterTitle => 'Create an account';
+
+  @override
+  String get authRegisterSubtitle =>
+      'Register without changing guest access to schedules, routes, and ticket purchase.';
+
+  @override
+  String get authName => 'Full name';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPhoneOptional => 'Phone number (optional)';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authPasswordConfirmation => 'Confirm password';
+
+  @override
+  String get authEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get authNameRequired => 'Name must contain at least 2 characters.';
+
+  @override
+  String get authPasswordMin => 'Password must contain at least 8 characters.';
+
+  @override
+  String get authPasswordMismatch => 'Password confirmation does not match.';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get authSubmitLogin => 'Sign in';
+
+  @override
+  String get authSubmitRegister => 'Register';
+
+  @override
+  String get authCreateAccount => 'No account yet? Register';
+
+  @override
+  String get authBackToLogin => 'Already have an account? Sign in';
+
+  @override
+  String get authGuestStillAvailable =>
+      'Without an account, you can still view schedules, find routes, and purchase tickets as a guest.';
+
+  @override
+  String get authInvalidCredentials => 'The email or password is incorrect.';
+
+  @override
+  String get authEmailUsed => 'This email is already registered.';
+
+  @override
+  String get authNetworkError =>
+      'Cannot connect to the server. Check your connection and try again.';
+
+  @override
+  String get authGenericError =>
+      'The request could not be processed. Try again.';
+
+  @override
+  String get profileSignedIn => 'Account active';
+
+  @override
+  String get profileOfflineSession => 'Account saved • currently offline';
+
+  @override
+  String get profileOfflineHint =>
+      'Some changes will be available when the connection returns.';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get profileLogout => 'Sign out';
+
+  @override
+  String get profileLogoutConfirm =>
+      'Sign out on this device? Guest features will remain available.';
+
+  @override
+  String get profileCancel => 'Cancel';
+
+  @override
+  String get profileAccountTicketHistory => 'Account ticket history';
+
+  @override
+  String get profileSyncedAccount => 'Synced with this account';
+
+  @override
+  String get editProfileTitle => 'Edit profile';
+
+  @override
+  String get saveChanges => 'Save changes';
 
   @override
   String get navHome => 'Home';
