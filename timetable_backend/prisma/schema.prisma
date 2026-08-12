@@ -1,0 +1,375 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Station {
+  id                String    @id @default(uuid())
+  slug              String?   @unique
+  operationalCode   String?   @unique @map("code")
+  nodeCode          String?
+  name              String
+  officialName      String?
+  isBoardingAllowed Boolean   @default(true)
+  isTransit    Boolean   @default(false)
+  isAccessible Boolean   @default(false)
+  isLrt        Boolean   @default(false)
+  isKrl        Boolean   @default(false)
+  isMrt        Boolean   @default(false)
+  lineInfo     String?
+  statusText   String?
+  statusColor  String?
+  
+  lines        Line[]    @relation("LineToStation")
+  aliases      StationAlias[]
+  nodes        StationNode[]
+  publicCodes  StationPublicCode[]
+  schedules    Schedule[]
+  stopTimes    TrainStopTime[]
+  originTickets Ticket[] @relation("TicketOrigin")
+  destinationTickets Ticket[] @relation("TicketDestination")
+  outgoingTransfers StationTransfer[] @relation("TransferFrom")
+  incomingTransfers StationTransfer[] @relation("TransferTo")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Line {
+  id           String    @id @default(uuid())
+  slug         String?   @unique
+  name         String
+  color        String
+  serviceType  String    @default("KRL")
+  stations     Station[] @relation("LineToStation")
+  nodes        StationNode[]
+  publicCodes  StationPublicCode[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model StationAlias {
+  id         String  @id @default(uuid())
+  stationId  String
+  name       String
+  normalized String
+  station    Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@unique([stationId, normalized])
+  @@index([normalized])
+}
+
+model StationNode {
+  id          String   @id @default(uuid())
+  nodeKey     String   @unique @map("code")
+  mapId       String   @unique
+  sequence    Int
+  mapX        Float?
+  mapY        Float?
+  stationId   String
+  lineId      String
+  station     Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  line        Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  outgoing    RouteConnection[] @relation("ConnectionFrom")
+  incoming    RouteConnection[] @relation("ConnectionTo")
+
+  @@index([stationId])
+  @@index([lineId, sequence])
+}
+
+model StationPublicCode {
+  id        String  @id @default(uuid())
+  stationId String
+  lineId    String
+  code      String
+  station   Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  line      Line    @relation(fields: [lineId], references: [id], onDelete: Cascade)
+
+  @@unique([stationId, lineId])
+  @@unique([lineId, code])
+  @@index([code])
+}
+
+model Schedule {
+  id            String   @id @default(uuid())
+  sourceKey     String?  @unique
+  trainName     String
+  route         String
+  departureTime String
+  arrivalTime   String
+  platform      String
+  trainType     String   // 'KRL', 'LRT', 'MRT'
+  isWeekend     Boolean  @default(false)
+  
+  stationId     String
+  station       Station  @relation(fields: [stationId], references: [id])
+  tickets       Ticket[]
+  reminders     Reminder[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TimetableDataset {
+  id         String   @id @default(uuid())
+  version    String   @unique
+  sourceName String
+  sourceSha256 String
+  timezone   String   @default("Asia/Jakarta")
+  validFrom  DateTime @db.Date
+  validTo    DateTime? @db.Date
+  isActive   Boolean  @default(false)
+  importedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  calendars  ServiceCalendar[]
+  services   TrainService[]
+
+  @@index([isActive])
+  @@index([sourceSha256])
+}
+
+model ServiceCalendar {
+  id                     String   @id @default(uuid())
+  datasetId              String
+  code                   String
+  monday                 Boolean  @default(true)
+  tuesday                Boolean  @default(true)
+  wednesday              Boolean  @default(true)
+  thursday               Boolean  @default(true)
+  friday                 Boolean  @default(true)
+  saturday               Boolean  @default(true)
+  sunday                 Boolean  @default(true)
+  excludesPublicHolidays Boolean  @default(false)
+  dataset                TimetableDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  services               TrainService[]
+
+  @@unique([datasetId, code])
+}
+
+model TrainService {
+  id                      String   @id @default(uuid())
+  datasetId               String
+  calendarId              String
+  lineSlug                String
+  trainNumber             String
+  continuationTrainNumber String?
+  relation                String
+  direction               String
+  loopNumber              Int?
+  sourcePage              Int
+  sourceRow               Int
+  isFullRacket            Boolean  @default(false)
+  notes                   String   @default("")
+  dataset                 TimetableDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  calendar                ServiceCalendar @relation(fields: [calendarId], references: [id], onDelete: Restrict)
+  stops                   TrainStopTime[]
+
+  @@unique([datasetId, trainNumber])
+  @@unique([datasetId, sourcePage, sourceRow, direction])
+  @@index([datasetId, continuationTrainNumber])
+  @@index([datasetId, lineSlug, direction])
+}
+
+model TrainStopTime {
+  id              String  @id @default(uuid())
+  serviceId       String
+  stationId       String
+  stationCode     String
+  sequence        Int
+  arrivalMinute   Int?
+  departureMinute Int?
+  isPassThrough   Boolean @default(false)
+  service         TrainService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  station         Station @relation(fields: [stationId], references: [id], onDelete: Restrict)
+
+  @@unique([serviceId, sequence])
+  @@index([stationId, departureMinute])
+  @@index([serviceId, stationId])
+}
+
+model RouteConnection {
+  id           String    @id @default(uuid())
+  fromNodeId   String
+  toNodeId     String
+  travelTime   Int
+  fare         Int
+  serviceInfo  String?
+  transitSteps Json?
+  isTransfer   Boolean   @default(false)
+  fromNode     StationNode @relation("ConnectionFrom", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNode       StationNode @relation("ConnectionTo", fields: [toNodeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([fromNodeId, toNodeId])
+  @@index([fromNodeId])
+  @@index([toNodeId])
+}
+
+model StationTransfer {
+  id            String  @id @default(uuid())
+  fromStationId String
+  toStationId   String
+  walkingTime   Int     @default(5)
+  fromStation   Station @relation("TransferFrom", fields: [fromStationId], references: [id], onDelete: Cascade)
+  toStation     Station @relation("TransferTo", fields: [toStationId], references: [id], onDelete: Cascade)
+
+  @@unique([fromStationId, toStationId])
+}
+
+enum Role {
+  GUEST
+  REGISTERED
+  ADMIN
+}
+
+enum TicketStatus {
+  PENDING
+  PAYMENT_PENDING
+  PAID
+  ACTIVE
+  USED
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String?  @unique
+  password  String?
+  name      String?
+  phone     String?
+  role      Role     @default(GUEST)
+  language  String   @default("id")
+  accessibilityEnabled Boolean @default(false)
+  notificationsEnabled Boolean @default(true)
+  tickets   Ticket[]
+  authSessions AuthSession[]
+  reminders Reminder[]
+  reports   Report[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuthSession {
+  id               String    @id @default(uuid())
+  userId           String
+  refreshTokenHash String    @unique
+  deviceName       String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  lastUsedAt       DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+}
+
+model Ticket {
+  id           String       @id @default(uuid())
+  publicCode   String       @unique
+  userId       String?
+  contactEmail String?
+  contactPhone String?
+  scheduleId   String?
+  originStationId String
+  destinationStationId String
+  passengerCount Int        @default(1)
+  unitPrice    Int
+  price        Int
+  status       TicketStatus @default(PAYMENT_PENDING)
+  qrCode       String?      @unique
+  travelDate   DateTime
+  departureTime String?
+  arrivalTime  String?
+  expiresAt    DateTime?
+  activatedAt DateTime?
+  usedAt       DateTime?
+  cancelledAt DateTime?
+  cancellationReason String?
+  
+  user         User?        @relation(fields: [userId], references: [id])
+  schedule     Schedule?    @relation(fields: [scheduleId], references: [id])
+  originStation Station     @relation("TicketOrigin", fields: [originStationId], references: [id])
+  destinationStation Station @relation("TicketDestination", fields: [destinationStationId], references: [id])
+  payments     Payment[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Payment {
+  id             String   @id @default(uuid())
+  ticketId       String
+  xenditInvoiceId String? @unique
+  referenceId    String   @unique
+  xenditSessionId String? @unique
+  xenditPaymentId String? @unique
+  checkoutUrl    String?
+  currency       String   @default("IDR")
+  expiresAt      DateTime?
+  paymentMethod  String?
+  amount         Int
+  status         PaymentStatus @default(PENDING)
+  
+  ticket         Ticket   @relation(fields: [ticketId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([ticketId, createdAt])
+}
+
+model WebhookEvent {
+  id          String   @id @default(uuid())
+  provider    String
+  eventKey    String   @unique
+  eventType   String
+  payload     Json
+  processedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model Reminder {
+  id         String   @id @default(uuid())
+  userId     String
+  scheduleId String
+  timeBefore Int      // minutes before departure
+  isActive   Boolean  @default(true)
+  
+  user       User     @relation(fields: [userId], references: [id])
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  userId      String
+  category    String
+  description String
+  status      String   @default("OPEN")
+  
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  senderId  String
+  message   String
+  isFromAdmin Boolean @default(false)
+  createdAt DateTime @default(now())
+}

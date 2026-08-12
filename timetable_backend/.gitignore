@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Build and compiled outputs (TypeScript/Node)
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.*.local
+!.env.example
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Prisma (jika menggunakan SQLite lokal, agar tidak ter-commit)
+prisma/*.db
+prisma/*.db-journal
+
+# OS metadata
+.DS_Store
+Thumbs.db
