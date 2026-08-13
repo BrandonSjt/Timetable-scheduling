@@ -106,14 +106,18 @@ void main() {
         findsOneWidget,
       );
       final context = tester.element(find.byType(Scaffold).first);
-      expect(Directionality.of(context), TextDirection.rtl);
-      expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+      expect(Directionality.of(context), TextDirection.ltr);
+      expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
       expect(tester.takeException(), isNull);
 
       appRouter.go('/');
       await tester.pumpAndSettle();
       final homeContext = tester.element(find.byType(Scaffold).first);
-      expect(Directionality.of(homeContext), TextDirection.rtl);
+      expect(Directionality.of(homeContext), TextDirection.ltr);
+      expect(
+        tester.getCenter(find.byIcon(Icons.calendar_month_outlined)).dx,
+        lessThan(tester.getCenter(find.byIcon(Icons.person_outline_rounded)).dx),
+      );
       expect(tester.takeException(), isNull);
     },
   );

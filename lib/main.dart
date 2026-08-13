@@ -88,6 +88,10 @@ class _MyAppState extends State<MyApp> {
               theme: AppTheme.lightTheme,
               routerConfig: appRouter,
               locale: appLocale.locale,
+              builder: (context, child) => Directionality(
+                textDirection: TextDirection.ltr,
+                child: child!,
+              ),
               localizationsDelegates: const [
                 AppLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,
