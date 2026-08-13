@@ -55,6 +55,7 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
   bool _initialized = false;
   bool _isAuthenticated = false;
   String? _accountEmail;
+  String? _authIdentity;
   bool _checkoutLaunched = false;
   bool _alarmPrepared = false;
   _TicketFilter _filter = _TicketFilter.all;
@@ -77,19 +78,24 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final authScope = context.getInheritedWidgetOfExactType<AuthScope>();
-    _isAuthenticated =
+    final authScope = context.dependOnInheritedWidgetOfExactType<AuthScope>();
+    final isAuthenticated =
         widget.authenticated ?? authScope?.notifier?.isAuthenticated ?? false;
-    _accountEmail = authScope?.notifier?.user?.email;
+    final accountEmail = authScope?.notifier?.user?.email;
+    final authIdentity = '$isAuthenticated:${accountEmail ?? ''}';
+    final authChanged = _initialized && authIdentity != _authIdentity;
+    _isAuthenticated = isAuthenticated;
+    _accountEmail = accountEmail;
+    _authIdentity = authIdentity;
     _attachController(
       widget.ticketController ?? TicketScope.of(context, listen: false),
     );
     _syncGuestEmailField();
-    if (!_initialized) {
+    if (!_initialized || authChanged) {
       _initialized = true;
-      if (_isAuthenticated) {
-        controller.loadHistory();
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadDeviceHistory();
+      });
     }
   }
 
@@ -174,6 +180,11 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
     await controller.loadHistory(contactEmail: _emailController.text.trim());
   }
 
+  Future<void> _loadDeviceHistory() => controller.loadDeviceHistory(
+    includeAccount: _isAuthenticated,
+    accountEmail: _accountEmail,
+  );
+
   Future<void> _openCheckout() async {
     final uri = controller.state.payment?.checkoutUrl;
     if (uri == null) {
@@ -222,29 +233,56 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
     final state = controller.state;
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Tiket'),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: state.stage == TicketStage.ticketActive
-            ? _buildActiveTicket(state.selectedTicket!)
-            : _buildTicketList(state),
+      body: ColoredBox(
+        key: const Key('ticket-safe-area-surface'),
+        color: AppColors.surface,
+        child: SafeArea(
+          bottom: false,
+          child: ColoredBox(
+            key: const Key('ticket-page-content-background'),
+            color: AppColors.background,
+            child: Column(
+              children: [
+                Container(
+                  key: const Key('ticket-page-header'),
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  color: AppColors.surface,
+                  child: Semantics(
+                    header: true,
+                    child: const Text(
+                      'Tiket',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1, color: AppColors.cardBorder),
+                Expanded(
+                  child: state.stage == TicketStage.ticketActive
+                      ? _buildActiveTicket(state.selectedTicket!)
+                      : _buildTicketList(state),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 2),
     );
   }
 
   Widget _buildTicketList(TicketViewState state) {
-    final activeEmail = _activeHistoryEmail(state);
+    final activeEmail = state.isDeviceHistory
+        ? null
+        : _activeHistoryEmail(state);
+    final showsDeviceContext =
+        state.isDeviceHistory && state.deviceEmails.isNotEmpty;
     return RefreshIndicator(
-      onRefresh: () => controller.loadHistory(
-        contactEmail: _isAuthenticated ? null : _emailController.text.trim(),
-      ),
+      onRefresh: _loadDeviceHistory,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
         children: [
@@ -253,36 +291,89 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
             const SizedBox(height: 12),
             Form(
               key: _emailFormKey,
-              child: TextFormField(
-                controller: _emailController,
-                focusNode: _emailFocusNode,
-                keyboardType: TextInputType.emailAddress,
-                autofillHints: const [AutofillHints.email],
-                decoration: InputDecoration(
-                  labelText: 'Email untuk tiket dan riwayat',
-                  hintText: 'nama@email.com',
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  suffixIcon: hasDraft
-                      ? null
-                      : IconButton(
-                          tooltip: 'Tampilkan riwayat',
-                          onPressed: _loadGuestHistory,
-                          icon: const Icon(Icons.search_rounded),
-                        ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cardBorder),
                 ),
-                validator: (value) {
-                  final email = value?.trim() ?? '';
-                  if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
-                    return 'Masukkan email yang valid';
-                  }
-                  return null;
-                },
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.email_outlined,
+                      color: AppColors.textHint,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _emailController,
+                        focusNode: _emailFocusNode,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
+                        style: const TextStyle(fontSize: 13),
+                        decoration: InputDecoration(
+                          labelText: 'Email untuk tiket dan riwayat',
+                          labelStyle: const TextStyle(
+                            color: AppColors.textHint,
+                            fontSize: 13,
+                          ),
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
+                          hintText: 'nama@email.com',
+                          hintStyle: const TextStyle(
+                            color: AppColors.textHint,
+                            fontSize: 13,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          filled: false,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
+                          suffixIcon: hasDraft
+                              ? null
+                              : IconButton(
+                                  tooltip: 'Tampilkan riwayat',
+                                  onPressed: _loadGuestHistory,
+                                  icon: const Icon(
+                                    Icons.search_rounded,
+                                    size: 18,
+                                  ),
+                                ),
+                          suffixIconConstraints: const BoxConstraints(
+                            minWidth: 36,
+                            minHeight: 36,
+                          ),
+                        ),
+                        validator: (value) {
+                          final email = value?.trim() ?? '';
+                          if (!RegExp(
+                            r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                          ).hasMatch(email)) {
+                            return 'Masukkan email yang valid';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
           if (activeEmail != null) ...[
             const SizedBox(height: 10),
             _ActiveEmailContext(email: activeEmail),
+          ],
+          if (showsDeviceContext) ...[
+            const SizedBox(height: 10),
+            _DeviceHistoryContext(emailCount: state.deviceEmails.length),
           ],
           if (hasDraft) ...[
             const SizedBox(height: 12),
@@ -315,8 +406,16 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
             const SizedBox(height: 16),
             _ErrorPanel(
               message: state.errorMessage ?? 'Terjadi kesalahan.',
-              onRetry: hasDraft ? _buyTicket : _loadGuestHistory,
+              onRetry: hasDraft
+                  ? _buyTicket
+                  : state.isDeviceHistory
+                  ? _loadDeviceHistory
+                  : _loadGuestHistory,
             ),
+          ],
+          if (state.hasPartialHistoryFailure) ...[
+            const SizedBox(height: 16),
+            _PartialHistoryPanel(onRetry: _loadDeviceHistory),
           ],
           const SizedBox(height: 24),
           Row(
@@ -331,44 +430,86 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
                 tooltip: 'Muat ulang tiket',
                 onPressed: state.stage == TicketStage.loadingHistory
                     ? null
-                    : () => controller.loadHistory(
-                        contactEmail: _isAuthenticated
-                            ? null
-                            : _emailController.text.trim(),
-                      ),
+                    : _loadDeviceHistory,
                 icon: const Icon(Icons.refresh_rounded),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SegmentedButton<_TicketFilter>(
-              style: const ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                padding: WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(horizontal: 10),
-                ),
-              ),
-              segments: const [
-                ButtonSegment(value: _TicketFilter.all, label: Text('Semua')),
-                ButtonSegment(
-                  value: _TicketFilter.unpaid,
-                  label: Text('Belum bayar'),
-                ),
-                ButtonSegment(
-                  value: _TicketFilter.active,
-                  label: Text('Aktif'),
-                ),
-                ButtonSegment(
-                  value: _TicketFilter.completed,
-                  label: Text('Selesai'),
-                ),
-              ],
-              selected: {_filter},
-              onSelectionChanged: (value) =>
-                  setState(() => _filter = value.first),
-              showSelectedIcon: false,
+          Container(
+            key: const Key('ticket-history-filter'),
+            width: double.infinity,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Row(
+              children: _TicketFilter.values.map((filter) {
+                final isSelected = _filter == filter;
+                final label = _filterLabel(filter);
+                void selectFilter() => setState(() => _filter = filter);
+
+                return Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: isSelected,
+                    label: label,
+                    onTap: selectFilter,
+                    child: ExcludeSemantics(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: selectFilter,
+                          child: AnimatedContainer(
+                            key: isSelected
+                                ? const Key('ticket-filter-selected-segment')
+                                : null,
+                            duration: const Duration(milliseconds: 180),
+                            constraints: const BoxConstraints(minHeight: 48),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primaryBlue
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: AppColors.primaryBlue.withValues(
+                                          alpha: 0.25,
+                                        ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            child: Center(
+                              child: Text(
+                                label,
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.textSecondary,
+                                  fontSize: 11,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 12),
@@ -504,79 +645,149 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
 
   Widget _buildTicketCard(Ticket ticket) {
     final color = _statusColor(ticket.status);
+    final ownerEmail =
+        controller.state.ownerEmailsByTicketId[ticket.id] ??
+        ticket.contactEmail;
+    final dateLabel = DateFormat(
+      'dd MMM yyyy',
+      'id',
+    ).format(ticket.travelDate.toLocal());
+    final priceLabel = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    ).format(ticket.price);
+    final semanticsLabel = [
+      'Tiket ${ticket.origin.name} ke ${ticket.destination.name}',
+      'status ${_statusLabel(ticket.status)}',
+      if (ownerEmail != null) 'email $ownerEmail',
+      dateLabel,
+      priceLabel,
+    ].join(', ');
+
+    void openTicket() {
+      controller.selectTicket(ticket);
+      if (ticket.isPending) {
+        _checkoutLaunched = true;
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: AppColors.cardBorder),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            controller.selectTicket(ticket);
-            if (ticket.isPending) {
-              _checkoutLaunched = true;
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${ticket.origin.name}  →  ${ticket.destination.name}',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        _statusLabel(ticket.status),
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${ticket.publicCode} · ${DateFormat('dd MMM yyyy', 'id').format(ticket.travelDate.toLocal())}',
-                  style: const TextStyle(color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  NumberFormat.currency(
-                    locale: 'id_ID',
-                    symbol: 'Rp',
-                    decimalDigits: 0,
-                  ).format(ticket.price),
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                  ),
+      child: Semantics(
+        container: true,
+        button: true,
+        label: semanticsLabel,
+        onTap: openTicket,
+        child: ExcludeSemantics(
+          child: Container(
+            key: Key('ticket-card-${ticket.id}'),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.cardBorder),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: openTicket,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${ticket.origin.name}  →  ${ticket.destination.name}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              _statusLabel(ticket.status),
+                              style: TextStyle(
+                                color: color,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${ticket.publicCode} · $dateLabel',
+                        style: const TextStyle(color: AppColors.textSecondary),
+                      ),
+                      if (ownerEmail != null) ...[
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.alternate_email_rounded,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: Text(
+                                'Email: $ownerEmail',
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      Text(
+                        priceLabel,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
       ),
     );
   }
+
+  String _filterLabel(_TicketFilter filter) => switch (filter) {
+    _TicketFilter.all => 'Semua',
+    _TicketFilter.unpaid => 'Belum bayar',
+    _TicketFilter.active => 'Aktif',
+    _TicketFilter.completed => 'Selesai',
+  };
 
   Widget _buildActiveTicket(Ticket ticket) {
     final from = ticket.origin.name;
@@ -589,9 +800,7 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
           children: [
             IconButton(
               tooltip: 'Kembali ke daftar tiket',
-              onPressed: () => controller.loadHistory(
-                contactEmail: _isAuthenticated ? null : ticket.contactEmail,
-              ),
+              onPressed: _loadDeviceHistory,
               icon: const Icon(Icons.arrow_back_rounded),
             ),
             const Expanded(
@@ -693,6 +902,64 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
   };
 }
 
+class _DeviceHistoryContext extends StatelessWidget {
+  const _DeviceHistoryContext({required this.emailCount});
+
+  final int emailCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final countLabel = '$emailCount email tersimpan';
+    return Semantics(
+      container: true,
+      label: 'Menampilkan tiket dari perangkat ini, $countLabel',
+      child: ExcludeSemantics(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.primaryBlueLight,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.devices_rounded,
+                size: 20,
+                color: AppColors.primaryBlueDark,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Menampilkan tiket dari perangkat ini',
+                      style: TextStyle(
+                        color: AppColors.primaryBlueDark,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      countLabel,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ActiveEmailContext extends StatelessWidget {
   const _ActiveEmailContext({required this.email});
 
@@ -751,6 +1018,31 @@ class _ActiveEmailContext extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PartialHistoryPanel extends StatelessWidget {
+  const _PartialHistoryPanel({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline_rounded, color: AppColors.statusAmber),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('Sebagian riwayat belum dapat dimuat')),
+          TextButton(onPressed: onRetry, child: const Text('Coba lagi')),
+        ],
       ),
     );
   }

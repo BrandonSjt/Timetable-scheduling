@@ -15,7 +15,9 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/widgets/auth_scope.dart';
 import 'features/travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import 'features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
+import 'features/tickets/data/datasources/shared_preferences_device_ticket_store.dart';
 import 'features/tickets/data/repositories/ticket_repository_impl.dart';
+import 'features/tickets/domain/repositories/device_ticket_store.dart';
 import 'features/tickets/presentation/controllers/ticket_controller.dart';
 import 'features/tickets/presentation/widgets/ticket_scope.dart';
 import 'l10n/app_localizations.dart';
@@ -26,16 +28,24 @@ Future<void> main() async {
     storage: SharedPreferencesLocaleStorage(SharedPreferencesAsync()),
     deviceLocales: WidgetsBinding.instance.platformDispatcher.locales,
   );
-  runApp(MyApp(localeController: localeController));
+  runApp(
+    MyApp(
+      localeController: localeController,
+      deviceTicketStore: SharedPreferencesDeviceTicketStore(
+        SharedPreferencesAsync(),
+      ),
+    ),
+  );
 }
 
 /// Root widget aplikasi KAI Access Prototype.
 /// Menggunakan GoRouter untuk navigasi dan AppTheme untuk tampilan.
 /// Tanpa state management (ProviderScope) sesuai permintaan.
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, this.localeController});
+  const MyApp({super.key, this.localeController, this.deviceTicketStore});
 
   final LocaleController? localeController;
+  final DeviceTicketStore? deviceTicketStore;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -64,6 +74,7 @@ class _MyAppState extends State<MyApp> {
       ..bootstrap();
     _ticketController = TicketController(
       TicketRepositoryImpl(tokenProvider: _authRepository),
+      deviceStore: widget.deviceTicketStore ?? InMemoryDeviceTicketStore(),
     );
     _travelAlarmController.reminder.addListener(_handleTravelReminder);
   }

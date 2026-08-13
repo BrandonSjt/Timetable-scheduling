@@ -34,6 +34,38 @@ void main() {
     expect(remote.contactEmail, 'guest@example.com');
   });
 
+  test('explicit guest history omits an available account token', () async {
+    final remote = _Remote();
+    final repository = TicketRepositoryImpl(
+      tokenProvider: _Tokens('account-token'),
+      remote: remote,
+    );
+
+    await repository.listGuestTickets(contactEmail: 'guest@example.com');
+
+    expect(remote.accessToken, isNull);
+    expect(remote.contactEmail, 'guest@example.com');
+  });
+
+  test(
+    'explicit guest payment status omits an available account token',
+    () async {
+      final remote = _Remote();
+      final repository = TicketRepositoryImpl(
+        tokenProvider: _Tokens('account-token'),
+        remote: remote,
+      );
+
+      await repository.getGuestPaymentStatus(
+        ticketId: 'ticket-1',
+        contactEmail: 'guest@example.com',
+      );
+
+      expect(remote.accessToken, isNull);
+      expect(remote.contactEmail, 'guest@example.com');
+    },
+  );
+
   test('unauthorized request refreshes token exactly once', () async {
     final remote = _Remote(unauthorizedOnce: true);
     final tokens = _Tokens('expired', refreshed: 'fresh');
@@ -104,6 +136,17 @@ class _Remote extends TicketRemoteDataSource {
     this.accessToken = accessToken;
     this.contactEmail = contactEmail;
     return _payment;
+  }
+
+  @override
+  Future<PaymentSnapshot> getPaymentStatus({
+    required String ticketId,
+    String? contactEmail,
+    String? accessToken,
+  }) async {
+    this.accessToken = accessToken;
+    this.contactEmail = contactEmail;
+    return const PaymentSnapshot(ticketStatus: TicketStatus.paymentPending);
   }
 }
 

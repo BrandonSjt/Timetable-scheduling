@@ -14,11 +14,29 @@ class TicketRepositoryImpl implements TicketRepository {
   final TicketRemoteDataSource _remote;
 
   @override
-  Future<TicketPage> listTickets({String? contactEmail}) => _withAuth(
+  Future<TicketPage> listTickets({
+    String? contactEmail,
+    int page = 1,
+    int limit = 20,
+  }) => _withAuth(
     (token) => _remote.listTickets(
       accessToken: token,
       contactEmail: token == null ? contactEmail : null,
+      page: page,
+      limit: limit,
     ),
+  );
+
+  @override
+  Future<TicketPage> listGuestTickets({
+    required String contactEmail,
+    int page = 1,
+    int limit = 20,
+  }) => _remote.listTickets(
+    accessToken: null,
+    contactEmail: contactEmail,
+    page: page,
+    limit: limit,
   );
 
   @override
@@ -61,6 +79,16 @@ class TicketRepositoryImpl implements TicketRepository {
       contactEmail: token == null ? contactEmail : null,
       accessToken: token,
     ),
+  );
+
+  @override
+  Future<PaymentSnapshot> getGuestPaymentStatus({
+    required String ticketId,
+    required String contactEmail,
+  }) => _remote.getPaymentStatus(
+    ticketId: ticketId,
+    contactEmail: contactEmail,
+    accessToken: null,
   );
 
   Future<T> _withAuth<T>(Future<T> Function(String? token) request) async {

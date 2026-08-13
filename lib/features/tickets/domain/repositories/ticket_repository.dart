@@ -1,7 +1,17 @@
 import '../entities/ticket.dart';
 
 abstract interface class TicketRepository {
-  Future<TicketPage> listTickets({String? contactEmail});
+  Future<TicketPage> listTickets({
+    String? contactEmail,
+    int page = 1,
+    int limit = 20,
+  });
+
+  Future<TicketPage> listGuestTickets({
+    required String contactEmail,
+    int page = 1,
+    int limit = 20,
+  });
 
   Future<Ticket> orderTicket({
     required String origin,
@@ -19,5 +29,10 @@ abstract interface class TicketRepository {
   Future<PaymentSnapshot> getPaymentStatus({
     required String ticketId,
     String? contactEmail,
+  });
+
+  Future<PaymentSnapshot> getGuestPaymentStatus({
+    required String ticketId,
+    required String contactEmail,
   });
 }
