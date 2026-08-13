@@ -1,48 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../core/theme/app_colors.dart';
-import '../../../../shared/widgets/bottom_nav_bar.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../auth/presentation/widgets/auth_scope.dart';
 import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../../../travel_alarm/presentation/widgets/travel_alarm_button.dart';
-import '../../../travel_alarm/presentation/widgets/travel_alarm_disable_dialog.dart';
 import '../../../travel_alarm/presentation/widgets/travel_alarm_setup_sheet.dart';
+import '../../domain/entities/ticket.dart';
+import '../controllers/ticket_controller.dart';
+import '../widgets/ticket_scope.dart';
 
-enum _TicketViewMode { list, checkout, active }
+typedef CheckoutLauncher = Future<bool> Function(Uri uri);
 
-enum _TicketStatus { pending, active, completed }
+enum _TicketFilter { all, unpaid, active, completed }
 
-class _TicketItem {
-  final String from;
-  final String to;
-  final String fare;
-  final String serviceInfo;
-  final String validityText;
-  final _TicketStatus status;
-
-  const _TicketItem({
-    required this.from,
-    required this.to,
-    required this.fare,
-    required this.serviceInfo,
-    required this.validityText,
-    required this.status,
-  });
-}
-
-/// Halaman Tiket Saya (Screen 09 di Figma)
-/// Menampilkan alur checkout tiket dan tiket QR aktif dengan simulasi pembayaran.
 class TicketsPage extends StatefulWidget {
-  final TravelAlarmController? alarmController;
-  final String? from;
-  final String? to;
-  final String? fare;
-  final String? duration;
-  final String? transit;
-
   const TicketsPage({
     super.key,
     this.alarmController,
+    this.ticketController,
+    this.checkoutLauncher,
+    this.authenticated,
     this.from,
     this.to,
     this.fare,
@@ -50,578 +31,423 @@ class TicketsPage extends StatefulWidget {
     this.transit,
   });
 
+  final TravelAlarmController? alarmController;
+  final TicketController? ticketController;
+  final CheckoutLauncher? checkoutLauncher;
+  final bool? authenticated;
+  final String? from;
+  final String? to;
+  final String? fare;
+  final String? duration;
+  final String? transit;
+
   @override
   State<TicketsPage> createState() => _TicketsPageState();
 }
 
-class _TicketsPageState extends State<TicketsPage> {
+class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
+  final _emailController = TextEditingController();
+  final _emailFormKey = GlobalKey<FormState>();
   late final TravelAlarmController _alarmController;
   late final bool _ownsAlarmController;
-  _TicketViewMode _viewMode = _TicketViewMode.list;
-  String _selectedPayment = 'QRIS';
-  String _selectedFilter = 'Semua';
-  _TicketItem? _selectedTicket;
+  TicketController? _ticketController;
+  bool _initialized = false;
+  bool _isAuthenticated = false;
+  bool _checkoutLaunched = false;
+  bool _alarmPrepared = false;
+  _TicketFilter _filter = _TicketFilter.all;
 
-  // Matriks QR Code 13x13 tiruan yang realistis dengan pola finder di sudut-sudutnya
-  final List<List<int>> _qrMatrix = [
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1],
-    [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-    [1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1],
-    [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1],
-  ];
+  TicketController get controller => _ticketController!;
+  bool get hasDraft => widget.from != null && widget.to != null;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _ownsAlarmController = widget.alarmController == null;
     _alarmController = widget.alarmController ?? TravelAlarmController();
-    _alarmController.addListener(_handleAlarmChange);
+    _alarmController.addListener(_redraw);
+    if (widget.ticketController != null) {
+      _attachController(widget.ticketController!);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final authScope = context.getInheritedWidgetOfExactType<AuthScope>();
+    _isAuthenticated =
+        widget.authenticated ?? authScope?.notifier?.isAuthenticated ?? false;
+    _attachController(
+      widget.ticketController ?? TicketScope.of(context, listen: false),
+    );
+    if (!_initialized) {
+      _initialized = true;
+      if (_isAuthenticated) {
+        controller.loadHistory();
+      }
+    }
+  }
+
+  void _attachController(TicketController value) {
+    if (identical(_ticketController, value)) return;
+    _ticketController?.removeListener(_handleTicketState);
+    _ticketController = value..addListener(_handleTicketState);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _checkoutLaunched) {
+      controller.checkPayment();
+    }
   }
 
   @override
   void dispose() {
-    _alarmController.removeListener(_handleAlarmChange);
-    if (_ownsAlarmController) {
-      _alarmController.dispose();
-    }
+    WidgetsBinding.instance.removeObserver(this);
+    _ticketController?.removeListener(_handleTicketState);
+    _alarmController.removeListener(_redraw);
+    if (_ownsAlarmController) _alarmController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
-  void _handleAlarmChange() {
+  void _redraw() {
+    if (mounted) setState(() {});
+  }
+
+  void _handleTicketState() {
     if (!mounted) return;
     setState(() {});
+    final state = controller.state;
+    if (state.stage == TicketStage.checkoutReady && !_checkoutLaunched) {
+      _checkoutLaunched = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _openCheckout());
+    }
+    if (state.stage == TicketStage.ticketActive && !_alarmPrepared) {
+      _alarmPrepared = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _prepareAlarm());
+    }
   }
 
-  void _showAlarmMessage(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+  Future<void> _buyTicket() async {
+    if (!_isAuthenticated &&
+        !(_emailFormKey.currentState?.validate() ?? false)) {
+      return;
+    }
+    _checkoutLaunched = false;
+    _alarmPrepared = false;
+    await controller.startCheckout(
+      origin: widget.from ?? 'Setiabudi',
+      destination: widget.to ?? 'Manggarai',
+      travelDate: DateTime.now(),
+      contactEmail: _isAuthenticated ? null : _emailController.text.trim(),
+    );
   }
 
-  Future<void> _completePayment({
-    required String from,
-    required String to,
-  }) async {
+  Future<void> _loadGuestHistory() async {
+    if (!(_emailFormKey.currentState?.validate() ?? false)) return;
+    await controller.loadHistory(contactEmail: _emailController.text.trim());
+  }
+
+  Future<void> _openCheckout() async {
+    final uri = controller.state.payment?.checkoutUrl;
+    if (uri == null) {
+      _message('Tautan pembayaran belum tersedia.');
+      return;
+    }
+    final opened =
+        await (widget.checkoutLauncher?.call(uri) ??
+            launchUrl(uri, mode: LaunchMode.externalApplication));
+    if (!opened && mounted) {
+      _message('Halaman pembayaran tidak dapat dibuka.');
+    }
+  }
+
+  Future<void> _prepareAlarm() async {
+    final ticket = controller.state.selectedTicket;
+    if (ticket == null || !mounted) return;
+    final from = ticket.origin.name;
+    final to = ticket.destination.name;
     _alarmController.completePurchase(
       from: from,
       to: to,
       transferStation: widget.transit == '1' ? 'Setiabudi' : null,
     );
-    setState(() => _viewMode = _TicketViewMode.active);
-    await _openAlarmSetup(from: from, to: to);
-  }
-
-  Future<void> _openAlarmSetup({
-    required String from,
-    required String to,
-    String? transferStation,
-  }) async {
     final selection = await showTravelAlarmSetupSheet(
       context,
       from: from,
       to: to,
     );
     if (selection == null || !mounted) return;
-
-    if (!_isCurrentAlarmTrip(from, to)) {
-      _alarmController.completePurchase(
-        from: from,
-        to: to,
-        transferStation: transferStation,
-      );
-    }
-
     _alarmController.configureAlarms(
       departure: selection.departure,
       destination: selection.destination,
     );
-    _showAlarmMessage(AppLocalizations.of(context)!.alarmActivated);
+    _message(AppLocalizations.of(context)!.alarmActivated);
   }
 
-  Future<void> _handleAlarmButton(String from, String to) async {
-    final controlsCurrentTrip = _isCurrentAlarmTrip(from, to);
-    if (!controlsCurrentTrip || !_alarmController.state.hasAnyAlarm) {
-      await _openAlarmSetup(
-        from: from,
-        to: to,
-        transferStation: widget.transit == '1' ? 'Setiabudi' : null,
-      );
-      return;
-    }
-
-    final shouldDisable = await showTravelAlarmDisableDialog(
-      context,
-      departureEnabled: _alarmController.state.departureAlarmEnabled,
-      destinationEnabled: _alarmController.state.destinationAlarmEnabled,
-    );
-    if (!shouldDisable || !mounted) return;
-
-    _alarmController.cancelAllAlarms();
-    _showAlarmMessage(AppLocalizations.of(context)!.alarmDeactivated);
-  }
-
-  bool _isCurrentAlarmTrip(String from, String to) {
-    final activeTrip = _alarmController.state.activeTrip;
-    return activeTrip?.from == from && activeTrip?.to == to;
+  void _message(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    // Parameter perjalanan dinamis atau nilai default
-    final fromSt = widget.from ?? 'Setiabudi';
-    final toSt = widget.to ?? 'Pancoran Bank BJB';
-    final fareVal = widget.fare != null ? 'Rp${widget.fare}' : 'Rp7.800';
-    final dur = widget.duration ?? '18';
-    final isTransit = widget.transit == '1';
-
-    final serviceInfo = isTransit
-        ? 'LRT Jabodebek · ${l10n.durationMinutes(dur)} · ${l10n.oneTransitAt('Setiabudi')}'
-        : '${l10n.lineNoTransit('LRT Jabodebek')} · ${l10n.durationMinutes(dur)}';
-    final tickets = _buildTicketItems(fromSt, toSt, fareVal, serviceInfo);
-    final currentTicket = _selectedTicket ?? tickets.first;
-
+    final state = controller.state;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Tiket'),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: AppColors.background,
+        surfaceTintColor: Colors.transparent,
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // ── Top Action Bar (Custom App Bar) ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (_viewMode != _TicketViewMode.list) {
-                        setState(() {
-                          _viewMode = _TicketViewMode.list;
-                        });
-                      } else {
-                        context.go('/');
-                      }
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.actionBack,
-                      style: TextStyle(
-                        color: Color(0xFF2563EB),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.tickets,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFE600), // Alert/A11Y Yellow
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'A11Y',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
+        bottom: false,
+        child: state.stage == TicketStage.ticketActive
+            ? _buildActiveTicket(state.selectedTicket!)
+            : _buildTicketList(state),
+      ),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 2),
+    );
+  }
+
+  Widget _buildTicketList(TicketViewState state) {
+    return RefreshIndicator(
+      onRefresh: () => controller.loadHistory(
+        contactEmail: _isAuthenticated ? null : _emailController.text.trim(),
+      ),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+        children: [
+          if (hasDraft) _buildTripDraft(),
+          if (!_isAuthenticated) ...[
+            const SizedBox(height: 12),
+            Form(
+              key: _emailFormKey,
+              child: TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                autofillHints: const [AutofillHints.email],
+                decoration: InputDecoration(
+                  labelText: 'Email untuk tiket dan riwayat',
+                  hintText: 'nama@email.com',
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  suffixIcon: hasDraft
+                      ? null
+                      : IconButton(
+                          tooltip: 'Tampilkan riwayat',
+                          onPressed: _loadGuestHistory,
+                          icon: const Icon(Icons.search_rounded),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
+                validator: (value) {
+                  final email = value?.trim() ?? '';
+                  if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+                    return 'Masukkan email yang valid';
+                  }
+                  return null;
+                },
               ),
             ),
-
-            // ── Main Body Content ──
-            Expanded(
-              child: switch (_viewMode) {
-                _TicketViewMode.list => _buildTicketListView(tickets),
-                _TicketViewMode.checkout => _buildPaymentSelectionView(
-                  currentTicket.from,
-                  currentTicket.to,
-                  currentTicket.fare,
-                  currentTicket.serviceInfo,
-                ),
-                _TicketViewMode.active => _buildActiveTicketView(
-                  currentTicket.from,
-                  currentTicket.to,
-                ),
-              },
-            ),
-
-            // ── Bottom Navigation Bar ──
-            const AppBottomNavBar(currentIndex: 2),
           ],
-        ),
-      ),
-    );
-  }
-
-  List<_TicketItem> _buildTicketItems(
-    String from,
-    String to,
-    String fare,
-    String serviceInfo,
-  ) {
-    final activeTrip = _alarmController.state.activeTrip;
-    final purchasedTicketIsActive =
-        activeTrip?.from == from && activeTrip?.to == to;
-
-    return [
-      _TicketItem(
-        from: from,
-        to: to,
-        fare: fare,
-        serviceInfo: serviceInfo,
-        validityText: purchasedTicketIsActive
-            ? AppLocalizations.of(context)!.validUntil
-            : AppLocalizations.of(context)!.payBefore,
-        status: purchasedTicketIsActive
-            ? _TicketStatus.active
-            : _TicketStatus.pending,
-      ),
-      _TicketItem(
-        from: 'Manggarai',
-        to: 'Tanah Abang',
-        fare: 'Rp4.000',
-        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('KRL Jabodetabek')} · ${AppLocalizations.of(context)!.durationMinutes('6')}',
-        validityText: AppLocalizations.of(context)!.validUntil,
-        status: _TicketStatus.active,
-      ),
-      _TicketItem(
-        from: 'Halim',
-        to: 'Cawang',
-        fare: 'Rp4.000',
-        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('8')}',
-        validityText: AppLocalizations.of(context)!.validUntil,
-        status: _TicketStatus.active,
-      ),
-      _TicketItem(
-        from: 'Dukuh Atas',
-        to: 'Setiabudi',
-        fare: 'Rp5.000',
-        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('7')}',
-        validityText: AppLocalizations.of(context)!.usedToday,
-        status: _TicketStatus.completed,
-      ),
-    ];
-  }
-
-  // 1. Tampilan daftar tiket sebelum metode pembayaran
-  Widget _buildTicketListView(List<_TicketItem> tickets) {
-    final l10n = AppLocalizations.of(context)!;
-    final filteredTickets = tickets.where((ticket) {
-      if (_selectedFilter == l10n.unpaid) {
-        return ticket.status == _TicketStatus.pending;
-      }
-      if (_selectedFilter == l10n.active) {
-        return ticket.status == _TicketStatus.active;
-      }
-      if (_selectedFilter == l10n.completed) {
-        return ticket.status == _TicketStatus.completed;
-      }
-      return true;
-    }).toList();
-
-    final activeCount = tickets
-        .where((ticket) => ticket.status == _TicketStatus.active)
-        .length;
-    final pendingCount = tickets
-        .where((ticket) => ticket.status == _TicketStatus.pending)
-        .length;
-    final completedCount = tickets
-        .where((ticket) => ticket.status == _TicketStatus.completed)
-        .length;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.cardBorder),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+          if (hasDraft) ...[
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              key: const Key('buy-ticket-button'),
+              onPressed: state.stage == TicketStage.ordering
+                  ? null
+                  : _buyTicket,
+              icon: state.stage == TicketStage.ordering
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.open_in_browser_rounded),
+              label: Text(
+                state.stage == TicketStage.ordering
+                    ? 'Menyiapkan pembayaran'
+                    : 'Bayar di Xendit',
+              ),
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryBlueLight,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(
-                    Icons.confirmation_num_rounded,
-                    color: AppColors.primaryBlue,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.travelTicket,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.ticketStatusSummary(activeCount, pendingCount, completedCount),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          ],
+          if (state.stage == TicketStage.checkoutReady ||
+              state.stage == TicketStage.paymentPending ||
+              state.stage == TicketStage.checkingPayment ||
+              state.stage == TicketStage.terminal) ...[
+            const SizedBox(height: 16),
+            _buildPaymentPanel(state),
+          ],
+          if (state.stage == TicketStage.failure) ...[
+            const SizedBox(height: 16),
+            _ErrorPanel(
+              message: state.errorMessage ?? 'Terjadi kesalahan.',
+              onRetry: hasDraft ? _buyTicket : _loadGuestHistory,
             ),
-          ),
-          const SizedBox(height: 18),
-          Row(
-            children: [l10n.all, l10n.unpaid, l10n.active, l10n.completed].map((
-              filter,
-            ) {
-              final isSelected = _selectedFilter == filter || (_selectedFilter == 'Semua' && filter == l10n.all);
-              return Padding(
-                padding: const EdgeInsetsDirectional.only(end: 8),
-                child: ChoiceChip(
-                  label: Text(filter),
-                  selected: isSelected,
-                  onSelected: (_) => setState(() => _selectedFilter = filter),
-                  selectedColor: AppColors.primaryBlue,
-                  backgroundColor: AppColors.surface,
-                  side: BorderSide(
-                    color: isSelected
-                        ? AppColors.primaryBlue
-                        : AppColors.cardBorder,
-                  ),
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.textPrimary,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 14),
-          ...filteredTickets.map(
-            (ticket) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildTicketCard(ticket),
-            ),
-          ),
+          ],
           const SizedBox(height: 24),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTicketCard(_TicketItem ticket) {
-    final l10n = AppLocalizations.of(context)!;
-    final isPending = ticket.status == _TicketStatus.pending;
-    final isCompleted = ticket.status == _TicketStatus.completed;
-    final accentColor = isPending
-        ? AppColors.accentOrange
-        : isCompleted
-        ? AppColors.textSecondary
-        : AppColors.statusGreen;
-    final statusText = isPending
-        ? l10n.notPaid
-        : isCompleted
-        ? l10n.alreadyUsed
-        : l10n.readyToScan;
-    final actionText = isPending
-        ? l10n.payNow
-        : isCompleted
-        ? l10n.detail
-        : l10n.viewQR;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isPending
-              ? AppColors.accentOrange.withValues(alpha: 0.28)
-              : AppColors.cardBorder,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              const Expanded(
                 child: Text(
-                  '${ticket.from} -> ${ticket.to}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textPrimary,
-                  ),
+                  'Tiket saya',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
               ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: accentColor,
-                  ),
-                ),
+              IconButton(
+                tooltip: 'Muat ulang tiket',
+                onPressed: state.stage == TicketStage.loadingHistory
+                    ? null
+                    : () => controller.loadHistory(
+                        contactEmail: _isAuthenticated
+                            ? null
+                            : _emailController.text.trim(),
+                      ),
+                icon: const Icon(Icons.refresh_rounded),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SegmentedButton<_TicketFilter>(
+              segments: const [
+                ButtonSegment(value: _TicketFilter.all, label: Text('Semua')),
+                ButtonSegment(
+                  value: _TicketFilter.unpaid,
+                  label: Text('Belum bayar'),
+                ),
+                ButtonSegment(
+                  value: _TicketFilter.active,
+                  label: Text('Aktif'),
+                ),
+                ButtonSegment(
+                  value: _TicketFilter.completed,
+                  label: Text('Selesai'),
+                ),
+              ],
+              selected: {_filter},
+              onSelectionChanged: (value) =>
+                  setState(() => _filter = value.first),
+              showSelectedIcon: false,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (state.stage == TicketStage.loadingHistory)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(28),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else
+            ..._filteredTickets(state.tickets).map(_buildTicketCard),
+          if (state.stage != TicketStage.loadingHistory &&
+              _filteredTickets(state.tickets).isEmpty)
+            const _EmptyTickets(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTripDraft() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.route_rounded, color: AppColors.primaryBlue),
+              SizedBox(width: 8),
+              Text(
+                'Perjalanan dipilih',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${widget.from}  →  ${widget.to}',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
-            ticket.serviceInfo,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
+            [
+              if (widget.duration != null) '${widget.duration} menit',
+              if (widget.transit != null)
+                widget.transit == '1' ? '1 transit' : 'Tanpa transit',
+            ].join(' · '),
+            style: const TextStyle(color: AppColors.textSecondary),
           ),
-          if (isCompleted) ...[
-            const SizedBox(height: 8),
+          if (widget.fare != null) ...[
+            const SizedBox(height: 12),
             Text(
-              l10n.historyCompleted,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w900,
-              ),
+              widget.fare!,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
             ),
           ],
-          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentPanel(TicketViewState state) {
+    final terminal = state.stage == TicketStage.terminal;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _cardDecoration(
+        color: terminal ? const Color(0xFFFFF1F2) : const Color(0xFFEFF6FF),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                terminal ? Icons.error_outline_rounded : Icons.schedule_rounded,
+                color: terminal ? AppColors.statusRed : AppColors.primaryBlue,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  terminal ? 'Pembayaran tidak selesai' : 'Menunggu pembayaran',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tiket aktif hanya setelah Xendit mengonfirmasi pembayaran ke server.',
+          ),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      ticket.fare,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      ticket.validityText,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isPending
-                            ? AppColors.a11yBannerText
-                            : AppColors.textSecondary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                child: OutlinedButton.icon(
+                  onPressed: terminal ? null : _openCheckout,
+                  icon: const Icon(Icons.open_in_new_rounded),
+                  label: const Text('Buka pembayaran'),
                 ),
               ),
-              SizedBox(
-                height: 40,
-                child: ElevatedButton(
-                  key: Key('ticket-action-${ticket.from}-${ticket.to}'),
-                  onPressed: () {
-                    if (isCompleted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.ticketAlreadyUsed),
-                        ),
-                      );
-                      return;
-                    }
-                    setState(() {
-                      _selectedTicket = ticket;
-                      _viewMode = isPending
-                          ? _TicketViewMode.checkout
-                          : _TicketViewMode.active;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isPending
-                        ? AppColors.buttonOrange
-                        : isCompleted
-                        ? AppColors.textSecondary
-                        : AppColors.primaryBlue,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                  ),
-                  child: Text(
-                    actionText,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: state.stage == TicketStage.checkingPayment
+                      ? null
+                      : controller.checkPayment,
+                  icon: state.stage == TicketStage.checkingPayment
+                      ? const SizedBox.square(
+                          dimension: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.sync_rounded),
+                  label: const Text('Cek status'),
                 ),
               ),
             ],
@@ -631,556 +457,250 @@ class _TicketsPageState extends State<TicketsPage> {
     );
   }
 
-  // 2. Tampilan Layar Checkout
-  Widget _buildPaymentSelectionView(
-    String from,
-    String to,
-    String fare,
-    String serviceInfo,
-  ) {
-    final l10n = AppLocalizations.of(context)!;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Dynamic Route Info Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+  List<Ticket> _filteredTickets(List<Ticket> tickets) => switch (_filter) {
+    _TicketFilter.all => tickets,
+    _TicketFilter.unpaid =>
+      tickets.where((ticket) => ticket.isPending).toList(),
+    _TicketFilter.active => tickets.where((ticket) => ticket.isActive).toList(),
+    _TicketFilter.completed =>
+      tickets.where((ticket) => ticket.isCompleted).toList(),
+  };
+
+  Widget _buildTicketCard(Ticket ticket) {
+    final color = _statusColor(ticket.status);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: AppColors.surface,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: AppColors.cardBorder),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            controller.selectTicket(ticket);
+            if (ticket.isPending) {
+              _checkoutLaunched = true;
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '$from ➔ $to',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  serviceInfo,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      fare,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary,
+                    Expanded(
+                      child: Text(
+                        '${ticket.origin.name}  →  ${ticket.destination.name}',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
+                        horizontal: 8,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7ED),
+                        color: color.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            l10n.qrValidUntil,
-                            style: const TextStyle(
-                              color: Color(0xFFC2410C),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const Text(
-                            '23:59',
-                            style: TextStyle(
-                              color: Color(0xFFC2410C),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        _statusLabel(ticket.status),
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Payment Options Title
-          Text(
-            l10n.choosePayment,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // QRIS Option
-          _buildPaymentMethodTile(
-            name: 'QRIS',
-            desc: l10n.qrisDesc,
-            isSelected: _selectedPayment == 'QRIS',
-            onTap: () => setState(() => _selectedPayment = 'QRIS'),
-          ),
-          const SizedBox(height: 12),
-
-          // Credit Card Option
-          _buildPaymentMethodTile(
-            name: l10n.creditCard,
-            desc: 'Visa, Mastercard, GPN',
-            isSelected: _selectedPayment == 'Card',
-            onTap: () => setState(() => _selectedPayment = 'Card'),
-          ),
-          const SizedBox(height: 12),
-
-          // VA Option
-          _buildPaymentMethodTile(
-            name: l10n.virtualAccount,
-            desc: l10n.vaDesc,
-            isSelected: _selectedPayment == 'VA',
-            onTap: () => setState(() => _selectedPayment = 'VA'),
-          ),
-          const SizedBox(height: 24),
-
-          // HP / Email Input Box
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                const SizedBox(height: 8),
                 Text(
-                  l10n.optionalContact,
+                  '${ticket.publicCode} · ${DateFormat('dd MMM yyyy', 'id').format(ticket.travelDate.toLocal())}',
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  NumberFormat.currency(
+                    locale: 'id_ID',
+                    symbol: 'Rp',
+                    decimalDigits: 0,
+                  ).format(ticket.price),
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.optionalContactDesc,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                    height: 1.35,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+        ),
+      ),
+    );
+  }
 
-          // Pay CTA Button
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: () => _completePayment(from: from, to: to),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF97316), // Accent Orange
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+  Widget _buildActiveTicket(Ticket ticket) {
+    final from = ticket.origin.name;
+    final to = ticket.destination.name;
+    final alarmActive = _alarmController.state.hasAnyAlarm;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+      children: [
+        Row(
+          children: [
+            IconButton(
+              tooltip: 'Kembali ke daftar tiket',
+              onPressed: () => controller.loadHistory(
+                contactEmail: _isAuthenticated ? null : ticket.contactEmail,
               ),
+              icon: const Icon(Icons.arrow_back_rounded),
+            ),
+            const Expanded(
               child: Text(
-                l10n.payAmount(fare),
+                'Tiket aktif',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
+            ),
+            TravelAlarmButton(isActive: alarmActive, onPressed: _prepareAlarm),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: _cardDecoration(),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.qr_code_2_rounded,
+                size: 156,
+                color: AppColors.textPrimary,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Tunjukkan kode ini di gerbang',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                '$from  →  $to',
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-            ),
+              const SizedBox(height: 6),
+              Text(
+                ticket.publicCode,
+                style: const TextStyle(color: AppColors.textSecondary),
+              ),
+              if (ticket.departureTime != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Berangkat ${ticket.departureTime}',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 24),
+        ),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: _cardDecoration(color: const Color(0xFFF0FDF4)),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.notifications_active_outlined,
+                color: AppColors.statusGreen,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  alarmActive
+                      ? _alarmController.nextAlarmDescription
+                      : 'Alarm perjalanan belum diaktifkan',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _cardDecoration({Color color = AppColors.surface}) =>
+      BoxDecoration(
+        color: color,
+        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: BorderRadius.circular(8),
+      );
+
+  Color _statusColor(TicketStatus status) => switch (status) {
+    TicketStatus.active => AppColors.statusGreen,
+    TicketStatus.used => AppColors.textSecondary,
+    TicketStatus.expired || TicketStatus.cancelled => AppColors.statusRed,
+    _ => AppColors.statusAmber,
+  };
+
+  String _statusLabel(TicketStatus status) => switch (status) {
+    TicketStatus.pending || TicketStatus.paymentPending => 'Belum dibayar',
+    TicketStatus.paid => 'Dibayar',
+    TicketStatus.active => 'Aktif',
+    TicketStatus.used => 'Sudah digunakan',
+    TicketStatus.expired => 'Kedaluwarsa',
+    TicketStatus.cancelled => 'Dibatalkan',
+    TicketStatus.unknown => 'Tidak diketahui',
+  };
+}
+
+class _EmptyTickets extends StatelessWidget {
+  const _EmptyTickets();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        children: [
+          Icon(
+            Icons.confirmation_num_outlined,
+            size: 44,
+            color: AppColors.textHint,
+          ),
+          SizedBox(height: 10),
+          Text('Belum ada tiket pada kategori ini.'),
         ],
       ),
     );
   }
+}
 
-  // Helper widget untuk ubin metode pembayaran
-  Widget _buildPaymentMethodTile({
-    required String name,
-    required String desc,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected
-                ? const Color(0xFF2563EB)
-                : const Color(0xFFE2E8F0),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            // Radio button icon representation
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF2563EB)
-                      : const Color(0xFF94A3B8),
-                  width: 2,
-                ),
-              ),
-              child: isSelected
-                  ? Center(
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF2563EB),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  desc,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+class _ErrorPanel extends StatelessWidget {
+  const _ErrorPanel({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF1F2),
+        borderRadius: BorderRadius.circular(8),
       ),
-    );
-  }
-
-  // 2. Tampilan Layar Tiket Aktif (Setelah pembayaran berhasil)
-  Widget _buildActiveTicketView(String from, String to) {
-    final l10n = AppLocalizations.of(context)!;
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              // Alert Banner "Pembayaran berhasil"
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF10B981)),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      l10n.paymentSuccess,
-                      style: const TextStyle(
-                        color: Color(0xFF047857),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l10n.scanQrAtGate,
-                        style: const TextStyle(
-                          color: Color(0xFF065F46),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Custom Grid QR Code
-              Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 13,
-                    crossAxisSpacing: 2.0,
-                    mainAxisSpacing: 2.0,
-                  ),
-                  itemCount: 13 * 13,
-                  itemBuilder: (context, index) {
-                    int row = index ~/ 13;
-                    int col = index % 13;
-                    bool isBlack = _qrMatrix[row][col] == 1;
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: isBlack ? Colors.black : Colors.white,
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // KAI Metro Access title & Route
-              const Text(
-                'KAI Metro Access',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textPrimary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$from ➔ $to',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Info Metadata Grid Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.validGateInBefore,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.today2359,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E293B),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: const Color(0xFFE2E8F0),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.withoutAccount,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.guest,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF2563EB), // Accent Blue
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Save & Share Buttons Row
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.ticketSaved),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF005BAC), // KAI Blue
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          l10n.saveTicket,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.sharingTicketLink),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF005BAC)),
-                          foregroundColor: const Color(0xFF005BAC),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          l10n.share,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // A11Y bottom info banner
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E1), // Light yellow
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFFFD54F)),
-                ),
-                child: Text(
-                  l10n.a11yQrInfo,
-                  style: const TextStyle(
-                    color: Color(0xFFB7791F),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 88),
-            ],
-          ),
-        ),
-        Positioned(
-          right: 20,
-          bottom: 16,
-          child: TravelAlarmButton(
-            isActive:
-                _isCurrentAlarmTrip(from, to) &&
-                _alarmController.state.hasAnyAlarm,
-            onPressed: () => _handleAlarmButton(from, to),
-          ),
-        ),
-      ],
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded, color: AppColors.statusRed),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message)),
+          TextButton(onPressed: onRetry, child: const Text('Coba lagi')),
+        ],
+      ),
     );
   }
 }

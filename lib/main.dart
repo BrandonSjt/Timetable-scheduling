@@ -15,6 +15,9 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/widgets/auth_scope.dart';
 import 'features/travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import 'features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
+import 'features/tickets/data/repositories/ticket_repository_impl.dart';
+import 'features/tickets/presentation/controllers/ticket_controller.dart';
+import 'features/tickets/presentation/widgets/ticket_scope.dart';
 import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
@@ -40,7 +43,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final TravelAlarmController _travelAlarmController;
+  late final AuthRepositoryImpl _authRepository;
   late final AuthController _authController;
+  late final TicketController _ticketController;
   late final LocaleController _localeController;
   late final bool _ownsLocaleController;
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey();
@@ -53,9 +58,13 @@ class _MyAppState extends State<MyApp> {
         widget.localeController ??
         LocaleController(initialLocale: AppLocale.indonesian);
     _travelAlarmController = TravelAlarmController();
-    _authController = AuthController(AuthRepositoryImpl())
+    _authRepository = AuthRepositoryImpl();
+    _authController = AuthController(_authRepository)
       ..addListener(_handleAuthChange)
       ..bootstrap();
+    _ticketController = TicketController(
+      TicketRepositoryImpl(tokenProvider: _authRepository),
+    );
     _travelAlarmController.reminder.addListener(_handleTravelReminder);
   }
 
@@ -84,6 +93,7 @@ class _MyAppState extends State<MyApp> {
     _travelAlarmController.dispose();
     _authController.removeListener(_handleAuthChange);
     _authController.dispose();
+    _ticketController.dispose();
     if (_ownsLocaleController) {
       _localeController.dispose();
     }
@@ -96,27 +106,30 @@ class _MyAppState extends State<MyApp> {
       notifier: _localeController,
       child: AuthScope(
         controller: _authController,
-        child: TravelAlarmScope(
-          controller: _travelAlarmController,
-          child: ValueListenableBuilder<AppLocale>(
-            valueListenable: _localeController,
-            builder: (context, appLocale, child) {
-              return MaterialApp.router(
-                scaffoldMessengerKey: _scaffoldMessengerKey,
-                title: 'KAI Access Prototype',
-                debugShowCheckedModeBanner: false,
-                theme: AppTheme.lightTheme,
-                routerConfig: appRouter,
-                locale: appLocale.locale,
-                localizationsDelegates: const [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                supportedLocales: AppLocalizations.supportedLocales,
-              );
-            },
+        child: TicketScope(
+          controller: _ticketController,
+          child: TravelAlarmScope(
+            controller: _travelAlarmController,
+            child: ValueListenableBuilder<AppLocale>(
+              valueListenable: _localeController,
+              builder: (context, appLocale, child) {
+                return MaterialApp.router(
+                  scaffoldMessengerKey: _scaffoldMessengerKey,
+                  title: 'KAI Access Prototype',
+                  debugShowCheckedModeBanner: false,
+                  theme: AppTheme.lightTheme,
+                  routerConfig: appRouter,
+                  locale: appLocale.locale,
+                  localizationsDelegates: const [
+                    AppLocalizations.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: AppLocalizations.supportedLocales,
+                );
+              },
+            ),
           ),
         ),
       ),

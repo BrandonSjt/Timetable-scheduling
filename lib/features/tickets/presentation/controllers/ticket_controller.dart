@@ -178,6 +178,8 @@ class TicketController extends ChangeNotifier {
         payment: ticket.latestPayment,
         stage: ticket.isActive
             ? TicketStage.ticketActive
+            : ticket.isPending
+            ? TicketStage.paymentPending
             : TicketStage.historyReady,
         contactEmail: ticket.contactEmail,
         clearError: true,

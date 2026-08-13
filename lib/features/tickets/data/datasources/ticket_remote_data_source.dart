@@ -42,17 +42,18 @@ class TicketRemoteDataSource {
     String? contactEmail,
     String? accessToken,
   }) async {
+    final body = <String, dynamic>{
+      'origin': origin,
+      'destination': destination,
+      'travelDate': travelDate.toUtc().toIso8601String(),
+      'passengerCount': passengerCount,
+    };
+    if (contactEmail != null) body['contactEmail'] = contactEmail;
     final response = await _request(
       'POST',
       '/tickets/order',
       accessToken: accessToken,
-      body: {
-        'origin': origin,
-        'destination': destination,
-        'travelDate': travelDate.toUtc().toIso8601String(),
-        'passengerCount': passengerCount,
-        if (contactEmail != null) 'contactEmail': contactEmail,
-      },
+      body: body,
     );
     return TicketModel.fromJson(response['data'] as Map<String, dynamic>);
   }
@@ -63,15 +64,13 @@ class TicketRemoteDataSource {
     int page = 1,
     int limit = 20,
   }) async {
+    final query = <String, String>{'page': '$page', 'limit': '$limit'};
+    if (contactEmail != null) query['contactEmail'] = contactEmail;
     final response = await _request(
       'GET',
       '/tickets',
       accessToken: accessToken,
-      queryParameters: {
-        if (contactEmail != null) 'contactEmail': contactEmail,
-        'page': '$page',
-        'limit': '$limit',
-      },
+      queryParameters: query,
     );
     return TicketPageModel.fromResponse(response);
   }
@@ -81,14 +80,13 @@ class TicketRemoteDataSource {
     String? contactEmail,
     String? accessToken,
   }) async {
+    final body = <String, dynamic>{'ticketId': ticketId};
+    if (contactEmail != null) body['contactEmail'] = contactEmail;
     final response = await _request(
       'POST',
       '/payments/checkout',
       accessToken: accessToken,
-      body: {
-        'ticketId': ticketId,
-        if (contactEmail != null) 'contactEmail': contactEmail,
-      },
+      body: body,
     );
     return TicketPaymentModel.fromJson(
       response['data'] as Map<String, dynamic>,
@@ -100,13 +98,13 @@ class TicketRemoteDataSource {
     String? contactEmail,
     String? accessToken,
   }) async {
+    final query = <String, String>{};
+    if (contactEmail != null) query['contactEmail'] = contactEmail;
     final response = await _request(
       'GET',
       '/payments/status/$ticketId',
       accessToken: accessToken,
-      queryParameters: {
-        if (contactEmail != null) 'contactEmail': contactEmail,
-      },
+      queryParameters: query,
     );
     return PaymentSnapshotModel.fromJson(
       response['data'] as Map<String, dynamic>,
