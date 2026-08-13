@@ -47,12 +47,14 @@ class TicketsPage extends StatefulWidget {
 
 class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
   final _emailController = TextEditingController();
+  final _emailFocusNode = FocusNode();
   final _emailFormKey = GlobalKey<FormState>();
   late final TravelAlarmController _alarmController;
   late final bool _ownsAlarmController;
   TicketController? _ticketController;
   bool _initialized = false;
   bool _isAuthenticated = false;
+  String? _accountEmail;
   bool _checkoutLaunched = false;
   bool _alarmPrepared = false;
   _TicketFilter _filter = _TicketFilter.all;
@@ -78,9 +80,11 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
     final authScope = context.getInheritedWidgetOfExactType<AuthScope>();
     _isAuthenticated =
         widget.authenticated ?? authScope?.notifier?.isAuthenticated ?? false;
+    _accountEmail = authScope?.notifier?.user?.email;
     _attachController(
       widget.ticketController ?? TicketScope.of(context, listen: false),
     );
+    _syncGuestEmailField();
     if (!_initialized) {
       _initialized = true;
       if (_isAuthenticated) {
@@ -108,6 +112,7 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
     _ticketController?.removeListener(_handleTicketState);
     _alarmController.removeListener(_redraw);
     if (_ownsAlarmController) _alarmController.dispose();
+    _emailFocusNode.dispose();
     _emailController.dispose();
     super.dispose();
   }
@@ -118,6 +123,7 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
 
   void _handleTicketState() {
     if (!mounted) return;
+    _syncGuestEmailField();
     setState(() {});
     final state = controller.state;
     if (state.stage == TicketStage.checkoutReady && !_checkoutLaunched) {
@@ -128,6 +134,24 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
       _alarmPrepared = true;
       WidgetsBinding.instance.addPostFrameCallback((_) => _prepareAlarm());
     }
+  }
+
+  void _syncGuestEmailField() {
+    if (_isAuthenticated || _emailFocusNode.hasFocus) return;
+    final email = controller.state.contactEmail?.trim();
+    if (email == null || email.isEmpty || email == _emailController.text) {
+      return;
+    }
+    _emailController.value = TextEditingValue(
+      text: email,
+      selection: TextSelection.collapsed(offset: email.length),
+    );
+  }
+
+  String? _activeHistoryEmail(TicketViewState state) {
+    final value = (_isAuthenticated ? _accountEmail : state.contactEmail)
+        ?.trim();
+    return value == null || value.isEmpty ? null : value;
   }
 
   Future<void> _buyTicket() async {
@@ -216,6 +240,7 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
   }
 
   Widget _buildTicketList(TicketViewState state) {
+    final activeEmail = _activeHistoryEmail(state);
     return RefreshIndicator(
       onRefresh: () => controller.loadHistory(
         contactEmail: _isAuthenticated ? null : _emailController.text.trim(),
@@ -230,6 +255,7 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
               key: _emailFormKey,
               child: TextFormField(
                 controller: _emailController,
+                focusNode: _emailFocusNode,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
                 decoration: InputDecoration(
@@ -253,6 +279,10 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
                 },
               ),
             ),
+          ],
+          if (activeEmail != null) ...[
+            const SizedBox(height: 10),
+            _ActiveEmailContext(email: activeEmail),
           ],
           if (hasDraft) ...[
             const SizedBox(height: 12),
@@ -661,6 +691,69 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
     TicketStatus.cancelled => 'Dibatalkan',
     TicketStatus.unknown => 'Tidak diketahui',
   };
+}
+
+class _ActiveEmailContext extends StatelessWidget {
+  const _ActiveEmailContext({required this.email});
+
+  final String email;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      label: 'Menampilkan tiket untuk $email',
+      child: ExcludeSemantics(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.primaryBlueLight,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 2),
+                child: Icon(
+                  Icons.mark_email_read_outlined,
+                  size: 20,
+                  color: AppColors.primaryBlueDark,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Menampilkan tiket untuk',
+                      style: TextStyle(
+                        color: AppColors.primaryBlueDark,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      email,
+                      key: const Key('active-history-email'),
+                      softWrap: true,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _EmptyTickets extends StatelessWidget {

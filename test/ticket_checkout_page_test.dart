@@ -8,6 +8,41 @@ import 'package:timetable/features/tickets/presentation/pages/tickets_page.dart'
 import 'package:timetable/l10n/app_localizations.dart';
 
 void main() {
+  testWidgets('guest history restores and labels the active email', (
+    tester,
+  ) async {
+    final controller = TicketController(_Repository());
+    addTearDown(controller.dispose);
+    await controller.loadHistory(contactEmail: 'guest@example.com');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: TicketsPage(ticketController: controller, authenticated: false),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final emailField = tester.widget<TextFormField>(find.byType(TextFormField));
+    expect(emailField.controller?.text, 'guest@example.com');
+    expect(find.text('Menampilkan tiket untuk'), findsOneWidget);
+    expect(find.byKey(const Key('active-history-email')), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('active-history-email'))).data,
+      'guest@example.com',
+    );
+    expect(
+      find.bySemanticsLabel('Menampilkan tiket untuk guest@example.com'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('checkout opens hosted Xendit link and remains pending', (
     tester,
   ) async {
