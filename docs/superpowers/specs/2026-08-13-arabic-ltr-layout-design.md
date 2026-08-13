@@ -12,11 +12,12 @@ The change applies globally when `AppLocale.arabic` is active. It changes presen
 
 `MaterialApp.router` continues to receive the Arabic locale so Flutter loads the Arabic localization catalog and locale-aware services. Its application subtree receives an explicit `Directionality` with `TextDirection.ltr`. This override prevents Flutter's Arabic locale delegate from mirroring directional widgets and geometry.
 
-The override belongs at the application boundary rather than individual pages. This keeps all current and future screens consistent and avoids page-specific exceptions. Arabic strings remain Arabic. Unicode bidirectional processing continues to shape and order Arabic characters inside text runs, while the paragraph and widget layout use the application's fixed LTR direction.
+The override belongs at the application boundary rather than individual pages. This keeps all current and future screens consistent and avoids page-specific exceptions. Arabic strings remain Arabic. Unicode bidirectional processing continues to shape and order each Arabic character run from right to left, while widget geometry and paragraph placement use the application's fixed LTR direction.
 
 ## Expected Behavior
 
 - Selecting Arabic still loads Arabic labels and messages.
+- Arabic character runs remain readable from right to left.
 - Bottom navigation items keep their existing order and positions.
 - Back buttons and other directional icons keep their LTR orientation.
 - Rows, alignment, directional padding, drawers, and transitions do not mirror.
