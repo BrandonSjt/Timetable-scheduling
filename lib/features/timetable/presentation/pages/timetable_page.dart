@@ -15,8 +15,8 @@ class TimetablePage extends StatefulWidget {
 
 class _TimetablePageState extends State<TimetablePage> {
   final TimetableController _controller = TimetableController();
-  late final List<TrainSchedule> _schedules;
-  
+  late Future<List<TrainSchedule>> _schedulesFuture;
+
   // State Filter
   String _searchQuery = '';
   String _selectedStationFilter = 'Semua Stasiun';
@@ -66,7 +66,17 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   void initState() {
     super.initState();
-    _schedules = _controller.loadSchedules();
+    _loadSchedules();
+  }
+
+  void _loadSchedules() {
+    setState(() {
+      _schedulesFuture = _controller.loadSchedules(
+        station: _selectedStationFilter,
+        trainType: _selectedTypeFilter,
+        isWeekend: _isWeekendFilter,
+      );
+    });
   }
 
   Color _getTrainColor(String type) {
@@ -192,6 +202,7 @@ class _TimetablePageState extends State<TimetablePage> {
                             setState(() {
                               _selectedStationFilter = station;
                             });
+                            _loadSchedules();
                             Navigator.pop(context);
                           },
                         );
@@ -210,37 +221,6 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // Terapkan semua filter secara bertahap
-    final filteredSchedules = _schedules.where((schedule) {
-      // 1. Filter Hari Kerja / Akhir Pekan
-      if (schedule.isWeekend != _isWeekendFilter) return false;
-
-      // 2. Filter Stasiun Keberangkatan
-      if (_selectedStationFilter != 'Semua Stasiun' &&
-          schedule.stationName.toLowerCase() != _selectedStationFilter.toLowerCase()) {
-        return false;
-      }
-
-      // 3. Filter Jenis Kereta (KRL/LRT/MRT)
-      if (_selectedTypeFilter != 'Semua' &&
-          schedule.trainType.toUpperCase() != _selectedTypeFilter.toUpperCase()) {
-        return false;
-      }
-
-      // 4. Filter Pencarian Text (Cari Rute atau Nama Kereta)
-      if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        final matchName = schedule.trainName.toLowerCase().contains(query);
-        final matchRoute = schedule.route.toLowerCase().contains(query);
-        final matchStation = schedule.stationName.toLowerCase().contains(query);
-        return matchName || matchRoute || matchStation;
-      }
-
-      return true;
-    }).toList();
-
-    // Urutkan jadwal berdasarkan waktu keberangkatan
-    filteredSchedules.sort((a, b) => a.departureTime.compareTo(b.departureTime));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -291,7 +271,10 @@ class _TimetablePageState extends State<TimetablePage> {
                         child: Row(
                           children: [
                             GestureDetector(
-                              onTap: () => setState(() => _isWeekendFilter = false),
+                              onTap: () {
+                                setState(() => _isWeekendFilter = false);
+                                _loadSchedules();
+                              },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
@@ -309,7 +292,10 @@ class _TimetablePageState extends State<TimetablePage> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => setState(() => _isWeekendFilter = true),
+                              onTap: () {
+                                setState(() => _isWeekendFilter = true);
+                                _loadSchedules();
+                              },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
@@ -400,7 +386,10 @@ class _TimetablePageState extends State<TimetablePage> {
                         final typeColor = _getTrainColor(type);
                         return Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => _selectedTypeFilter = type),
+                            onTap: () {
+                              setState(() => _selectedTypeFilter = type);
+                              _loadSchedules();
+                            },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
                               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -489,6 +478,7 @@ class _TimetablePageState extends State<TimetablePage> {
                                 setState(() {
                                   _selectedStationFilter = 'Semua Stasiun';
                                 });
+                                _loadSchedules();
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(2),
@@ -520,8 +510,69 @@ class _TimetablePageState extends State<TimetablePage> {
 
             // ── Schedule List ──
             Expanded(
-              child: filteredSchedules.isEmpty
-                  ? Center(
+              child: FutureBuilder<List<TrainSchedule>>(
+                future: _schedulesFuture,
+                builder: (context, snapshot) {
+                  // Loading state
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  // Error state
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.wifi_off_rounded,
+                            size: 48,
+                            color: AppColors.textHint.withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Gagal memuat jadwal',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Menggunakan data lokal sebagai fallback',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textHint,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton.icon(
+                            onPressed: _loadSchedules,
+                            icon: const Icon(Icons.refresh_rounded, size: 18),
+                            label: const Text('Coba Lagi'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Data state — apply text search filter client-side
+                  final raw = snapshot.data ?? [];
+                  final filteredSchedules = _searchQuery.isEmpty
+                      ? raw
+                      : raw.where((s) {
+                          final q = _searchQuery.toLowerCase();
+                          return s.trainName.toLowerCase().contains(q) ||
+                              s.route.toLowerCase().contains(q) ||
+                              s.stationName.toLowerCase().contains(q);
+                        }).toList()
+                    ..sort((a, b) => a.departureTime.compareTo(b.departureTime));
+
+                  if (filteredSchedules.isEmpty) {
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -549,15 +600,19 @@ class _TimetablePageState extends State<TimetablePage> {
                           ),
                         ],
                       ),
-                    )
-                  : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
-                      itemCount: filteredSchedules.length,
-                      itemBuilder: (context, index) {
-                        return ScheduleCard(schedule: filteredSchedules[index]);
-                      },
-                    ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredSchedules.length,
+                    itemBuilder: (context, index) {
+                      return ScheduleCard(schedule: filteredSchedules[index]);
+                    },
+                  );
+                },
+              ),
             ),
 
             // ── Bottom Navigation Bar ──

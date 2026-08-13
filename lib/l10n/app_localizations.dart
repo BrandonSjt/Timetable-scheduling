@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileOptionalLogin.
   ///
   /// In id, this message translates to:
-  /// **'Masuk opsional'**
+  /// **'Masuk atau Buat Akun'**
   String get profileOptionalLogin;
 
   /// No description provided for @profileLocalTicketHistory.
@@ -241,6 +241,216 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kontak petugas dan laporan info salah'**
   String get profileContactOfficer;
+
+  /// No description provided for @authSignInTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk ke akun'**
+  String get authSignInTitle;
+
+  /// No description provided for @authSignInSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun bersifat opsional. Gunakan untuk menyinkronkan profil dan riwayat tiket.'**
+  String get authSignInSubtitle;
+
+  /// No description provided for @authRegisterTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat akun'**
+  String get authRegisterTitle;
+
+  /// No description provided for @authRegisterSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar tanpa mengubah akses guest untuk jadwal, rute, dan pembelian tiket.'**
+  String get authRegisterSubtitle;
+
+  /// No description provided for @authName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama lengkap'**
+  String get authName;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In id, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authPhoneOptional.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor telepon (opsional)'**
+  String get authPhoneOptional;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi'**
+  String get authPassword;
+
+  /// No description provided for @authPasswordConfirmation.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi kata sandi'**
+  String get authPasswordConfirmation;
+
+  /// No description provided for @authEmailInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan alamat email yang valid.'**
+  String get authEmailInvalid;
+
+  /// No description provided for @authNameRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama minimal 2 karakter.'**
+  String get authNameRequired;
+
+  /// No description provided for @authPasswordMin.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi minimal 8 karakter.'**
+  String get authPasswordMin;
+
+  /// No description provided for @authPasswordMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Konfirmasi kata sandi belum sama.'**
+  String get authPasswordMismatch;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan kata sandi'**
+  String get authShowPassword;
+
+  /// No description provided for @authHidePassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Sembunyikan kata sandi'**
+  String get authHidePassword;
+
+  /// No description provided for @authSubmitLogin.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk'**
+  String get authSubmitLogin;
+
+  /// No description provided for @authSubmitRegister.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar'**
+  String get authSubmitRegister;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum punya akun? Daftar'**
+  String get authCreateAccount;
+
+  /// No description provided for @authBackToLogin.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah punya akun? Masuk'**
+  String get authBackToLogin;
+
+  /// No description provided for @authGuestStillAvailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa akun, kamu tetap bisa melihat jadwal, mencari rute, dan membeli tiket sebagai guest.'**
+  String get authGuestStillAvailable;
+
+  /// No description provided for @authInvalidCredentials.
+  ///
+  /// In id, this message translates to:
+  /// **'Email atau kata sandi tidak sesuai.'**
+  String get authInvalidCredentials;
+
+  /// No description provided for @authEmailUsed.
+  ///
+  /// In id, this message translates to:
+  /// **'Email ini sudah terdaftar.'**
+  String get authEmailUsed;
+
+  /// No description provided for @authNetworkError.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak dapat terhubung ke server. Periksa koneksi dan coba lagi.'**
+  String get authNetworkError;
+
+  /// No description provided for @authGenericError.
+  ///
+  /// In id, this message translates to:
+  /// **'Permintaan belum dapat diproses. Coba lagi.'**
+  String get authGenericError;
+
+  /// No description provided for @profileSignedIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun aktif'**
+  String get profileSignedIn;
+
+  /// No description provided for @profileOfflineSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun tersimpan • sedang offline'**
+  String get profileOfflineSession;
+
+  /// No description provided for @profileOfflineHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Beberapa perubahan akan tersedia saat koneksi kembali.'**
+  String get profileOfflineHint;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Edit profil'**
+  String get profileEdit;
+
+  /// No description provided for @profileLogout.
+  ///
+  /// In id, this message translates to:
+  /// **'Keluar'**
+  String get profileLogout;
+
+  /// No description provided for @profileLogoutConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Keluar dari akun di perangkat ini? Fitur guest tetap dapat digunakan.'**
+  String get profileLogoutConfirm;
+
+  /// No description provided for @profileCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get profileCancel;
+
+  /// No description provided for @profileAccountTicketHistory.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat tiket akun'**
+  String get profileAccountTicketHistory;
+
+  /// No description provided for @profileSyncedAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersinkron dengan akun ini'**
+  String get profileSyncedAccount;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Edit profil'**
+  String get editProfileTitle;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan perubahan'**
+  String get saveChanges;
 
   /// No description provided for @navHome.
   ///
@@ -829,6 +1039,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Stasiun tidak ditemukan'**
   String get stationNotFound;
+
+  /// No description provided for @stationVoiceGuide.
+  ///
+  /// In id, this message translates to:
+  /// **'Panduan suara'**
+  String get stationVoiceGuide;
+
+  /// No description provided for @stationVoiceGuideStop.
+  ///
+  /// In id, this message translates to:
+  /// **'Hentikan panduan suara'**
+  String get stationVoiceGuideStop;
+
+  /// No description provided for @stationVoiceGuideError.
+  ///
+  /// In id, this message translates to:
+  /// **'Panduan suara tidak dapat digunakan. Coba lagi.'**
+  String get stationVoiceGuideError;
 
   /// No description provided for @withoutLogin.
   ///

@@ -6,6 +6,9 @@ import 'l10n/app_localizations.dart';
 import 'core/localization/locale_provider.dart';
 import 'features/travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import 'features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
+import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/presentation/controllers/auth_controller.dart';
+import 'features/auth/presentation/widgets/auth_scope.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,13 +27,19 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final TravelAlarmController _travelAlarmController;
+  late final AuthController _authController;
   final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey();
-  final ValueNotifier<Locale> _localeNotifier = ValueNotifier(const Locale('id'));
+  final ValueNotifier<Locale> _localeNotifier = ValueNotifier(
+    const Locale('id'),
+  );
 
   @override
   void initState() {
     super.initState();
     _travelAlarmController = TravelAlarmController();
+    _authController = AuthController(AuthRepositoryImpl())
+      ..addListener(_handleAuthChange)
+      ..bootstrap();
     _travelAlarmController.reminder.addListener(_handleTravelReminder);
   }
 
@@ -46,10 +55,19 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _handleAuthChange() {
+    final language = _authController.user?.language;
+    if (language != null && _localeNotifier.value.languageCode != language) {
+      _localeNotifier.value = Locale(language);
+    }
+  }
+
   @override
   void dispose() {
     _travelAlarmController.reminder.removeListener(_handleTravelReminder);
     _travelAlarmController.dispose();
+    _authController.removeListener(_handleAuthChange);
+    _authController.dispose();
     _localeNotifier.dispose();
     super.dispose();
   }
@@ -58,27 +76,30 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return LocaleScope(
       notifier: _localeNotifier,
-      child: TravelAlarmScope(
-        controller: _travelAlarmController,
-        child: ValueListenableBuilder<Locale>(
-          valueListenable: _localeNotifier,
-          builder: (context, locale, child) {
-            return MaterialApp.router(
-              scaffoldMessengerKey: _scaffoldMessengerKey,
-              title: 'KAI Access Prototype',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.lightTheme,
-              routerConfig: appRouter,
-              locale: locale,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: AppLocalizations.supportedLocales,
-            );
-          },
+      child: AuthScope(
+        controller: _authController,
+        child: TravelAlarmScope(
+          controller: _travelAlarmController,
+          child: ValueListenableBuilder<Locale>(
+            valueListenable: _localeNotifier,
+            builder: (context, locale, child) {
+              return MaterialApp.router(
+                scaffoldMessengerKey: _scaffoldMessengerKey,
+                title: 'KAI Access Prototype',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                routerConfig: appRouter,
+                locale: locale,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: AppLocalizations.supportedLocales,
+              );
+            },
+          ),
         ),
       ),
     );

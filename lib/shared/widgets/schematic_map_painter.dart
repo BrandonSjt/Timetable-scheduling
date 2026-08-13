@@ -44,6 +44,27 @@ class LineData {
   });
 }
 
+/// Koneksi antarmoda yang ditempuh dengan berjalan kaki, bukan jalur rel.
+class WalkingConnectionData {
+  final String fromStationId;
+  final String toStationId;
+  final int walkingMinutes;
+
+  const WalkingConnectionData({
+    required this.fromStationId,
+    required this.toStationId,
+    required this.walkingMinutes,
+  });
+}
+
+const List<WalkingConnectionData> walkingConnections = [
+  WalkingConnectionData(
+    fromStationId: 'cawang_krl',
+    toStationId: 'cikoko_bk',
+    walkingMinutes: 5,
+  ),
+];
+
 /// Data model untuk landmark / tempat penting
 class LandmarkData {
   final String id;
@@ -69,10 +90,24 @@ const double kMapWidth = 2950.0;
 const double kMapHeight = 3100.0;
 
 // Stasiun transit besar — ditampilkan sebagai pill besar dengan nama di tengah
-const Set<String> _majorTransitIds = {
-  'duri',
-  'jakarta_kota',
-  'cawang_lrt',
+const Set<String> _majorTransitIds = {'duri', 'jakarta_kota', 'cawang_lrt'};
+
+// Dua node dapat mewakili satu stasiun fisik pada line yang berbeda. Posisi
+// masing-masing node tetap dipertahankan agar geometri line tidak berubah.
+const Map<String, String> kMergedStationPairs = <String, String>{
+  'dukuh_atas_lrt_bk': 'dukuh_atas_lrt_cb',
+  'setiabudi_lrt_bk': 'setiabudi_lrt_cb',
+  'rasuna_said_bk': 'rasuna_said_cb',
+  'kuningan_bk': 'kuningan_cb',
+  'pancoran_bk': 'pancoran_cb',
+  'cikoko_bk': 'cikoko_cb',
+  'ciliwung_bk': 'ciliwung_cb',
+  'cawang_lrt_bk': 'cawang_lrt_cb',
+  'manggarai_bk': 'manggarai_cb',
+  'tanah_abang_c': 'tanah_abang_r',
+  'jakarta_kota_bk': 'jakarta_kota_tp',
+  'kampung_bandan': 'kampung_bandan_tp',
+  'duri_c': 'duri_t',
 };
 
 // ════════════════════════════════════════════════════════════════════
@@ -80,195 +115,1247 @@ const Set<String> _majorTransitIds = {
 // ════════════════════════════════════════════════════════════════════
 
 final List<StationData> stations = [
-  StationData(id: 'manggarai', name: '', position: Offset(1375.0, 1125.0), isWaypoint: true),
-  StationData(id: 'bundaran_hi', name: 'Bundaran HI Bank Jakarta', code: 'M13', position: Offset(1075.0, 810.0), lines: ['mrt']),
-  StationData(id: 'dukuh_atas', name: 'Dukuh Atas BNI', code: 'M12', position: Offset(1075.0, 915.0), isTransit: true, lines: ['mrt', 'lrt_bekasi', 'lrt_cibubur']),
-  StationData(id: 'wp_mrt_1', name: '', position: Offset(1075.0, 1035.0), isWaypoint: true),
-  StationData(id: 'wp_mrt_2', name: '', position: Offset(1045.0, 1065.0), isWaypoint: true),
-  StationData(id: 'setiabudi', name: 'Setiabudi Astra', code: 'M11', position: Offset(955.0, 1155.0), isTransit: true, lines: ['mrt', 'lrt_bekasi', 'lrt_cibubur']),
-  StationData(id: 'bendungan_hilir', name: 'Bendungan Hilir', code: 'M10', position: Offset(835.0, 1275.0), lines: ['mrt']),
-  StationData(id: 'istora', name: 'Istora Mandiri', code: 'M09', position: Offset(745.0, 1365.0), lines: ['mrt']),
-  StationData(id: 'wp_mrt_3', name: '', position: Offset(700.0, 1410.0), isWaypoint: true),
-  StationData(id: 'wp_mrt_4', name: '', position: Offset(700.0, 1440.0), isWaypoint: true),
-  StationData(id: 'senayan', name: 'Senayan Mastercard', code: 'M08', position: Offset(700.0, 1530.0), lines: ['mrt']),
-  StationData(id: 'asean', name: 'ASEAN HQ', code: 'M07', position: Offset(700.0, 1635.0), lines: ['mrt']),
-  StationData(id: 'blok_m', name: 'Blok M BCA', code: 'M06', position: Offset(700.0, 1740.0), lines: ['mrt']),
-  StationData(id: 'blok_a', name: 'Blok A', code: 'M05', position: Offset(700.0, 1845.0), lines: ['mrt']),
-  StationData(id: 'haji_nawi', name: 'Haji Nawi', code: 'M04', position: Offset(700.0, 1950.0), lines: ['mrt']),
-  StationData(id: 'cipete_raya', name: 'Cipete Raya TUKU', code: 'M03', position: Offset(700.0, 2055.0), lines: ['mrt']),
-  StationData(id: 'wp_mrt_5', name: '', position: Offset(700.0, 2130.0), isWaypoint: true),
-  StationData(id: 'wp_mrt_6', name: '', position: Offset(670.0, 2160.0), isWaypoint: true),
-  StationData(id: 'fatmawati', name: 'Fatmawati Indomaret', code: 'M02', position: Offset(565.0, 2160.0), lines: ['mrt']),
-  StationData(id: 'lebak_bulus', name: 'Lebak Bulus BSI', code: 'M01', position: Offset(325.0, 2160.0), lines: ['mrt']),
+  StationData(
+    id: 'manggarai',
+    name: '',
+    position: Offset(1375.0, 1125.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'bundaran_hi',
+    name: 'Bundaran HI Bank Jakarta',
+    code: 'M13',
+    position: Offset(1075.0, 810.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'dukuh_atas',
+    name: 'Dukuh Atas BNI',
+    code: 'M12',
+    position: Offset(1075.0, 915.0),
+    isTransit: true,
+    lines: ['mrt', 'lrt_bekasi', 'lrt_cibubur'],
+  ),
+  StationData(
+    id: 'wp_mrt_1',
+    name: '',
+    position: Offset(1075.0, 1035.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_mrt_2',
+    name: '',
+    position: Offset(1045.0, 1065.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'setiabudi',
+    name: 'Setiabudi Astra',
+    code: 'M11',
+    position: Offset(955.0, 1155.0),
+    isTransit: true,
+    lines: ['mrt', 'lrt_bekasi', 'lrt_cibubur'],
+  ),
+  StationData(
+    id: 'bendungan_hilir',
+    name: 'Bendungan Hilir',
+    code: 'M10',
+    position: Offset(835.0, 1275.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'istora',
+    name: 'Istora Mandiri',
+    code: 'M09',
+    position: Offset(745.0, 1365.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'wp_mrt_3',
+    name: '',
+    position: Offset(700.0, 1410.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_mrt_4',
+    name: '',
+    position: Offset(700.0, 1440.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'senayan',
+    name: 'Senayan Mastercard',
+    code: 'M08',
+    position: Offset(700.0, 1530.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'asean',
+    name: 'ASEAN Headquarters',
+    code: 'M07',
+    position: Offset(700.0, 1635.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'blok_m',
+    name: 'Blok M BCA',
+    code: 'M06',
+    position: Offset(700.0, 1740.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'blok_a',
+    name: 'Blok A',
+    code: 'M05',
+    position: Offset(700.0, 1845.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'haji_nawi',
+    name: 'Haji Nawi',
+    code: 'M04',
+    position: Offset(700.0, 1950.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'cipete_raya',
+    name: 'Cipete Raya TUKU',
+    code: 'M03',
+    position: Offset(700.0, 2055.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'wp_mrt_5',
+    name: '',
+    position: Offset(700.0, 2130.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_mrt_6',
+    name: '',
+    position: Offset(670.0, 2160.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'fatmawati',
+    name: 'Fatmawati Indomaret',
+    code: 'M02',
+    position: Offset(565.0, 2160.0),
+    lines: ['mrt'],
+  ),
+  StationData(
+    id: 'lebak_bulus',
+    name: 'Lebak Bulus Bank Syariah Indonesia',
+    code: 'M01',
+    position: Offset(325.0, 2160.0),
+    lines: ['mrt'],
+  ),
 
-  StationData(id: 'wp_mrt_dukuh', name: '', position: Offset(925.0, 1125.0), isWaypoint: true),
-  StationData(id: 'wp_mrt_istora', name: '', position: Offset(700.0, 1350.0), isWaypoint: true),
-  StationData(id: 'wp_mrt_fatmawati', name: '', position: Offset(700.0, 2100.0), isWaypoint: true),
-  StationData(id: 'tanah_abang_r', name: 'Tanah Abang', code: 'R01', position: Offset(550.0, 825.0), isTransit: true, lines: ['rangkasbitung']),
-  StationData(id: 'wp_rangkas_1', name: '', position: Offset(550.0, 865.0), isWaypoint: true),
-  StationData(id: 'palmerah', name: 'Palmerah', code: 'R02', position: Offset(520.0, 895.0), lines: ['rangkasbitung']),
-  StationData(id: 'wp_rangkas_2', name: '', position: Offset(490.0, 925.0), isWaypoint: true),
-  StationData(id: 'kebayoran', name: 'Kebayoran', code: 'R03', position: Offset(490.0, 965.0), lines: ['rangkasbitung']),
-  StationData(id: 'wp_rangkas_3', name: '', position: Offset(490.0, 1005.0), isWaypoint: true),
-  StationData(id: 'pondok_ranji', name: 'Pondok Ranji', code: 'R04', position: Offset(450.0, 1045.0), lines: ['rangkasbitung']),
-  StationData(id: 'jurangmangu', name: 'Jurangmangu', code: 'R05', position: Offset(410.0, 1085.0), lines: ['rangkasbitung']),
-  StationData(id: 'sudimara', name: 'Sudimara', code: 'R06', position: Offset(370.0, 1125.0), lines: ['rangkasbitung']),
-  StationData(id: 'wp_rangkas_4', name: '', position: Offset(330.0, 1165.0), isWaypoint: true),
-  StationData(id: 'rawa_buntu', name: 'Rawa Buntu', code: 'R07', position: Offset(270.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'serpong', name: 'Serpong', code: 'R08', position: Offset(230.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'cisauk', name: 'Cisauk', code: 'R09', position: Offset(190.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'cicayur', name: 'Cicayur', code: 'R10', position: Offset(150.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'parung_panjang', name: 'Parung Panjang', code: 'R11', position: Offset(110.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'cilejit', name: 'Cilejit', code: 'R12', position: Offset(70.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'daru', name: 'Daru', code: 'R13', position: Offset(30.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'tenjo', name: 'Tenjo', code: 'R14', position: Offset(-10.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'tigaraksa', name: 'Tigaraksa', code: 'R15', position: Offset(-50.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'cikoya', name: 'Cikoya', code: 'R16', position: Offset(-90.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'maja', name: 'Maja', code: 'R17', position: Offset(-130.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'citeras', name: 'Citeras', code: 'R18', position: Offset(-170.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'rangkasbitung', name: 'Rangkasbitung', code: 'R19', position: Offset(-210.0, 1165.0), lines: ['rangkasbitung']),
-  StationData(id: 'bogor', name: 'Bogor', code: 'B26', position: Offset(2080.0, 2925.0), lines: ['bogor']),
-  StationData(id: 'cilebut', name: 'Cilebut', code: 'B24', position: Offset(1975.0, 2925.0), lines: ['bogor']),
-  StationData(id: 'bojong_gede', name: 'Bojong Gede', code: 'B23', position: Offset(1870.0, 2925.0), lines: ['bogor']),
-  StationData(id: 'citayam', name: 'Citayam', code: 'B22', position: Offset(1765.0, 2925.0), lines: ['bogor', 'bogor_nambo']),
-  StationData(id: 'depok', name: 'Depok', code: 'B21', position: Offset(1660.0, 2925.0), lines: ['bogor']),
-  
-  StationData(id: 'wp_curve_depok', name: '', position: Offset(1555.0, 2925.0), isWaypoint: true),
-  StationData(id: 'wp_nambo_split', name: '', position: Offset(1810.0, 2925.0), isWaypoint: true),
+  StationData(
+    id: 'wp_mrt_dukuh',
+    name: '',
+    position: Offset(925.0, 1125.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_mrt_istora',
+    name: '',
+    position: Offset(700.0, 1350.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_mrt_fatmawati',
+    name: '',
+    position: Offset(700.0, 2100.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'tanah_abang_r',
+    name: 'Tanah Abang',
+    code: 'R01',
+    position: Offset(550.0, 825.0),
+    isTransit: true,
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'wp_rangkas_1',
+    name: '',
+    position: Offset(550.0, 865.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'palmerah',
+    name: 'Palmerah',
+    code: 'R02',
+    position: Offset(520.0, 895.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'wp_rangkas_2',
+    name: '',
+    position: Offset(490.0, 925.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'kebayoran',
+    name: 'Kebayoran',
+    code: 'R03',
+    position: Offset(490.0, 965.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'wp_rangkas_3',
+    name: '',
+    position: Offset(490.0, 1005.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'pondok_ranji',
+    name: 'Pondok Ranji',
+    code: 'R04',
+    position: Offset(450.0, 1045.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'jurangmangu',
+    name: 'Jurangmangu',
+    code: 'R05',
+    position: Offset(410.0, 1085.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'sudimara',
+    name: 'Sudimara',
+    code: 'R06',
+    position: Offset(370.0, 1125.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'wp_rangkas_4',
+    name: '',
+    position: Offset(330.0, 1165.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'rawa_buntu',
+    name: 'Rawa Buntu',
+    code: 'R07',
+    position: Offset(270.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'serpong',
+    name: 'Serpong',
+    code: 'R08',
+    position: Offset(230.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'cisauk',
+    name: 'Cisauk',
+    code: 'R09',
+    position: Offset(190.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'cicayur',
+    name: 'Cicayur',
+    code: 'R10',
+    position: Offset(150.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'parung_panjang',
+    name: 'Parung Panjang',
+    code: 'R12',
+    position: Offset(110.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'cilejit',
+    name: 'Cilejit',
+    code: 'R14',
+    position: Offset(70.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'daru',
+    name: 'Daru',
+    code: 'R15',
+    position: Offset(30.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'tenjo',
+    name: 'Tenjo',
+    code: 'R16',
+    position: Offset(-10.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'tigaraksa',
+    name: 'Tigaraksa',
+    code: 'R18',
+    position: Offset(-50.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'cikoya',
+    name: 'Cikoya',
+    code: 'R19',
+    position: Offset(-90.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'maja',
+    name: 'Maja',
+    code: 'R20',
+    position: Offset(-130.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'citeras',
+    name: 'Citeras',
+    code: 'R21',
+    position: Offset(-170.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'rangkasbitung',
+    name: 'Rangkasbitung',
+    code: 'R22',
+    position: Offset(-210.0, 1165.0),
+    lines: ['rangkasbitung'],
+  ),
+  StationData(
+    id: 'bogor',
+    name: 'Bogor',
+    code: 'B26',
+    position: Offset(2080.0, 2925.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'cilebut',
+    name: 'Cilebut',
+    code: 'B24',
+    position: Offset(1975.0, 2925.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'bojong_gede',
+    name: 'Bojong Gede',
+    code: 'B23',
+    position: Offset(1870.0, 2925.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'citayam',
+    name: 'Citayam',
+    code: 'B22',
+    position: Offset(1765.0, 2925.0),
+    lines: ['bogor', 'bogor_nambo'],
+  ),
+  StationData(
+    id: 'depok',
+    name: 'Depok',
+    code: 'B21',
+    position: Offset(1660.0, 2925.0),
+    lines: ['bogor'],
+  ),
 
-  StationData(id: 'wp_nambo_up', name: '', position: Offset(1810.0, 2775.0), isWaypoint: true),
-  StationData(id: 'pondok_rajeg', name: 'Pondok Rajeg', code: 'b23', position: Offset(1885.0, 2775.0), lines: ['bogor_nambo']),
-  StationData(id: 'cibinong', name: 'Cibinong', code: 'b24', position: Offset(1960.0, 2775.0), lines: ['bogor_nambo']),
-  StationData(id: 'gunung_putri', name: 'Gunung Putri', code: 'b25', position: Offset(2035.0, 2775.0), lines: ['bogor_nambo']),
-  StationData(id: 'nambo', name: 'Nambo', code: 'b26', position: Offset(2110.0, 2775.0), lines: ['bogor_nambo']),
-  StationData(id: 'depok_baru', name: 'Depok Baru', code: 'B20', position: Offset(1555.0, 2775.0), lines: ['bogor']),
-  StationData(id: 'pondok_cina', name: 'Pondok Cina', code: 'B19', position: Offset(1555.0, 2625.0), lines: ['bogor']),
-  StationData(id: 'univ_indonesia', name: 'Univ. Indonesia', code: 'B18', position: Offset(1555.0, 2475.0), lines: ['bogor']),
-  StationData(id: 'univ_pancasila', name: 'Univ. Pancasila', code: 'B17', position: Offset(1555.0, 2325.0), lines: ['bogor']),
-  StationData(id: 'lenteng_agung', name: 'Lenteng Agung', code: 'B16', position: Offset(1555.0, 2175.0), lines: ['bogor']),
-  StationData(id: 'tanjung_barat', name: 'Tanjung Barat', code: 'B15', position: Offset(1555.0, 2025.0), lines: ['bogor']),
-  StationData(id: 'pasar_minggu', name: 'Pasar Minggu', code: 'B14', position: Offset(1555.0, 1875.0), lines: ['bogor']),
-  StationData(id: 'pasar_minggu_baru', name: 'Pasar Minggu Baru', code: 'B13', position: Offset(1555.0, 1800.0), lines: ['bogor']),
-  StationData(id: 'duren_kalibata', name: 'Duren Kalibata', code: 'B12', position: Offset(1555.0, 1725.0), lines: ['bogor']),
-  StationData(id: 'cawang_krl', name: 'Cawang', code: 'B11', position: Offset(1555.0, 1575.0), lines: ['bogor']),
-  StationData(id: 'tebet', name: 'Tebet', code: 'B10', position: Offset(1555.0, 1425.0), lines: ['bogor']),
-  StationData(id: 'wp_bogor_manggarai_out', name: '', position: Offset(1555.0, 1275.0), isWaypoint: true),
-  StationData(id: 'manggarai_bk', name: '', code: 'B09', position: Offset(1390.0, 1110.0), lines: ['bogor']),
-  StationData(id: 'cikini', name: 'Cikini', code: 'B08', position: Offset(1300.0, 1020.0), lines: ['bogor']),
-  StationData(id: 'gondangdia', name: 'Gondangdia', code: 'B07', position: Offset(1225.0, 945.0), lines: ['bogor']),
-  StationData(id: 'wp_bogor_gondangdia', name: '', position: Offset(1150.0, 870.0), isWaypoint: true),
-  StationData(id: 'juanda', name: 'Juanda', code: 'B05', position: Offset(1150.0, 705.0), lines: ['bogor']),
-  StationData(id: 'sawah_besar', name: 'Sawah Besar', code: 'B04', position: Offset(1150.0, 585.0), lines: ['bogor']),
-  StationData(id: 'mangga_besar', name: 'Mangga Besar', code: 'B03', position: Offset(1150.0, 465.0), lines: ['bogor']),
-  StationData(id: 'jayakarta', name: 'Jayakarta', code: 'B02', position: Offset(1150.0, 345.0), lines: ['bogor']),
-  StationData(id: 'wp_bogor_jayakarta', name: '', position: Offset(1150.0, 264.0), isWaypoint: true),
-  StationData(id: 'jakarta_kota_bk', name: 'Jakarta Kota', code: 'B01', position: Offset(1000.0, 264.0), isTransit: true, lines: ['bogor']),
-  StationData(id: 'cikarang', name: 'Cikarang', code: 'C26', position: Offset(2770.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'metland_telagamurni', name: 'Metland Telagamurni', code: 'C25', position: Offset(2680.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'cibitung', name: 'Cibitung', code: 'C24', position: Offset(2590.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'tambun', name: 'Tambun', code: 'C23', position: Offset(2500.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'bekasi_timur', name: 'Bekasi Timur', code: 'C22', position: Offset(2410.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'bekasi', name: 'Bekasi', code: 'C21', position: Offset(2320.0, 1230.0), isTransit: true, lines: ['cikarang_east']),
-  StationData(id: 'kranji', name: 'Kranji', code: 'C20', position: Offset(2230.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'cakung', name: 'Cakung', code: 'C19', position: Offset(2140.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'klender_baru', name: 'Klender Baru', code: 'C18', position: Offset(2050.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'buaran', name: 'Buaran', code: 'C17', position: Offset(1960.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'klender', name: 'Klender', code: 'C16', position: Offset(1870.0, 1230.0), lines: ['cikarang_east']),
-  StationData(id: 'kampung_bandan', name: 'Kp. Bandan', code: 'C07', position: Offset(1270.0, 255.0), isTransit: true, lines: ['cikarang_loop']),
-  StationData(id: 'angke', name: 'Angke', code: 'C08', position: Offset(550.0, 525.0), lines: ['cikarang_loop']),
-  StationData(id: 'duri_c', name: 'Duri', code: 'C09', position: Offset(550.0, 675.0), isTransit: true, lines: ['cikarang_loop']),
-  StationData(id: 'duri_t', name: 'Duri', code: 'T01', position: Offset(550.0, 675.0), isTransit: true, lines: ['tangerang']),
-  StationData(id: 'tanah_abang_c', name: 'Tanah Abang', code: 'C10', position: Offset(550.0, 825.0), isTransit: true, lines: ['cikarang_loop']),
-  StationData(id: 'wp_tanah_abang_c1', name: '', position: Offset(550.0, 900.0), isWaypoint: true),
-  StationData(id: 'wp_tanah_abang_c2', name: '', position: Offset(655.0, 1005.0), isWaypoint: true),
-  StationData(id: 'grogol', name: 'Grogol', code: 'T02', position: Offset(490.0, 675.0), lines: ['tangerang']),
-  StationData(id: 'wp_tangerang_1', name: '', position: Offset(460.0, 675.0), isWaypoint: true),
-  StationData(id: 'pesing', name: 'Pesing', code: 'T03', position: Offset(420.0, 715.0), lines: ['tangerang']),
-  StationData(id: 'wp_tangerang_2', name: '', position: Offset(380.0, 755.0), isWaypoint: true),
-  StationData(id: 'taman_kota', name: 'Taman Kota', code: 'T04', position: Offset(350.0, 755.0), lines: ['tangerang']),
-  StationData(id: 'bojong_indah', name: 'Bojong Indah', code: 'T05', position: Offset(270.0, 755.0), lines: ['tangerang']),
-  StationData(id: 'rawa_buaya', name: 'Rawa Buaya', code: 'T06', position: Offset(190.0, 755.0), lines: ['tangerang']),
-  StationData(id: 'kalideres', name: 'Kalideres', code: 'T07', position: Offset(110.0, 755.0), lines: ['tangerang']),
-  StationData(id: 'poris', name: 'Poris', code: 'T08', position: Offset(30.0, 755.0), lines: ['tangerang']),
-  StationData(id: 'batu_ceper', name: 'Batu Ceper', code: 'T09', position: Offset(-50.0, 755.0), lines: ['tangerang']),
-  StationData(id: 'tanah_tinggi', name: 'Tanah Tinggi', code: 'T10', position: Offset(-130.0, 755.0), lines: ['tangerang']),
-  StationData(id: 'tangerang', name: 'Tangerang', code: 'T11', position: Offset(-210.0, 755.0), lines: ['tangerang']),
+  StationData(
+    id: 'wp_curve_depok',
+    name: '',
+    position: Offset(1555.0, 2925.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_nambo_split',
+    name: '',
+    position: Offset(1810.0, 2925.0),
+    isWaypoint: true,
+  ),
 
-  StationData(id: 'karet', name: 'Karet', code: 'C11', position: Offset(700.0, 1005.0), lines: ['cikarang_loop']),
-  StationData(id: 'bni_city', name: 'BNI City', code: 'C11a', position: Offset(1000.0, 1005.0), lines: ['cikarang_loop']),
-  StationData(id: 'sudirman', name: 'Sudirman', code: 'C12', position: Offset(1105.0, 1005.0), lines: ['cikarang_loop']),
-  StationData(id: 'wp_cikarang_sudirman', name: '', position: Offset(1255.0, 1005.0), isWaypoint: true),
-  StationData(id: 'manggarai_cb', name: 'Manggarai', code: 'C13', position: Offset(1375.0, 1125.0), isTransit: true, lines: ['cikarang_loop']),
-  StationData(id: 'wp_cikarang_manggarai2', name: '', position: Offset(1480.0, 1230.0), isWaypoint: true),
-  StationData(id: 'matraman', name: 'Matraman', code: 'C14', position: Offset(1540.0, 1230.0), lines: ['cikarang_loop', 'cikarang_east']),
-  StationData(id: 'jatinegara', name: 'Jatinegara', code: 'C15', position: Offset(1690.0, 1230.0), isTransit: true, lines: ['cikarang_loop', 'cikarang_east']),
-  StationData(id: 'wp_cikarang_jatinegara', name: '', position: Offset(1600.0, 1230.0), isWaypoint: true),
-  StationData(id: 'pondok_jati', name: 'Pondok Jati', code: 'C01', position: Offset(1600.0, 1110.0), lines: ['cikarang_loop']),
-  StationData(id: 'wp_cikarang_pj_curve', name: '', position: Offset(1600.0, 1020.0), isWaypoint: true),
-  StationData(id: 'kramat', name: 'Kramat', code: 'C02', position: Offset(1540.0, 960.0), lines: ['cikarang_loop']),
-  StationData(id: 'gang_sentiong', name: 'Gang Sentiong', code: 'C03', position: Offset(1480.0, 900.0), lines: ['cikarang_loop']),
-  StationData(id: 'wp_cikarang_gs_curve', name: '', position: Offset(1450.0, 870.0), isWaypoint: true),
-  StationData(id: 'pasar_senen', name: 'Pasar Senen', code: 'C04', position: Offset(1450.0, 690.0), lines: ['cikarang_loop']),
-  StationData(id: 'kemayoran', name: 'Kemayoran', code: 'C05', position: Offset(1450.0, 570.0), lines: ['cikarang_loop']),
-  StationData(id: 'rajawali', name: 'Rajawali', code: 'C06', position: Offset(1450.0, 450.0), lines: ['cikarang_loop']),
-  StationData(id: 'wp_s1', name: '', position: Offset(1450.0, 405.0), isWaypoint: true),
-  StationData(id: 'wp_s2', name: '', position: Offset(1405.0, 360.0), isWaypoint: true),
-  StationData(id: 'wp_s3', name: '', position: Offset(1315.0, 360.0), isWaypoint: true),
-  StationData(id: 'wp_s4', name: '', position: Offset(1270.0, 315.0), isWaypoint: true),
-  StationData(id: 'wp_kb_top', name: '', position: Offset(1270.0, 165.0), isWaypoint: true),
-  StationData(id: 'wp_kb_left', name: '', position: Offset(550.0, 165.0), isWaypoint: true),
-  StationData(id: 'jakarta_kota_tp', name: 'Jakarta Kota', code: 'TP01', position: Offset(1000.0, 240.0), isTransit: true, lines: ['tanjung_priok']),
-  StationData(id: 'kampung_bandan_tp', name: '', code: 'TP02', position: Offset(1270.0, 240.0), isTransit: true, lines: ['tanjung_priok']),
-  StationData(id: 'ancol', name: 'Ancol', code: 'TP03', position: Offset(1450.0, 240.0), lines: ['tanjung_priok']),
-  StationData(id: 'jis', name: 'Jakarta Int. Stadium', code: 'TP04', position: Offset(1600.0, 240.0), lines: ['tanjung_priok']),
-  StationData(id: 'wp_tp_curve1', name: '', position: Offset(1660.0, 240.0), isWaypoint: true),
-  StationData(id: 'wp_tp_curve2', name: '', position: Offset(1720.0, 180.0), isWaypoint: true),
-  StationData(id: 'tanjung_priok', name: 'Tanjung Priok', code: 'TP05', position: Offset(1720.0, 90.0), lines: ['tanjung_priok']),
-  StationData(id: 'pegangsaan_dua', name: 'Pegangsaan Dua', code: 'S01', position: Offset(1900.0, 375.0), lines: ['lrt_jakarta']),
-  StationData(id: 'boulevard_utara', name: 'Boulevard Utara', code: 'S02', position: Offset(1900.0, 480.0), lines: ['lrt_jakarta']),
-  StationData(id: 'boulevard_selatan', name: 'Boulevard Selatan', code: 'S03', position: Offset(1900.0, 585.0), lines: ['lrt_jakarta']),
-  StationData(id: 'pulomas', name: 'Pulomas', code: 'S04', position: Offset(1900.0, 690.0), lines: ['lrt_jakarta']),
-  StationData(id: 'equestrian', name: 'Equestrian', code: 'S05', position: Offset(1900.0, 795.0), lines: ['lrt_jakarta']),
-  StationData(id: 'velodrome', name: 'Velodrome', code: 'S06', position: Offset(1750.0, 795.0), lines: ['lrt_jakarta']),
-  StationData(id: 'dukuh_atas_lrt_bk', name: 'Dukuh Atas LRT', code: 'BK01', position: Offset(1180.0, 1119.0), isTransit: true, lines: ['lrt_bekasi']),
-  StationData(id: 'dukuh_atas_lrt_cb', name: '', code: 'CB01', position: Offset(1180.0, 1131.0), isTransit: true, lines: ['lrt_cibubur']),
-  StationData(id: 'wp_lrt_dukuh_bk', name: '', position: Offset(1306.0, 1119.0), isWaypoint: true),
-  StationData(id: 'wp_lrt_dukuh_cb', name: '', position: Offset(1294.0, 1131.0), isWaypoint: true),
-  StationData(id: 'setiabudi_lrt_bk', name: 'Setiabudi LRT', code: 'BK02', position: Offset(1306.0, 1245.0), lines: ['lrt_bekasi']),
-  StationData(id: 'setiabudi_lrt_cb', name: '', code: 'CB02', position: Offset(1294.0, 1245.0), lines: ['lrt_cibubur']),
-  StationData(id: 'rasuna_said_bk', name: 'Rasuna Said', code: 'BK03', position: Offset(1306.0, 1365.0), lines: ['lrt_bekasi']),
-  StationData(id: 'rasuna_said_cb', name: '', code: 'CB03', position: Offset(1294.0, 1365.0), lines: ['lrt_cibubur']),
-  StationData(id: 'kuningan_bk', name: 'Kuningan', code: 'BK04', position: Offset(1306.0, 1485.0), lines: ['lrt_bekasi']),
-  StationData(id: 'kuningan_cb', name: '', code: 'CB04', position: Offset(1294.0, 1485.0), lines: ['lrt_cibubur']),
-  StationData(id: 'wp_lrt_kuningan_bk', name: '', position: Offset(1306.0, 1644.0), isWaypoint: true),
-  StationData(id: 'wp_lrt_kuningan_cb', name: '', position: Offset(1294.0, 1656.0), isWaypoint: true),
-  StationData(id: 'pancoran_bk', name: 'Pancoran', code: 'BK05', position: Offset(1450.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'pancoran_cb', name: '', code: 'CB05', position: Offset(1450.0, 1656.0), lines: ['lrt_cibubur']),
-  StationData(id: 'cikoko_bk', name: 'Cikoko', code: 'BK06', position: Offset(1600.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'cikoko_cb', name: '', code: 'CB06', position: Offset(1600.0, 1656.0), lines: ['lrt_cibubur']),
-  StationData(id: 'ciliwung_bk', name: 'Ciliwung', code: 'BK07', position: Offset(1750.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'ciliwung_cb', name: '', code: 'CB07', position: Offset(1750.0, 1656.0), lines: ['lrt_cibubur']),
-  StationData(id: 'cawang_lrt_bk', name: 'Cawang', code: 'BK08', position: Offset(1900.0, 1644.0), isTransit: true, lines: ['lrt_bekasi']),
-  StationData(id: 'cawang_lrt_cb', name: '', code: 'CB08', position: Offset(1900.0, 1656.0), isTransit: true, lines: ['lrt_cibubur']),
-  StationData(id: 'halim', name: 'Halim', code: 'BK09', position: Offset(2050.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'jatibening_baru', name: 'Jatibening Baru', code: 'BK10', position: Offset(2200.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'cikunir_1', name: 'Cikunir 1', code: 'BK11', position: Offset(2350.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'cikunir_2', name: 'Cikunir 2', code: 'BK12', position: Offset(2500.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'bekasi_barat', name: 'Bekasi Barat', code: 'BK13', position: Offset(2650.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'jatimulya', name: 'Jati Mulya', code: 'BK14', position: Offset(2800.0, 1644.0), lines: ['lrt_bekasi']),
-  StationData(id: 'wp_lrt_cawang_cb', name: '', position: Offset(1960.0, 1656.0), isWaypoint: true),
-  StationData(id: 'taman_mini', name: 'Taman Mini', code: 'CB09', position: Offset(1960.0, 1806.0), lines: ['lrt_cibubur']),
-  StationData(id: 'kampung_rambutan', name: 'Kampung Rambutan', code: 'CB10', position: Offset(1960.0, 1956.0), lines: ['lrt_cibubur']),
-  StationData(id: 'ciracas', name: 'Ciracas', code: 'CB11', position: Offset(1960.0, 2106.0), lines: ['lrt_cibubur']),
-  StationData(id: 'harjamukti', name: 'Harjamukti', code: 'CB12', position: Offset(1960.0, 2256.0), lines: ['lrt_cibubur']),
+  StationData(
+    id: 'wp_nambo_up',
+    name: '',
+    position: Offset(1810.0, 2775.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'pondok_rajeg',
+    name: 'Pondok Rajeg',
+    code: 'b23',
+    position: Offset(1885.0, 2775.0),
+    lines: ['bogor_nambo'],
+  ),
+  StationData(
+    id: 'cibinong',
+    name: 'Cibinong',
+    code: 'b24',
+    position: Offset(1960.0, 2775.0),
+    lines: ['bogor_nambo'],
+  ),
+  StationData(
+    id: 'gunung_putri',
+    name: 'Gunung Putri',
+    code: 'b25',
+    position: Offset(2035.0, 2775.0),
+    lines: ['bogor_nambo'],
+  ),
+  StationData(
+    id: 'nambo',
+    name: 'Nambo',
+    code: 'b26',
+    position: Offset(2110.0, 2775.0),
+    lines: ['bogor_nambo'],
+  ),
+  StationData(
+    id: 'depok_baru',
+    name: 'Depok Baru',
+    code: 'B20',
+    position: Offset(1555.0, 2775.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'pondok_cina',
+    name: 'Pondok Cina',
+    code: 'B19',
+    position: Offset(1555.0, 2625.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'univ_indonesia',
+    name: 'Universitas Indonesia',
+    code: 'B18',
+    position: Offset(1555.0, 2475.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'univ_pancasila',
+    name: 'Universitas Pancasila',
+    code: 'B17',
+    position: Offset(1555.0, 2325.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'lenteng_agung',
+    name: 'Lenteng Agung',
+    code: 'B16',
+    position: Offset(1555.0, 2175.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'tanjung_barat',
+    name: 'Tanjung Barat',
+    code: 'B15',
+    position: Offset(1555.0, 2025.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'pasar_minggu',
+    name: 'Pasar Minggu',
+    code: 'B14',
+    position: Offset(1555.0, 1875.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'pasar_minggu_baru',
+    name: 'Pasar Minggu Baru',
+    code: 'B13',
+    position: Offset(1555.0, 1800.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'duren_kalibata',
+    name: 'Duren Kalibata',
+    code: 'B12',
+    position: Offset(1555.0, 1725.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'cawang_krl',
+    name: 'Cawang',
+    code: 'B11',
+    position: Offset(1555.0, 1575.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'tebet',
+    name: 'Tebet',
+    code: 'B10',
+    position: Offset(1555.0, 1425.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'wp_bogor_manggarai_out',
+    name: '',
+    position: Offset(1555.0, 1275.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'manggarai_bk',
+    name: '',
+    code: 'B09',
+    position: Offset(1390.0, 1110.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'cikini',
+    name: 'Cikini',
+    code: 'B08',
+    position: Offset(1300.0, 1020.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'gondangdia',
+    name: 'Gondangdia',
+    code: 'B07',
+    position: Offset(1225.0, 945.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'wp_bogor_gondangdia',
+    name: '',
+    position: Offset(1150.0, 870.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'juanda',
+    name: 'Juanda',
+    code: 'B05',
+    position: Offset(1150.0, 705.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'sawah_besar',
+    name: 'Sawah Besar',
+    code: 'B04',
+    position: Offset(1150.0, 585.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'mangga_besar',
+    name: 'Mangga Besar',
+    code: 'B03',
+    position: Offset(1150.0, 465.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'jayakarta',
+    name: 'Jayakarta',
+    code: 'B02',
+    position: Offset(1150.0, 345.0),
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'wp_bogor_jayakarta',
+    name: '',
+    position: Offset(1150.0, 264.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'jakarta_kota_bk',
+    name: 'Jakarta Kota',
+    code: 'B01',
+    position: Offset(1000.0, 264.0),
+    isTransit: true,
+    lines: ['bogor'],
+  ),
+  StationData(
+    id: 'cikarang',
+    name: 'Cikarang',
+    code: 'C26',
+    position: Offset(2770.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'metland_telagamurni',
+    name: 'Metland Telaga Murni',
+    code: 'C25',
+    position: Offset(2680.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'cibitung',
+    name: 'Cibitung',
+    code: 'C24',
+    position: Offset(2590.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'tambun',
+    name: 'Tambun',
+    code: 'C23',
+    position: Offset(2500.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'bekasi_timur',
+    name: 'Bekasi Timur',
+    code: 'C22',
+    position: Offset(2410.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'bekasi',
+    name: 'Bekasi',
+    code: 'C21',
+    position: Offset(2320.0, 1230.0),
+    isTransit: true,
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'kranji',
+    name: 'Kranji',
+    code: 'C20',
+    position: Offset(2230.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'cakung',
+    name: 'Cakung',
+    code: 'C19',
+    position: Offset(2140.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'klender_baru',
+    name: 'Klender Baru',
+    code: 'C18',
+    position: Offset(2050.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'buaran',
+    name: 'Buaran',
+    code: 'C17',
+    position: Offset(1960.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'klender',
+    name: 'Klender',
+    code: 'C16',
+    position: Offset(1870.0, 1230.0),
+    lines: ['cikarang_east'],
+  ),
+  StationData(
+    id: 'kampung_bandan',
+    name: 'Kampung Bandan',
+    code: 'C07',
+    position: Offset(1270.0, 255.0),
+    isTransit: true,
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'angke',
+    name: 'Angke',
+    code: 'C08',
+    position: Offset(550.0, 525.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'duri_c',
+    name: 'Duri',
+    code: 'C09',
+    position: Offset(550.0, 675.0),
+    isTransit: true,
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'duri_t',
+    name: 'Duri',
+    code: 'T01',
+    position: Offset(550.0, 675.0),
+    isTransit: true,
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'tanah_abang_c',
+    name: 'Tanah Abang',
+    code: 'C10',
+    position: Offset(550.0, 825.0),
+    isTransit: true,
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'wp_tanah_abang_c1',
+    name: '',
+    position: Offset(550.0, 900.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_tanah_abang_c2',
+    name: '',
+    position: Offset(655.0, 1005.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'grogol',
+    name: 'Grogol',
+    code: 'T02',
+    position: Offset(490.0, 675.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'wp_tangerang_1',
+    name: '',
+    position: Offset(460.0, 675.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'pesing',
+    name: 'Pesing',
+    code: 'T03',
+    position: Offset(420.0, 715.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'wp_tangerang_2',
+    name: '',
+    position: Offset(380.0, 755.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'taman_kota',
+    name: 'Taman Kota',
+    code: 'T04',
+    position: Offset(350.0, 755.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'bojong_indah',
+    name: 'Bojong Indah',
+    code: 'T05',
+    position: Offset(270.0, 755.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'rawa_buaya',
+    name: 'Rawa Buaya',
+    code: 'T06',
+    position: Offset(190.0, 755.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'kalideres',
+    name: 'Kalideres',
+    code: 'T07',
+    position: Offset(110.0, 755.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'poris',
+    name: 'Poris',
+    code: 'T08',
+    position: Offset(30.0, 755.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'batu_ceper',
+    name: 'Batu Ceper',
+    code: 'T09',
+    position: Offset(-50.0, 755.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'tanah_tinggi',
+    name: 'Tanah Tinggi',
+    code: 'T10',
+    position: Offset(-130.0, 755.0),
+    lines: ['tangerang'],
+  ),
+  StationData(
+    id: 'tangerang',
+    name: 'Tangerang',
+    code: 'T11',
+    position: Offset(-210.0, 755.0),
+    lines: ['tangerang'],
+  ),
+
+  StationData(
+    id: 'karet',
+    name: 'Karet',
+    code: 'C11',
+    position: Offset(700.0, 1005.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'bni_city',
+    name: 'BNI City',
+    code: 'C11a',
+    position: Offset(1000.0, 1005.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'sudirman',
+    name: 'Sudirman',
+    code: 'C12',
+    position: Offset(1105.0, 1005.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'wp_cikarang_sudirman',
+    name: '',
+    position: Offset(1255.0, 1005.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'manggarai_cb',
+    name: 'Manggarai',
+    code: 'C13',
+    position: Offset(1375.0, 1125.0),
+    isTransit: true,
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'wp_cikarang_manggarai2',
+    name: '',
+    position: Offset(1480.0, 1230.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'matraman',
+    name: 'Matraman',
+    code: 'C14',
+    position: Offset(1540.0, 1230.0),
+    lines: ['cikarang_loop', 'cikarang_east'],
+  ),
+  StationData(
+    id: 'jatinegara',
+    name: 'Jatinegara',
+    code: 'C15',
+    position: Offset(1690.0, 1230.0),
+    isTransit: true,
+    lines: ['cikarang_loop', 'cikarang_east'],
+  ),
+  StationData(
+    id: 'wp_cikarang_jatinegara',
+    name: '',
+    position: Offset(1600.0, 1230.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'pondok_jati',
+    name: 'Pondok Jati',
+    code: 'C01',
+    position: Offset(1600.0, 1110.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'wp_cikarang_pj_curve',
+    name: '',
+    position: Offset(1600.0, 1020.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'kramat',
+    name: 'Kramat',
+    code: 'C02',
+    position: Offset(1540.0, 960.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'gang_sentiong',
+    name: 'Gang Sentiong',
+    code: 'C03',
+    position: Offset(1480.0, 900.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'wp_cikarang_gs_curve',
+    name: '',
+    position: Offset(1450.0, 870.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'pasar_senen',
+    name: 'Pasar Senen',
+    code: 'C04',
+    position: Offset(1450.0, 690.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'kemayoran',
+    name: 'Kemayoran',
+    code: 'C05',
+    position: Offset(1450.0, 570.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'rajawali',
+    name: 'Rajawali',
+    code: 'C06',
+    position: Offset(1450.0, 450.0),
+    lines: ['cikarang_loop'],
+  ),
+  StationData(
+    id: 'wp_s1',
+    name: '',
+    position: Offset(1450.0, 405.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_s2',
+    name: '',
+    position: Offset(1405.0, 360.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_s3',
+    name: '',
+    position: Offset(1315.0, 360.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_s4',
+    name: '',
+    position: Offset(1270.0, 315.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_kb_top',
+    name: '',
+    position: Offset(1270.0, 165.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_kb_left',
+    name: '',
+    position: Offset(550.0, 165.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'jakarta_kota_tp',
+    name: 'Jakarta Kota',
+    code: 'TP01',
+    position: Offset(1000.0, 240.0),
+    isTransit: true,
+    lines: ['tanjung_priok'],
+  ),
+  StationData(
+    id: 'kampung_bandan_tp',
+    name: '',
+    code: 'TP02',
+    position: Offset(1270.0, 240.0),
+    isTransit: true,
+    lines: ['tanjung_priok'],
+  ),
+  StationData(
+    id: 'ancol',
+    name: 'Ancol',
+    code: 'TP03',
+    position: Offset(1450.0, 240.0),
+    lines: ['tanjung_priok'],
+  ),
+  StationData(
+    id: 'jis',
+    name: 'Jakarta Int. Stadium',
+    position: Offset(1600.0, 240.0),
+    lines: ['tanjung_priok'],
+  ),
+  StationData(
+    id: 'wp_tp_curve1',
+    name: '',
+    position: Offset(1660.0, 240.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_tp_curve2',
+    name: '',
+    position: Offset(1720.0, 180.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'tanjung_priok',
+    name: 'Tanjung Priok',
+    code: 'TP04',
+    position: Offset(1720.0, 90.0),
+    lines: ['tanjung_priok'],
+  ),
+  StationData(
+    id: 'pegangsaan_dua',
+    name: 'Pegangsaan Dua',
+    code: 'S01',
+    position: Offset(1900.0, 375.0),
+    lines: ['lrt_jakarta'],
+  ),
+  StationData(
+    id: 'boulevard_utara',
+    name: 'Boulevard Utara',
+    code: 'S02',
+    position: Offset(1900.0, 480.0),
+    lines: ['lrt_jakarta'],
+  ),
+  StationData(
+    id: 'boulevard_selatan',
+    name: 'Boulevard Selatan',
+    code: 'S03',
+    position: Offset(1900.0, 585.0),
+    lines: ['lrt_jakarta'],
+  ),
+  StationData(
+    id: 'pulomas',
+    name: 'Pulomas',
+    code: 'S04',
+    position: Offset(1900.0, 690.0),
+    lines: ['lrt_jakarta'],
+  ),
+  StationData(
+    id: 'equestrian',
+    name: 'Equestrian',
+    code: 'S05',
+    position: Offset(1900.0, 795.0),
+    lines: ['lrt_jakarta'],
+  ),
+  StationData(
+    id: 'velodrome',
+    name: 'Velodrome',
+    code: 'S06',
+    position: Offset(1750.0, 795.0),
+    lines: ['lrt_jakarta'],
+  ),
+  StationData(
+    id: 'dukuh_atas_lrt_bk',
+    name: 'Dukuh Atas BNI',
+    code: 'BK01',
+    position: Offset(1180.0, 1119.0),
+    isTransit: true,
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'dukuh_atas_lrt_cb',
+    name: '',
+    code: 'CB01',
+    position: Offset(1180.0, 1131.0),
+    isTransit: true,
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'wp_lrt_dukuh_bk',
+    name: '',
+    position: Offset(1306.0, 1119.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_lrt_dukuh_cb',
+    name: '',
+    position: Offset(1294.0, 1131.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'setiabudi_lrt_bk',
+    name: 'Setiabudi',
+    code: 'BK02',
+    position: Offset(1306.0, 1245.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'setiabudi_lrt_cb',
+    name: '',
+    code: 'CB02',
+    position: Offset(1294.0, 1245.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'rasuna_said_bk',
+    name: 'Rasuna Said',
+    code: 'BK03',
+    position: Offset(1306.0, 1365.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'rasuna_said_cb',
+    name: '',
+    code: 'CB03',
+    position: Offset(1294.0, 1365.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'kuningan_bk',
+    name: 'Kuningan',
+    code: 'BK04',
+    position: Offset(1306.0, 1485.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'kuningan_cb',
+    name: '',
+    code: 'CB04',
+    position: Offset(1294.0, 1485.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'wp_lrt_kuningan_bk',
+    name: '',
+    position: Offset(1306.0, 1644.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'wp_lrt_kuningan_cb',
+    name: '',
+    position: Offset(1294.0, 1656.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'pancoran_bk',
+    name: 'Pancoran bank bjb',
+    code: 'BK05',
+    position: Offset(1450.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'pancoran_cb',
+    name: '',
+    code: 'CB05',
+    position: Offset(1450.0, 1656.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'cikoko_bk',
+    name: 'Cikoko',
+    code: 'BK06',
+    position: Offset(1600.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'cikoko_cb',
+    name: '',
+    code: 'CB06',
+    position: Offset(1600.0, 1656.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'ciliwung_bk',
+    name: 'Ciliwung',
+    code: 'BK07',
+    position: Offset(1750.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'ciliwung_cb',
+    name: '',
+    code: 'CB07',
+    position: Offset(1750.0, 1656.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'cawang_lrt_bk',
+    name: 'Cawang',
+    code: 'BK08',
+    position: Offset(1900.0, 1644.0),
+    isTransit: true,
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'cawang_lrt_cb',
+    name: '',
+    code: 'CB08',
+    position: Offset(1900.0, 1656.0),
+    isTransit: true,
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'halim',
+    name: 'Halim',
+    code: 'BK09',
+    position: Offset(2050.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'jatibening_baru',
+    name: 'Jati Bening Baru',
+    code: 'BK10',
+    position: Offset(2200.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'cikunir_1',
+    name: 'Cikunir 1',
+    code: 'BK11',
+    position: Offset(2350.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'cikunir_2',
+    name: 'Cikunir 2',
+    code: 'BK12',
+    position: Offset(2500.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'bekasi_barat',
+    name: 'Bekasi Barat',
+    code: 'BK13',
+    position: Offset(2650.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'jatimulya',
+    name: 'Jati Mulya',
+    code: 'BK14',
+    position: Offset(2800.0, 1644.0),
+    lines: ['lrt_bekasi'],
+  ),
+  StationData(
+    id: 'wp_lrt_cawang_cb',
+    name: '',
+    position: Offset(1960.0, 1656.0),
+    isWaypoint: true,
+  ),
+  StationData(
+    id: 'taman_mini',
+    name: 'TMII',
+    code: 'CB09',
+    position: Offset(1960.0, 1806.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'kampung_rambutan',
+    name: 'Kampung Rambutan',
+    code: 'CB10',
+    position: Offset(1960.0, 1956.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'ciracas',
+    name: 'Ciracas',
+    code: 'CB11',
+    position: Offset(1960.0, 2106.0),
+    lines: ['lrt_cibubur'],
+  ),
+  StationData(
+    id: 'harjamukti',
+    name: 'Harjamukti',
+    code: 'CB12',
+    position: Offset(1960.0, 2256.0),
+    lines: ['lrt_cibubur'],
+  ),
 ];
+
+final Map<String, String> _stationSelectionNames = () {
+  final names = <String, String>{
+    for (final station in stations) station.id: station.name,
+  };
+  for (final pair in kMergedStationPairs.entries) {
+    final name = names[pair.key]!.isNotEmpty
+        ? names[pair.key]!
+        : names[pair.value]!;
+    names[pair.key] = name;
+    names[pair.value] = name;
+  }
+  return Map<String, String>.unmodifiable(names);
+}();
+
+String stationSelectionName(StationData station) =>
+    _stationSelectionNames[station.id] ?? station.name;
 
 // ════════════════════════════════════════════════════════════════════
 // LINE DATABASE
 // ════════════════════════════════════════════════════════════════════
 
 final List<LineData> transitLines = [
-
   LineData(
     id: 'bogor',
     name: 'KRL Lin Bogor',
@@ -590,6 +1677,40 @@ Rect _majorHubRect(StationData station) {
   );
 }
 
+String _mergedStationName(StationData primary, StationData secondary) =>
+    primary.name.isNotEmpty ? primary.name : secondary.name;
+
+TextPainter _buildMergedHubTextPainter(
+  StationData primary,
+  StationData secondary,
+) => TextPainter(
+  text: TextSpan(
+    text: _mergedStationName(primary, secondary),
+    style: const TextStyle(
+      color: AppColors.textPrimary,
+      fontSize: 10,
+      fontWeight: FontWeight.w800,
+    ),
+  ),
+  textDirection: TextDirection.ltr,
+)..layout();
+
+Rect mergedStationHubRect(StationData primary, StationData secondary) {
+  final center = Offset(
+    (primary.position.dx + secondary.position.dx) / 2,
+    (primary.position.dy + secondary.position.dy) / 2,
+  );
+  final nameWidth = _buildMergedHubTextPainter(primary, secondary).width;
+  return Rect.fromCenter(
+    center: center,
+    width: max(
+      nameWidth + 18,
+      (primary.position.dx - secondary.position.dx).abs() + 2,
+    ),
+    height: max(24, (primary.position.dy - secondary.position.dy).abs() + 2),
+  );
+}
+
 class SchematicMapPainter extends CustomPainter {
   final bool showColors;
   final String? selectedStation;
@@ -603,39 +1724,22 @@ class SchematicMapPainter extends CustomPainter {
     this.visibleLineIds,
   });
 
-  // ── Pasangan stasiun yang digabung jadi 1 node besar ──
-  static const _mergedStationPairs = <String, String>{
-    'dukuh_atas_lrt_bk': 'dukuh_atas_lrt_cb',
-    'setiabudi_lrt_bk': 'setiabudi_lrt_cb',
-    'rasuna_said_bk': 'rasuna_said_cb',
-    'kuningan_bk': 'kuningan_cb',
-    'pancoran_bk': 'pancoran_cb',
-    'cikoko_bk': 'cikoko_cb',
-    'ciliwung_bk': 'ciliwung_cb',
-    'cawang_lrt_bk': 'cawang_lrt_cb',
-    'manggarai_bk': 'manggarai_cb',
-    'tanah_abang_c': 'tanah_abang_r',
-    'jakarta_kota_bk': 'jakarta_kota_tp',
-    'kampung_bandan': 'kampung_bandan_tp',
-    'duri_c': 'duri_t',
-  };
-
   @override
   void paint(Canvas canvas, Size size) {
     // Background text removed based on user request
     // 1. Draw lines with rounded corners
     _drawLines(canvas);
-    // 2. Draw landmarks
+    // 2. Draw pedestrian transfers as an independent overlay
+    _drawWalkingConnections(canvas);
+    // 3. Draw landmarks
     _drawLandmarks(canvas);
-    // 3. Draw station nodes (dots, code badges)
+    // 4. Draw station nodes (dots, code badges)
     _drawStations(canvas);
-    // 4. Draw station labels
+    // 5. Draw station labels
     _drawAllLabels(canvas);
-    // 5. Draw line route identity badges
+    // 6. Draw line route identity badges
     _drawLineBadges(canvas);
   }
-
-
 
   // ── DRAW LINES ──────────────────────────────────────────────────
 
@@ -658,6 +1762,42 @@ class SchematicMapPainter extends CustomPainter {
         if (station != null) points.add(station.position);
       }
       _drawRoundedPath(canvas, points, paint);
+    }
+  }
+
+  void _drawWalkingConnections(Canvas canvas) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 7
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    for (final connection in walkingConnections) {
+      final from = _findStation(connection.fromStationId);
+      final to = _findStation(connection.toStationId);
+      if (from == null || to == null) continue;
+
+      final paired = _findStation(kMergedStationPairs[to.id] ?? '');
+      final destination = paired == null
+          ? to.position
+          : Offset(
+              (to.position.dx + paired.position.dx) / 2,
+              (to.position.dy + paired.position.dy) / 2,
+            );
+      final start = from.position.translate(0, 12);
+      final end = destination.translate(0, -14);
+      final path = Path()
+        ..moveTo(start.dx, start.dy)
+        ..cubicTo(
+          start.dx,
+          start.dy + 18,
+          end.dx,
+          start.dy + 18,
+          end.dx,
+          end.dy,
+        );
+      canvas.drawPath(path, paint);
     }
   }
 
@@ -783,24 +1923,28 @@ class SchematicMapPainter extends CustomPainter {
               line.stationIds.contains(station.id),
         );
         if (!stationVisible && station.lines.isNotEmpty) {
-          stationVisible = station.lines.any((l) => visibleLineIds!.contains(l));
+          stationVisible = station.lines.any(
+            (l) => visibleLineIds!.contains(l),
+          );
         }
       }
       if (!stationVisible) continue;
 
       // Cek apakah stasiun ini bagian dari pasangan merged
-      final isBkPrimary = _mergedStationPairs.containsKey(station.id);
-      final isCbSecondary = _mergedStationPairs.containsValue(station.id);
+      final isBkPrimary = kMergedStationPairs.containsKey(station.id);
+      final isCbSecondary = kMergedStationPairs.containsValue(station.id);
 
       if (isBkPrimary || isCbSecondary) {
         // Tentukan id primary
         final primaryId = isBkPrimary
             ? station.id
-            : _mergedStationPairs.entries.firstWhere((e) => e.value == station.id).key;
+            : kMergedStationPairs.entries
+                  .firstWhere((e) => e.value == station.id)
+                  .key;
         if (drawnMerged.contains(primaryId)) continue; // Sudah digambar
         drawnMerged.add(primaryId);
 
-        final secondaryId = _mergedStationPairs[primaryId]!;
+        final secondaryId = kMergedStationPairs[primaryId]!;
         final primaryStation = _findStation(primaryId);
         final secondaryStation = _findStation(secondaryId);
         if (primaryStation != null && secondaryStation != null) {
@@ -827,7 +1971,6 @@ class SchematicMapPainter extends CustomPainter {
     }
   }
 
-
   /// Gambar node gabungan:
   /// Rounded rect pill dengan nama stasiun di tengah, badge secondary kiri/bawah & primary kanan/atas
   void _drawMergedNode(
@@ -840,27 +1983,19 @@ class SchematicMapPainter extends CustomPainter {
       (primaryStation.position.dx + secondaryStation.position.dx) / 2,
       (primaryStation.position.dy + secondaryStation.position.dy) / 2,
     );
+    final isSelected =
+        selectedStation == primaryStation.id ||
+        selectedStation == secondaryStation.id ||
+        selectedStation == primaryStation.name ||
+        selectedStation == secondaryStation.name;
+    final isFrom =
+        fromStation == primaryStation.id ||
+        fromStation == secondaryStation.id ||
+        fromStation == primaryStation.name ||
+        fromStation == secondaryStation.name;
 
-    // Ambil nama stasiun (dari primary atau secondary)
-    final stationName = primaryStation.name.isNotEmpty ? primaryStation.name : secondaryStation.name;
-
-    final nameTp = TextPainter(
-      text: TextSpan(
-        text: stationName,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-
-    final hubRect = Rect.fromCenter(
-      center: center,
-      width: nameTp.width + 18,
-      height: 24,
-    );
+    final nameTp = _buildMergedHubTextPainter(primaryStation, secondaryStation);
+    final hubRect = mergedStationHubRect(primaryStation, secondaryStation);
     final rrect = RRect.fromRectAndRadius(hubRect, const Radius.circular(12));
 
     // White fill
@@ -870,9 +2005,11 @@ class SchematicMapPainter extends CustomPainter {
     canvas.drawRRect(
       rrect,
       Paint()
-        ..color = AppColors.textPrimary
+        ..color = isSelected || isFrom
+            ? AppColors.primaryBlue
+            : AppColors.textPrimary
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5,
+        ..strokeWidth = isSelected ? 3 : 2.5,
     );
 
     // Nama stasiun di tengah
@@ -884,7 +2021,10 @@ class SchematicMapPainter extends CustomPainter {
     // Hitung lebar/tinggi badge untuk posisi yang presisi
     double badgeWidth(String code) {
       final tp = TextPainter(
-        text: TextSpan(text: code, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800)),
+        text: TextSpan(
+          text: code,
+          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+        ),
         textDirection: TextDirection.ltr,
       )..layout();
       return tp.width + 8;
@@ -895,27 +2035,35 @@ class SchematicMapPainter extends CustomPainter {
 
     // Deteksi orientasi: jika dx beda → garis vertikal → badge kiri/kanan
     //                     jika dy beda → garis horizontal → badge atas/bawah
-    final dxDiff = (primaryStation.position.dx - secondaryStation.position.dx).abs();
-    final dyDiff = (primaryStation.position.dy - secondaryStation.position.dy).abs();
+    final dxDiff = (primaryStation.position.dx - secondaryStation.position.dx)
+        .abs();
+    final dyDiff = (primaryStation.position.dy - secondaryStation.position.dy)
+        .abs();
     final isVerticalLine = dxDiff >= dyDiff;
 
     if (primaryStation.id == 'kampung_bandan') {
       // Custom Kampung Bandan: Primary di Kiri, Secondary di Kanan
       // Diturunkan sedikit (yOffset) agar tidak menabrak line pink (Tanjung Priok)
-      const double customYOffset = 12.0; 
+      const double customYOffset = 12.0;
       final primaryW = badgeWidth(primaryStation.code);
       _drawMergedBadge(
         canvas,
         code: primaryStation.code,
         color: _getStationColor(primaryStation),
-        center: Offset(hubRect.left - gap - primaryW / 2, center.dy + customYOffset),
+        center: Offset(
+          hubRect.left - gap - primaryW / 2,
+          center.dy + customYOffset,
+        ),
       );
       final secondaryW = badgeWidth(secondaryStation.code);
       _drawMergedBadge(
         canvas,
         code: secondaryStation.code,
         color: _getStationColor(secondaryStation),
-        center: Offset(hubRect.right + gap + secondaryW / 2, center.dy + customYOffset),
+        center: Offset(
+          hubRect.right + gap + secondaryW / 2,
+          center.dy + customYOffset,
+        ),
       );
     } else if (primaryStation.id == 'jakarta_kota_bk') {
       // Custom Jakarta Kota: Atas Bawah
@@ -942,14 +2090,20 @@ class SchematicMapPainter extends CustomPainter {
         canvas,
         code: secondaryStation.code,
         color: _getStationColor(secondaryStation),
-        center: Offset(hubRect.left - gap - cbW / 2 + zigzagXOffsetLeft, center.dy - zigzagOffsetTop),
+        center: Offset(
+          hubRect.left - gap - cbW / 2 + zigzagXOffsetLeft,
+          center.dy - zigzagOffsetTop,
+        ),
       );
       final bkW = badgeWidth(primaryStation.code);
       _drawMergedBadge(
         canvas,
         code: primaryStation.code,
         color: _getStationColor(primaryStation),
-        center: Offset(hubRect.right + gap + bkW / 2, center.dy + zigzagOffsetBottom),
+        center: Offset(
+          hubRect.right + gap + bkW / 2,
+          center.dy + zigzagOffsetBottom,
+        ),
       );
     } else if (isVerticalLine) {
       // Garis vertikal → badge secondary di kiri, primary di kanan
@@ -1004,8 +2158,15 @@ class SchematicMapPainter extends CustomPainter {
       ..layout();
     final badgeW = codeTp.width + 8;
     const badgeH = 15.0;
-    final badgeRect = Rect.fromCenter(center: center, width: badgeW, height: badgeH);
-    final badgeRRect = RRect.fromRectAndRadius(badgeRect, const Radius.circular(6));
+    final badgeRect = Rect.fromCenter(
+      center: center,
+      width: badgeW,
+      height: badgeH,
+    );
+    final badgeRRect = RRect.fromRectAndRadius(
+      badgeRect,
+      const Radius.circular(6),
+    );
     canvas.drawRRect(badgeRRect, Paint()..color = color);
     codeTp.paint(
       canvas,
@@ -1148,8 +2309,17 @@ class SchematicMapPainter extends CustomPainter {
 
         final totalH = letterTp.height + numberTp.height + 1;
         final startY = station.position.dy - totalH / 2;
-        letterTp.paint(canvas, Offset(station.position.dx - letterTp.width / 2, startY));
-        numberTp.paint(canvas, Offset(station.position.dx - numberTp.width / 2, startY + letterTp.height + 1));
+        letterTp.paint(
+          canvas,
+          Offset(station.position.dx - letterTp.width / 2, startY),
+        );
+        numberTp.paint(
+          canvas,
+          Offset(
+            station.position.dx - numberTp.width / 2,
+            startY + letterTp.height + 1,
+          ),
+        );
       } else {
         // Satu baris saja (hanya huruf atau hanya angka)
         final codeTp = TextPainter(
@@ -1200,7 +2370,8 @@ class SchematicMapPainter extends CustomPainter {
         canvas.drawCircle(
           station.position,
           isSelected || isFrom ? 3 : 2,
-          Paint()..color = isFrom ? AppColors.primaryBlue : AppColors.textPrimary,
+          Paint()
+            ..color = isFrom ? AppColors.primaryBlue : AppColors.textPrimary,
         );
       }
     }
@@ -1212,7 +2383,10 @@ class SchematicMapPainter extends CustomPainter {
         (TextPainter(
           text: TextSpan(
             text: station.code,
-            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800), // Diperbesar dari 7
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+            ), // Diperbesar dari 7
           ),
           textDirection: TextDirection.ltr,
         )..layout()).width;
@@ -1341,8 +2515,8 @@ class SchematicMapPainter extends CustomPainter {
       // Skip labels for major transit (nama sudah di dalam pill)
       if (_majorTransitIds.contains(station.id)) continue;
       // Skip labels for merged stations (nama sudah di dalam pill gabungan)
-      if (_mergedStationPairs.containsKey(station.id) ||
-          _mergedStationPairs.containsValue(station.id)) {
+      if (kMergedStationPairs.containsKey(station.id) ||
+          kMergedStationPairs.containsValue(station.id)) {
         continue;
       }
 
@@ -1594,10 +2768,12 @@ class SchematicMapPainter extends CustomPainter {
       'kampung_bandan': LabelPos.top,
       // Tangerang horizontal → bottomRotated
       'grogol': LabelPos.top, 'pesing': LabelPos.bottomRotated,
-      'taman_kota': LabelPos.bottomRotated, 'bojong_indah': LabelPos.bottomRotated,
+      'taman_kota': LabelPos.bottomRotated,
+      'bojong_indah': LabelPos.bottomRotated,
       'rawa_buaya': LabelPos.bottomRotated, 'kalideres': LabelPos.bottomRotated,
       'poris': LabelPos.bottomRotated, 'batu_ceper': LabelPos.bottomRotated,
-      'tanah_tinggi': LabelPos.bottomRotated, 'tangerang': LabelPos.bottomRotated,
+      'tanah_tinggi': LabelPos.bottomRotated,
+      'tangerang': LabelPos.bottomRotated,
       // Rangkasbitung diagonal → left
       'palmerah': LabelPos.left, 'kebayoran': LabelPos.left,
       'pondok_ranji': LabelPos.left, 'jurangmangu': LabelPos.left,
@@ -1605,7 +2781,8 @@ class SchematicMapPainter extends CustomPainter {
       // Rangkasbitung horizontal → bottomRotated
       'rawa_buntu': LabelPos.bottomRotated, 'serpong': LabelPos.bottomRotated,
       'cisauk': LabelPos.bottomRotated, 'cicayur': LabelPos.bottomRotated,
-      'parung_panjang': LabelPos.bottomRotated, 'cilejit': LabelPos.bottomRotated,
+      'parung_panjang': LabelPos.bottomRotated,
+      'cilejit': LabelPos.bottomRotated,
       'daru': LabelPos.bottomRotated, 'tenjo': LabelPos.bottomRotated,
       'tigaraksa': LabelPos.bottomRotated, 'cikoya': LabelPos.bottomRotated,
       'maja': LabelPos.bottomRotated, 'citeras': LabelPos.bottomRotated,
@@ -1683,7 +2860,8 @@ class SchematicMapPainter extends CustomPainter {
       // Jika ada filter garis aktif, skip badge untuk garis yang tidak aktif
       if (visibleLineIds != null) {
         final lineId = _badgeToLineId(badge.code);
-        if (lineId != null && !visibleLineIds!.any((id) => lineId.contains(id))) {
+        if (lineId != null &&
+            !visibleLineIds!.any((id) => lineId.contains(id))) {
           continue;
         }
       }
@@ -1694,16 +2872,26 @@ class SchematicMapPainter extends CustomPainter {
   /// Mapping kode badge ke line id(s) untuk filtering
   List<String>? _badgeToLineId(String code) {
     switch (code) {
-      case 'B': return ['bogor', 'bogor_nambo'];
-      case 'C': return ['cikarang_loop', 'cikarang_east'];
-      case 'R': return ['rangkasbitung'];
-      case 'T': return ['tangerang'];
-      case 'TP': return ['tanjung_priok'];
-      case 'M': return ['mrt'];
-      case 'BK': return ['lrt_bekasi'];
-      case 'CB': return ['lrt_cibubur'];
-      case 'S': return ['lrt_jakarta'];
-      default: return null;
+      case 'B':
+        return ['bogor', 'bogor_nambo'];
+      case 'C':
+        return ['cikarang_loop', 'cikarang_east'];
+      case 'R':
+        return ['rangkasbitung'];
+      case 'T':
+        return ['tangerang'];
+      case 'TP':
+        return ['tanjung_priok'];
+      case 'M':
+        return ['mrt'];
+      case 'BK':
+        return ['lrt_bekasi'];
+      case 'CB':
+        return ['lrt_cibubur'];
+      case 'S':
+        return ['lrt_jakarta'];
+      default:
+        return null;
     }
   }
 
@@ -1712,11 +2900,7 @@ class SchematicMapPainter extends CustomPainter {
     final center = badge.position;
 
     // Lingkaran putih (latar)
-    canvas.drawCircle(
-      center,
-      outerRadius,
-      Paint()..color = Colors.white,
-    );
+    canvas.drawCircle(center, outerRadius, Paint()..color = Colors.white);
 
     // Lingkaran tepi berwarna (border tebal)
     canvas.drawCircle(
@@ -1768,5 +2952,3 @@ class _LineBadgeInfo {
 
   const _LineBadgeInfo(this.code, this.color, this.position);
 }
-
-

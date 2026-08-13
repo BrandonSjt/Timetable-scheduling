@@ -45,11 +45,7 @@ class RouteTimeline extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  Container(
-                    width: 3,
-                    height: 60,
-                    color: AppColors.primaryBlue,
-                  ),
+                  Container(width: 3, height: 60, color: AppColors.primaryBlue),
                 ],
               ),
               const SizedBox(width: 14),
@@ -88,10 +84,7 @@ class RouteTimeline extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.primaryBlue.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.primaryBlue,
-                    width: 3,
-                  ),
+                  border: Border.all(color: AppColors.primaryBlue, width: 3),
                 ),
               ),
               const SizedBox(width: 14),
@@ -130,10 +123,7 @@ class RouteTimeline extends StatelessWidget {
 class LiveEtaCard extends StatelessWidget {
   final String etaText;
 
-  const LiveEtaCard({
-    super.key,
-    required this.etaText,
-  });
+  const LiveEtaCard({super.key, required this.etaText});
 
   @override
   Widget build(BuildContext context) {
@@ -153,10 +143,7 @@ class LiveEtaCard extends StatelessWidget {
             children: [
               const Text(
                 'Kereta berikutnya',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
