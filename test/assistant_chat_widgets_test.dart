@@ -7,7 +7,7 @@ import 'package:timetable/features/assistant/presentation/widgets/assistant_comp
 import 'package:timetable/features/assistant/presentation/widgets/assistant_conversation_timeline.dart';
 import 'package:timetable/features/travel_alarm/domain/entities/travel_alarm_state.dart';
 
-import 'localized_test_app.dart';
+import 'helpers/localized_test_app.dart';
 
 void main() {
   testWidgets('composer submits trimmed text and retains voice action', (
@@ -16,7 +16,7 @@ void main() {
     String? submitted;
     var microphoneTaps = 0;
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: Scaffold(
           body: AssistantComposer(
             onSubmit: (value) => submitted = value,
@@ -44,7 +44,7 @@ void main() {
   ) async {
     var submissions = 0;
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: Scaffold(
           body: AssistantComposer(
             onSubmit: (_) => submissions++,
@@ -89,7 +89,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: Scaffold(
           body: SingleChildScrollView(
             child: AssistantConversationTimeline(
@@ -133,7 +133,7 @@ void main() {
   ) async {
     var findTripTaps = 0;
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: Scaffold(
           body: AssistantConversationTimeline(
             items: const [

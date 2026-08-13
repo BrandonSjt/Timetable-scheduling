@@ -6,7 +6,7 @@ import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alar
 import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_disable_dialog.dart';
 import 'package:timetable/features/travel_alarm/presentation/widgets/travel_alarm_setup_sheet.dart';
 
-import 'localized_test_app.dart';
+import 'helpers/localized_test_app.dart';
 
 void main() {
   testWidgets('alarm setup enables both categories by default', (
@@ -14,7 +14,7 @@ void main() {
   ) async {
     TravelAlarmSelection? result;
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
@@ -70,7 +70,7 @@ void main() {
   ) async {
     TravelAlarmSelection? result;
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
@@ -101,7 +101,7 @@ void main() {
   ) async {
     var active = false;
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: StatefulBuilder(
           builder: (context, setState) => Scaffold(
             body: TravelAlarmButton(
@@ -131,7 +131,7 @@ void main() {
   ) async {
     bool? result;
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => TextButton(
@@ -165,7 +165,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      LocalizedTestApp(
+      localizedTestApp(
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(
             context,

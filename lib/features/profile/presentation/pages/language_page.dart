@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../l10n/app_localizations.dart';
+import '../../../../core/localization/app_locale.dart';
 import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/widgets/auth_scope.dart';
+import '../models/app_locale_presentation.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
 /// Pilihan bahasa aplikasi untuk mode tamu.
@@ -15,28 +17,32 @@ class LanguagePage extends StatefulWidget {
 }
 
 class _LanguagePageState extends State<LanguagePage> {
-  Future<void> _applyLanguage(Locale newLocale) async {
-    final notifier = LocaleScope.of(context);
+  Future<void> _applyLanguage(AppLocale newLocale) async {
     final auth = AuthScope.of(context, listen: false);
-    notifier.value = newLocale;
+    final saved = await LocaleScope.of(context).select(newLocale);
 
     if (auth.isAuthenticated) {
-      await auth.updateProfile(language: newLocale.languageCode);
+      await auth.updateProfile(language: newLocale.storageTag);
     }
+    await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(l10n.languageAppliedSnackbar)));
-    });
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            saved
+                ? l10n.languageAppliedSnackbar
+                : l10n.languageSaveFailedSnackbar,
+          ),
+        ),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
     final currentLocale = LocaleScope.of(context).value;
-    final useEnglish = currentLocale.languageCode == 'en';
     final l10n = AppLocalizations.of(context)!;
 
     return ProfileDetailScaffold(
@@ -57,23 +63,15 @@ class _LanguagePageState extends State<LanguagePage> {
           style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const SizedBox(height: 24),
-        _LanguageOption(
-          title: l10n.languageIndonesian,
-          subtitle: l10n.languagePageSubtitle,
-          selected: !useEnglish,
-          onTap: () {
-            _applyLanguage(const Locale('id'));
-          },
-        ),
-        const SizedBox(height: 12),
-        _LanguageOption(
-          title: l10n.languageEnglish,
-          subtitle: l10n.languageEnglishDesc,
-          selected: useEnglish,
-          onTap: () {
-            _applyLanguage(const Locale('en'));
-          },
-        ),
+        for (final option in AppLocale.values) ...[
+          _LanguageOption(
+            title: option.localizedName(l10n),
+            subtitle: option.localizedDescription(l10n),
+            selected: currentLocale == option,
+            onTap: () => _applyLanguage(option),
+          ),
+          if (option != AppLocale.values.last) const SizedBox(height: 12),
+        ],
         const SizedBox(height: 52),
         Container(
           width: double.infinity,

@@ -5,9 +5,10 @@ import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../auth/domain/entities/account_user.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/widgets/auth_scope.dart';
-import '../../../auth/domain/entities/account_user.dart';
+import '../models/app_locale_presentation.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -17,7 +18,7 @@ class ProfilePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final auth = AuthScope.of(context);
     final user = auth.user;
-    final isEnglish = LocaleScope.of(context).value.languageCode == 'en';
+    final currentLocale = LocaleScope.of(context).value;
     final offline = auth.status == AuthStatus.offlineAuthenticated;
 
     return Scaffold(
@@ -77,9 +78,7 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 12),
                   _menu(
                     title: l10n.languagePageTitle,
-                    subtitle: isEnglish
-                        ? l10n.languageEnglish
-                        : l10n.languageIndonesian,
+                    subtitle: currentLocale.localizedName(l10n),
                     onTap: () => context.push('/bahasa'),
                   ),
                   const SizedBox(height: 12),

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:timetable/core/localization/app_locale.dart';
+import 'package:timetable/core/localization/locale_controller.dart';
 import 'package:timetable/core/localization/locale_provider.dart';
 import 'package:timetable/features/auth/domain/entities/account_user.dart';
 import 'package:timetable/features/auth/domain/entities/auth_session.dart';
@@ -60,7 +62,7 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   await controller.bootstrap();
   await tester.pumpWidget(
     LocaleScope(
-      notifier: ValueNotifier(const Locale('id')),
+      notifier: LocaleController(initialLocale: AppLocale.indonesian),
       child: AuthScope(
         controller: controller,
         child: MaterialApp(
@@ -91,7 +93,7 @@ void main() {
 
     await tester.pumpWidget(
       LocaleScope(
-        notifier: ValueNotifier(const Locale('id')),
+        notifier: LocaleController(initialLocale: AppLocale.indonesian),
         child: AuthScope(
           controller: controller,
           child: const MaterialApp(

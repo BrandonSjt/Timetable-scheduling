@@ -291,7 +291,9 @@ class _SupportMessageBubble extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Align(
-            alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: isUser
+                ? AlignmentDirectional.centerEnd
+                : AlignmentDirectional.centerStart,
             child: Container(
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.sizeOf(context).width * 0.76,
@@ -299,11 +301,11 @@ class _SupportMessageBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
               decoration: BoxDecoration(
                 color: isUser ? AppColors.primaryBlue : Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isUser ? 16 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 16),
+                borderRadius: BorderRadiusDirectional.only(
+                  topStart: const Radius.circular(16),
+                  topEnd: const Radius.circular(16),
+                  bottomStart: Radius.circular(isUser ? 16 : 4),
+                  bottomEnd: Radius.circular(isUser ? 4 : 16),
                 ),
                 border: isUser ? null : Border.all(color: AppColors.cardBorder),
               ),
@@ -334,7 +336,7 @@ class _TypingIndicator extends StatelessWidget {
       liveRegion: true,
       label: l10n.chatAgentTyping,
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment: AlignmentDirectional.centerStart,
         child: Text(
           l10n.chatAgentTyping,
           style: const TextStyle(
