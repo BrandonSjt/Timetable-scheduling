@@ -314,6 +314,12 @@ class _TicketsPageState extends State<TicketsPage> with WidgetsBindingObserver {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SegmentedButton<_TicketFilter>(
+              style: const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                padding: WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 10),
+                ),
+              ),
               segments: const [
                 ButtonSegment(value: _TicketFilter.all, label: Text('Semua')),
                 ButtonSegment(
