@@ -2488,7 +2488,7 @@ export const networkData = {
     {
       "slug": "dukuh-atas-lrt",
       "name": "Dukuh Atas LRT",
-      "officialName": "Dukuh Atas BNI",
+      "officialName": "Dukuh Atas Bank Syariah Indonesia",
       "lineInfo": "LRT Jabodebek (Bekasi & Cibubur)",
       "statusText": "Terminus LRT · 3 menit",
       "isTransit": true,
@@ -2496,7 +2496,10 @@ export const networkData = {
       "isLrt": true,
       "isKrl": false,
       "isMrt": false,
-      "aliases": [],
+      "aliases": [
+        "Dukuh Atas BNI",
+        "Dukuh Atas LRT"
+      ],
       "nodes": [
         {
           "mapId": "dukuh_atas_lrt_bk",

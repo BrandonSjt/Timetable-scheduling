@@ -51,7 +51,10 @@ void main() {
     () {
       expect(station('asean').name, 'ASEAN Headquarters');
       expect(station('lebak_bulus').name, 'Lebak Bulus Bank Syariah Indonesia');
-      expect(station('dukuh_atas_lrt_bk').name, 'Dukuh Atas BNI');
+      expect(
+        station('dukuh_atas_lrt_bk').name,
+        'Dukuh Atas Bank Syariah Indonesia',
+      );
       expect(station('pancoran_bk').name, 'Pancoran bank bjb');
       expect(station('jatibening_baru').name, 'Jati Bening Baru');
       expect(station('taman_mini').name, 'TMII');

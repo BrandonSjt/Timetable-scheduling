@@ -62,6 +62,10 @@ test('official names retain stable short names and aliases', () => {
     'Lebak Bulus Bank Syariah Indonesia',
   );
   assert.equal(officialNameFor('Pancoran'), 'Pancoran bank bjb');
+  assert.equal(
+    officialNameFor('Dukuh Atas LRT'),
+    'Dukuh Atas Bank Syariah Indonesia',
+  );
   assert.equal(officialNameFor('Taman Mini'), 'TMII');
   assert.equal(officialNameFor('Kp. Bandan'), 'Kampung Bandan');
   assert.equal(officialNameFor('Univ. Indonesia'), 'Universitas Indonesia');
@@ -70,6 +74,7 @@ test('official names retain stable short names and aliases', () => {
     'Metland Telaga Murni',
   );
   assert.ok(stationFor('Lebak Bulus')?.aliases.includes('Lebak Bulus BSI'));
+  assert.ok(stationFor('Dukuh Atas LRT')?.aliases.includes('Dukuh Atas BNI'));
   assert.ok(stationFor('Pondok Rajeg')?.nodes.some((node) => node.code === 'b23'));
 });
 
