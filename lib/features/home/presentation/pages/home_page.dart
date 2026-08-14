@@ -402,10 +402,7 @@ class _HomePageState extends State<HomePage> {
               shape: const Border(),
               children: [
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 72,
-                    end: 16,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: Text(
                     l10n.areaJabodetabek,
                     style: const TextStyle(fontWeight: FontWeight.w600),
@@ -420,10 +417,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 72,
-                    end: 16,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text(
                     'Jakarta Pusat',
                     style: TextStyle(color: AppColors.textHint),
@@ -435,10 +429,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 72,
-                    end: 16,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text(
                     'Jakarta Selatan',
                     style: TextStyle(color: AppColors.textHint),
@@ -450,10 +441,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 72,
-                    end: 16,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text(
                     'Jakarta Barat',
                     style: TextStyle(color: AppColors.textHint),
@@ -465,10 +453,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 72,
-                    end: 16,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text(
                     'Jakarta Timur',
                     style: TextStyle(color: AppColors.textHint),
@@ -480,10 +465,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 72,
-                    end: 16,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text(
                     'Jakarta Utara',
                     style: TextStyle(color: AppColors.textHint),
@@ -495,10 +477,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(
-                    start: 72,
-                    end: 16,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
                   title: const Text(
                     'Bodetabek (Penyangga)',
                     style: TextStyle(color: AppColors.textHint),
@@ -531,7 +510,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       l10n.homeLineKRL,
                       style: const TextStyle(
@@ -566,7 +545,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       l10n.homeLineMRTJ,
                       style: const TextStyle(
@@ -587,7 +566,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       l10n.homeLineLRTJabo,
                       style: const TextStyle(
@@ -611,7 +590,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       l10n.homeLineLRTJakarta,
                       style: const TextStyle(
@@ -1414,7 +1393,7 @@ class _NextTrainRow extends StatelessWidget {
                       AppLocalizations.of(
                         context,
                       )!.homeArrivingIn(departure.duration),
-                      textAlign: TextAlign.end,
+                      textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,

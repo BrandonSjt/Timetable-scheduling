@@ -1,6 +1,7 @@
 import 'dart:ui' show SemanticsAction, Tristate;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:timetable/core/routing/router.dart';
@@ -24,6 +25,10 @@ void legacyTicketSimulationTest(
 ) {}
 
 void main() {
+  setUp(() {
+    FlutterSecureStorage.setMockInitialValues({});
+  });
+
   for (final locale in const <Locale>[
     Locale('en'),
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),

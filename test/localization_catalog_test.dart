@@ -7,13 +7,11 @@ Map<String, Object?> readArb(String path) {
   return (jsonDecode(File(path).readAsStringSync()) as Map<String, Object?>);
 }
 
-Set<String> messageKeys(Map<String, Object?> arb) => arb.keys
-    .where((key) => !key.startsWith('@'))
-    .toSet();
+Set<String> messageKeys(Map<String, Object?> arb) =>
+    arb.keys.where((key) => !key.startsWith('@')).toSet();
 
-Set<String> metadataKeys(Map<String, Object?> arb) => arb.keys
-    .where((key) => key.startsWith('@') && key != '@@locale')
-    .toSet();
+Set<String> metadataKeys(Map<String, Object?> arb) =>
+    arb.keys.where((key) => key.startsWith('@') && key != '@@locale').toSet();
 
 Set<String> placeholders(Object? value) {
   if (value is! String) return const <String>{};

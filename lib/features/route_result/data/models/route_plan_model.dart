@@ -45,17 +45,28 @@ class RoutePlanModel extends RoutePlan {
     exitGateB: json['exitGateB'] as String? ?? '',
   );
 
-  static RoutePlanStep _stepFromJson(Map<String, dynamic> json) =>
-      RoutePlanStep(
-        text: json['text'] as String,
-        durationText: json['durationText'] as String,
-        detailNote: json['detailNote'] as String,
-        icon: json['icon'] as String,
-        color: json['color'] as String,
-        isHeader: json['isHeader'] as bool? ?? false,
-        isTransit: json['isTransit'] as bool? ?? false,
-        isDestination: json['isDestination'] as bool? ?? false,
-      );
+  static RoutePlanStep _stepFromJson(Map<String, dynamic> json) {
+    final isHeader = json['isHeader'] as bool? ?? false;
+    final isTransit = json['isTransit'] as bool? ?? false;
+    final isDestination = json['isDestination'] as bool? ?? false;
+    return RoutePlanStep(
+      kind: RouteStepKind.fromApi(
+        json['kind'] as String?,
+        isHeader: isHeader,
+        isTransit: isTransit,
+        isDestination: isDestination,
+      ),
+      isWalking: json['isWalking'] as bool? ?? false,
+      text: json['text'] as String,
+      durationText: json['durationText'] as String,
+      detailNote: json['detailNote'] as String? ?? '',
+      icon: json['icon'] as String,
+      color: json['color'] as String,
+      isHeader: isHeader,
+      isTransit: isTransit,
+      isDestination: isDestination,
+    );
+  }
 
   static RouteStation _stationFromJson(Map<String, dynamic> json) {
     final line = json['line'] as Map<String, dynamic>;

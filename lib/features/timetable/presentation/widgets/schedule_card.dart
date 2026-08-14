@@ -31,7 +31,10 @@ class ScheduleCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(
+          color: AppColors.primaryPurple.withValues(alpha: 0.24),
+          width: 1.25,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -50,7 +53,10 @@ class ScheduleCard extends StatelessWidget {
               children: [
                 // Badge Tipe Kereta (KRL/LRT/MRT)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: trainColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
@@ -78,7 +84,10 @@ class ScheduleCard extends StatelessWidget {
                 ),
                 // Nomor Peron
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.circular(20),

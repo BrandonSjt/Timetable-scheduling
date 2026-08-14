@@ -1118,7 +1118,7 @@ final List<StationData> stations = [
   ),
   StationData(
     id: 'dukuh_atas_lrt_bk',
-    name: 'Dukuh Atas BNI',
+    name: 'Dukuh Atas Bank Syariah Indonesia',
     code: 'BK01',
     position: Offset(1180.0, 1119.0),
     isTransit: true,

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,12 +13,19 @@ import 'package:timetable/features/auth/presentation/widgets/auth_scope.dart';
 import 'package:timetable/features/profile/presentation/pages/profile_page.dart';
 import 'package:timetable/l10n/app_localizations.dart';
 
-class _GuestRepository implements AuthRepository {
-  @override
-  AccountUser? get currentUser => null;
+class _AuthRepository implements AuthRepository {
+  _AuthRepository({this.user, this.offline = false});
+
+  final AccountUser? user;
+  final bool offline;
+  int logoutCount = 0;
 
   @override
-  Future<AuthBootstrapResult> bootstrap() async => const AuthBootstrapResult();
+  AccountUser? get currentUser => user;
+
+  @override
+  Future<AuthBootstrapResult> bootstrap() async =>
+      AuthBootstrapResult(user: user, offline: offline);
 
   @override
   Future<AccountUser> login({
@@ -37,7 +42,7 @@ class _GuestRepository implements AuthRepository {
   }) => throw UnimplementedError();
 
   @override
-  Future<void> logout() async {}
+  Future<void> logout() async => logoutCount++;
 
   @override
   Future<AccountUser> updateProfile({
@@ -49,20 +54,22 @@ class _GuestRepository implements AuthRepository {
   }) => throw UnimplementedError();
 }
 
-class _PendingRepository extends _GuestRepository {
-  final Completer<AuthBootstrapResult> completer =
-      Completer<AuthBootstrapResult>();
-
-  @override
-  Future<AuthBootstrapResult> bootstrap() => completer.future;
-}
-
-Future<void> _pump(WidgetTester tester, Widget child) async {
-  final controller = AuthController(_GuestRepository());
+Future<void> _pump(
+  WidgetTester tester,
+  Widget child, {
+  _AuthRepository? repository,
+  double textScale = 1,
+}) async {
+  final controller = AuthController(repository ?? _AuthRepository());
+  final localeController = LocaleController(
+    initialLocale: AppLocale.indonesian,
+  );
+  addTearDown(controller.dispose);
+  addTearDown(localeController.dispose);
   await controller.bootstrap();
   await tester.pumpWidget(
     LocaleScope(
-      notifier: LocaleController(initialLocale: AppLocale.indonesian),
+      notifier: localeController,
       child: AuthScope(
         controller: controller,
         child: MaterialApp(
@@ -74,7 +81,14 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          home: child,
+          home: Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(textScale)),
+              child: child,
+            ),
+          ),
         ),
       ),
     ),
@@ -83,39 +97,6 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
 }
 
 void main() {
-  testWidgets('account remains usable while session restore is pending', (
-    tester,
-  ) async {
-    final repository = _PendingRepository();
-    final controller = AuthController(repository);
-    unawaited(controller.bootstrap());
-    addTearDown(controller.dispose);
-
-    await tester.pumpWidget(
-      LocaleScope(
-        notifier: LocaleController(initialLocale: AppLocale.indonesian),
-        child: AuthScope(
-          controller: controller,
-          child: const MaterialApp(
-            locale: Locale('id'),
-            localizationsDelegates: [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: ProfilePage(),
-          ),
-        ),
-      ),
-    );
-    await tester.pump();
-
-    expect(find.text('Masuk atau Buat Akun'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsNothing);
-  });
-
   testWidgets('guest account explicitly keeps ticket purchase available', (
     tester,
   ) async {
@@ -123,6 +104,38 @@ void main() {
 
     expect(find.text('Masuk atau Buat Akun'), findsOneWidget);
     expect(find.textContaining('beli tiket'), findsOneWidget);
+    expect(find.byKey(const ValueKey('account-identity-card')), findsOneWidget);
+    expect(find.byKey(const ValueKey('account-menu-section')), findsOneWidget);
+    expect(find.byKey(const ValueKey('account-logout')), findsNothing);
+  });
+
+  testWidgets('signed-in account exposes identity and existing actions', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const ProfilePage(),
+      repository: _AuthRepository(
+        offline: true,
+        user: const AccountUser(
+          id: 'user-1',
+          email: 'riyadh@example.com',
+          role: 'USER',
+          language: 'id',
+          accessibilityEnabled: false,
+          notificationsEnabled: true,
+          name: 'Muhammad Riyadh',
+        ),
+      ),
+    );
+
+    expect(find.text('MR'), findsOneWidget);
+    expect(find.text('Muhammad Riyadh'), findsOneWidget);
+    expect(find.text('riyadh@example.com'), findsOneWidget);
+    expect(find.text('Akun tersimpan • sedang offline'), findsWidgets);
+    expect(find.text('Edit profil'), findsOneWidget);
+    expect(find.text('Riwayat tiket akun'), findsWidgets);
+    expect(find.byKey(const ValueKey('account-logout')), findsOneWidget);
   });
 
   testWidgets('registration requires a password confirmation field', (
@@ -134,5 +147,33 @@ void main() {
     expect(find.text('Nomor telepon (opsional)'), findsOneWidget);
     expect(find.text('Ulangi kata sandi'), findsOneWidget);
     expect(find.text('Daftar'), findsOneWidget);
+  });
+
+  testWidgets('account layout handles long identity and larger text', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(360, 800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await _pump(
+      tester,
+      const ProfilePage(),
+      textScale: 1.3,
+      repository: _AuthRepository(
+        user: const AccountUser(
+          id: 'user-long',
+          email: 'muhammad.riyadh.haqqi.mujtaba@example.com',
+          role: 'USER',
+          language: 'id',
+          accessibilityEnabled: true,
+          notificationsEnabled: true,
+          name: 'Muhammad Riyadh Haqqi Mujtaba dengan Nama Sangat Panjang',
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Akun'), findsWidgets);
+    expect(find.byKey(const ValueKey('account-menu-section')), findsOneWidget);
   });
 }

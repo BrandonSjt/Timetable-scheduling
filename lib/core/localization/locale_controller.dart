@@ -4,11 +4,9 @@ import 'app_locale.dart';
 import 'locale_storage.dart';
 
 class LocaleController extends ValueNotifier<AppLocale> {
-  LocaleController({
-    required AppLocale initialLocale,
-    LocaleStorage? storage,
-  }) : _storage = storage,
-       super(initialLocale);
+  LocaleController({required AppLocale initialLocale, LocaleStorage? storage})
+    : _storage = storage,
+      super(initialLocale);
 
   final LocaleStorage? _storage;
 

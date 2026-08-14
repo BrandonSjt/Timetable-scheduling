@@ -37,7 +37,7 @@ class _HelpChatPageState extends State<HelpChatPage> {
         HelpIntroCard(
           icon: Icons.add_rounded,
           accentColor: AppColors.primaryBlue,
-          iconBackground: const Color(0xFFEAF2FF),
+          iconBackground: AppColors.primaryBlueLight,
           title: l10n.chatWithStaff,
           status: l10n.chatActiveTopic(_topic.label(l10n)),
           description: l10n.chatContentTailored,
@@ -94,17 +94,25 @@ class _HelpChatPageState extends State<HelpChatPage> {
         HelpSectionHeading(title: l10n.chatSelectTopic),
         const SizedBox(height: 16),
         HelpChoiceGrid(
-          options: SupportChatTopic.values.map((topic) => topic.label(l10n)).toList(),
+          options: SupportChatTopic.values
+              .map((topic) => topic.label(l10n))
+              .toList(),
           selected: _topic.label(l10n),
           onSelected: (label) => _selectTopic(label, l10n),
           columns: 3,
           accentColor: AppColors.primaryBlue,
-          selectedBackground: const Color(0xFFEAF2FF),
+          selectedBackground: AppColors.primaryBlueLight,
         ),
         const SizedBox(height: 22),
-        HelpFieldCard(label: l10n.chatInitialMessage, value: _topic.openingMessage(l10n)),
+        HelpFieldCard(
+          label: l10n.chatInitialMessage,
+          value: _topic.openingMessage(l10n),
+        ),
         const SizedBox(height: 14),
-        HelpFieldCard(label: l10n.chatSharedData, value: _topic.sharedData(l10n)),
+        HelpFieldCard(
+          label: l10n.chatSharedData,
+          value: _topic.sharedData(l10n),
+        ),
         const SizedBox(height: 22),
         HelpPrimaryButton(
           label: _topic.actionLabel(l10n),

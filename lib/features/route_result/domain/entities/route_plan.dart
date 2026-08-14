@@ -40,8 +40,33 @@ class RouteStation {
   final RouteLine line;
 }
 
+enum RouteStepKind {
+  board,
+  transfer,
+  continueTrip,
+  arrive;
+
+  static RouteStepKind fromApi(
+    String? value, {
+    required bool isHeader,
+    required bool isTransit,
+    required bool isDestination,
+  }) {
+    if (value == 'board') return board;
+    if (value == 'transfer') return transfer;
+    if (value == 'continue') return continueTrip;
+    if (value == 'arrive') return arrive;
+    if (isDestination) return arrive;
+    if (isTransit) return transfer;
+    if (isHeader) return board;
+    return continueTrip;
+  }
+}
+
 class RoutePlanStep {
   const RoutePlanStep({
+    required this.kind,
+    required this.isWalking,
     required this.text,
     required this.durationText,
     required this.detailNote,
@@ -52,6 +77,8 @@ class RoutePlanStep {
     required this.isDestination,
   });
 
+  final RouteStepKind kind;
+  final bool isWalking;
   final String text;
   final String durationText;
   final String detailNote;

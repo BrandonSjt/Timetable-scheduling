@@ -37,7 +37,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final l10n = AppLocalizations.of(context)!;
     final auth = AuthScope.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(l10n.editProfileTitle)),
       body: Form(
         key: _formKey,

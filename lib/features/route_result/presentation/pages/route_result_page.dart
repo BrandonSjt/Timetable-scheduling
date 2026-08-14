@@ -9,6 +9,7 @@ import '../../data/repositories/route_repository_impl.dart';
 import '../../data/services/native_route_speech_service.dart';
 import '../../domain/entities/route_plan.dart';
 import '../controllers/route_controller.dart';
+import '../widgets/route_journey_timeline.dart';
 
 class RouteResultPage extends StatefulWidget {
   const RouteResultPage({super.key, this.controller, this.from, this.to});
@@ -453,74 +454,7 @@ class _RouteContent extends StatelessWidget {
   Widget _timeline(AppLocalizations l10n) => Container(
     padding: const EdgeInsets.all(18),
     decoration: _cardDecoration(),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.alt_route_rounded, color: AppColors.primaryBlue),
-            const SizedBox(width: 8),
-            Text(
-              l10n.routeTimeline,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        ...route.steps.map((step) {
-          final color = _color(step.color);
-          return Semantics(
-            label: '${step.text}. ${step.detailNote}. ${step.durationText}',
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withValues(alpha: 0.25)),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: color.withValues(alpha: 0.12),
-                    foregroundColor: color,
-                    child: Icon(_icon(step.icon), size: 19),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          step.text,
-                          style: const TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                        if (step.detailNote.isNotEmpty)
-                          Text(
-                            step.detailNote,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    step.durationText,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ],
-    ),
+    child: RouteJourneyTimeline(title: l10n.routeTimeline, steps: route.steps),
   );
 
   Widget _exitGates(AppLocalizations l10n) => Container(
@@ -568,17 +502,4 @@ class _RouteContent extends StatelessWidget {
     borderRadius: BorderRadius.circular(16),
     border: Border.all(color: AppColors.cardBorder),
   );
-
-  Color _color(String value) {
-    final hex = value.replaceFirst('#', '');
-    return hex.length == 6
-        ? Color(int.parse('FF$hex', radix: 16))
-        : AppColors.primaryBlue;
-  }
-
-  IconData _icon(String value) => switch (value) {
-    'directions_walk' => Icons.directions_walk_rounded,
-    'place' => Icons.place_rounded,
-    _ => Icons.train_rounded,
-  };
 }

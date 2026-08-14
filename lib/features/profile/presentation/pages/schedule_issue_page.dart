@@ -5,12 +5,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../widgets/help_flow_widgets.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
-enum _ScheduleIssue {
-  late,
-  missingTrain,
-  changedSchedule,
-  differentPlatform;
-}
+enum _ScheduleIssue { late, missingTrain, changedSchedule, differentPlatform }
 
 extension _ScheduleIssueL10n on _ScheduleIssue {
   String label(AppLocalizations l10n) {
@@ -116,7 +111,7 @@ class _ScheduleIssuePageState extends State<ScheduleIssuePage> {
         HelpIntroCard(
           icon: Icons.add_rounded,
           accentColor: AppColors.accentOrange,
-          iconBackground: const Color(0xFFFFF1E8),
+          iconBackground: AppColors.accentOrangeLight,
           title: l10n.issueScheduleAndEta,
           status: l10n.issueActiveProblem(_issue.activeLabel(l10n)),
           description: l10n.issueDetailFollows,
@@ -131,12 +126,14 @@ class _ScheduleIssuePageState extends State<ScheduleIssuePage> {
         HelpSectionHeading(title: l10n.issueProblemOccurred),
         const SizedBox(height: 16),
         HelpChoiceGrid(
-          options: _ScheduleIssue.values.map((issue) => issue.label(l10n)).toList(),
+          options: _ScheduleIssue.values
+              .map((issue) => issue.label(l10n))
+              .toList(),
           selected: _issue.label(l10n),
           onSelected: (label) => _selectIssue(label, l10n),
           columns: 2,
           accentColor: AppColors.accentOrange,
-          selectedBackground: const Color(0xFFFFF1E8),
+          selectedBackground: AppColors.accentOrangeLight,
         ),
         const SizedBox(height: 28),
         HelpFieldCard(label: l10n.issueNotes, value: _issue.note(l10n)),
@@ -159,7 +156,9 @@ class _ScheduleIssuePageState extends State<ScheduleIssuePage> {
           color: AppColors.accentOrange,
           onPressed: () => showHelpMessage(
             context,
-            l10n.issueCorrectionPrepared(_issue.activeLabel(l10n).toLowerCase()),
+            l10n.issueCorrectionPrepared(
+              _issue.activeLabel(l10n).toLowerCase(),
+            ),
           ),
         ),
       ],

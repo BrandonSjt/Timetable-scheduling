@@ -18,12 +18,14 @@ class LanguagePage extends StatefulWidget {
 
 class _LanguagePageState extends State<LanguagePage> {
   Future<void> _applyLanguage(AppLocale newLocale) async {
+    final localeController = LocaleScope.of(context);
     final auth = AuthScope.of(context, listen: false);
-    final saved = await LocaleScope.of(context).select(newLocale);
+    final saved = await localeController.select(newLocale);
 
     if (auth.isAuthenticated) {
       await auth.updateProfile(language: newLocale.storageTag);
     }
+
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;

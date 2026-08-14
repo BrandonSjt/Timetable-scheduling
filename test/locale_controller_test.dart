@@ -77,9 +77,7 @@ void main() {
     });
 
     test('supports deterministic in-memory use without storage', () async {
-      final controller = LocaleController(
-        initialLocale: AppLocale.indonesian,
-      );
+      final controller = LocaleController(initialLocale: AppLocale.indonesian);
 
       expect(await controller.select(AppLocale.english), isTrue);
       expect(controller.value, AppLocale.english);
