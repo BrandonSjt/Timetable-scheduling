@@ -191,7 +191,7 @@ class _TicketsPageState extends State<TicketsPage> {
     final currentTicket = _selectedTicket ?? tickets.first;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -214,7 +214,7 @@ class _TicketsPageState extends State<TicketsPage> {
                     child: Text(
                       AppLocalizations.of(context)!.actionBack,
                       style: TextStyle(
-                        color: Color(0xFF2563EB),
+                        color: AppColors.primaryPurple,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -302,7 +302,8 @@ class _TicketsPageState extends State<TicketsPage> {
         from: 'Manggarai',
         to: 'Tanah Abang',
         fare: 'Rp4.000',
-        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('KRL Jabodetabek')} · ${AppLocalizations.of(context)!.durationMinutes('6')}',
+        serviceInfo:
+            '${AppLocalizations.of(context)!.lineNoTransit('KRL Jabodetabek')} · ${AppLocalizations.of(context)!.durationMinutes('6')}',
         validityText: AppLocalizations.of(context)!.validUntil,
         status: _TicketStatus.active,
       ),
@@ -310,7 +311,8 @@ class _TicketsPageState extends State<TicketsPage> {
         from: 'Halim',
         to: 'Cawang',
         fare: 'Rp4.000',
-        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('8')}',
+        serviceInfo:
+            '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('8')}',
         validityText: AppLocalizations.of(context)!.validUntil,
         status: _TicketStatus.active,
       ),
@@ -318,7 +320,8 @@ class _TicketsPageState extends State<TicketsPage> {
         from: 'Dukuh Atas',
         to: 'Setiabudi',
         fare: 'Rp5.000',
-        serviceInfo: '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('7')}',
+        serviceInfo:
+            '${AppLocalizations.of(context)!.lineNoTransit('LRT Jabodebek')} · ${AppLocalizations.of(context)!.durationMinutes('7')}',
         validityText: AppLocalizations.of(context)!.usedToday,
         status: _TicketStatus.completed,
       ),
@@ -400,7 +403,11 @@ class _TicketsPageState extends State<TicketsPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        l10n.ticketStatusSummary(activeCount, pendingCount, completedCount),
+                        l10n.ticketStatusSummary(
+                          activeCount,
+                          pendingCount,
+                          completedCount,
+                        ),
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.textSecondary,
@@ -418,7 +425,9 @@ class _TicketsPageState extends State<TicketsPage> {
             children: [l10n.all, l10n.unpaid, l10n.active, l10n.completed].map((
               filter,
             ) {
-              final isSelected = _selectedFilter == filter || (_selectedFilter == 'Semua' && filter == l10n.all);
+              final isSelected =
+                  _selectedFilter == filter ||
+                  (_selectedFilter == 'Semua' && filter == l10n.all);
               return Padding(
                 padding: const EdgeInsetsDirectional.only(end: 8),
                 child: ChoiceChip(
@@ -589,9 +598,7 @@ class _TicketsPageState extends State<TicketsPage> {
                   onPressed: () {
                     if (isCompleted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.ticketAlreadyUsed),
-                        ),
+                        SnackBar(content: Text(l10n.ticketAlreadyUsed)),
                       );
                       return;
                     }
@@ -651,7 +658,7 @@ class _TicketsPageState extends State<TicketsPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.cardBorder),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.02),
@@ -697,7 +704,7 @@ class _TicketsPageState extends State<TicketsPage> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7ED),
+                        color: AppColors.accentOrangeLight,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Column(
@@ -706,7 +713,7 @@ class _TicketsPageState extends State<TicketsPage> {
                           Text(
                             l10n.qrValidUntil,
                             style: const TextStyle(
-                              color: Color(0xFFC2410C),
+                              color: AppColors.deepPurple,
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                             ),
@@ -714,7 +721,7 @@ class _TicketsPageState extends State<TicketsPage> {
                           const Text(
                             '23:59',
                             style: TextStyle(
-                              color: Color(0xFFC2410C),
+                              color: AppColors.deepPurple,
                               fontSize: 10,
                               fontWeight: FontWeight.w900,
                             ),
@@ -772,9 +779,9 @@ class _TicketsPageState extends State<TicketsPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.cardBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -808,7 +815,7 @@ class _TicketsPageState extends State<TicketsPage> {
             child: ElevatedButton(
               onPressed: () => _completePayment(from: from, to: to),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF97316), // Accent Orange
+                backgroundColor: AppColors.magenta,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -845,9 +852,7 @@ class _TicketsPageState extends State<TicketsPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF2563EB)
-                : const Color(0xFFE2E8F0),
+            color: isSelected ? AppColors.primaryPurple : AppColors.cardBorder,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -861,8 +866,8 @@ class _TicketsPageState extends State<TicketsPage> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF2563EB)
-                      : const Color(0xFF94A3B8),
+                      ? AppColors.primaryPurple
+                      : AppColors.textHint,
                   width: 2,
                 ),
               ),
@@ -872,7 +877,7 @@ class _TicketsPageState extends State<TicketsPage> {
                         width: 12,
                         height: 12,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF2563EB),
+                          color: AppColors.primaryPurple,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -962,7 +967,7 @@ class _TicketsPageState extends State<TicketsPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.cardBorder),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.03),
@@ -1023,7 +1028,7 @@ class _TicketsPageState extends State<TicketsPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Row(
                   children: [
@@ -1044,7 +1049,7 @@ class _TicketsPageState extends State<TicketsPage> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -1053,7 +1058,7 @@ class _TicketsPageState extends State<TicketsPage> {
                     Container(
                       width: 1,
                       height: 40,
-                      color: const Color(0xFFE2E8F0),
+                      color: AppColors.cardBorder,
                     ),
                     const SizedBox(width: 20),
                     Expanded(
@@ -1073,7 +1078,7 @@ class _TicketsPageState extends State<TicketsPage> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF2563EB), // Accent Blue
+                              color: AppColors.primaryPurple,
                             ),
                           ),
                         ],
@@ -1093,13 +1098,11 @@ class _TicketsPageState extends State<TicketsPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.ticketSaved),
-                            ),
+                            SnackBar(content: Text(l10n.ticketSaved)),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF005BAC), // KAI Blue
+                          backgroundColor: AppColors.primaryPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1122,14 +1125,14 @@ class _TicketsPageState extends State<TicketsPage> {
                       child: OutlinedButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.sharingTicketLink),
-                            ),
+                            SnackBar(content: Text(l10n.sharingTicketLink)),
                           );
                         },
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF005BAC)),
-                          foregroundColor: const Color(0xFF005BAC),
+                          side: const BorderSide(
+                            color: AppColors.primaryPurple,
+                          ),
+                          foregroundColor: AppColors.primaryPurple,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

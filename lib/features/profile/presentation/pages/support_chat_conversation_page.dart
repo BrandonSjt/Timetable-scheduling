@@ -166,7 +166,7 @@ class _AgentStatusCard extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFEAF2FF),
+                  color: AppColors.primaryBlueLight,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

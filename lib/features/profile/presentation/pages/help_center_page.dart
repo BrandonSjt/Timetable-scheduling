@@ -114,7 +114,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 icon: Icons.chat_bubble_outline_rounded,
                 label: l10n.helpChatStaff,
                 iconColor: AppColors.primaryBlue,
-                iconBackground: const Color(0xFFEFF6FF),
+                iconBackground: AppColors.primaryBlueLight,
                 onTap: () => context.push('/bantuan/chat'),
               ),
             ),
@@ -124,7 +124,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                 icon: Icons.report_outlined,
                 label: l10n.helpReportInfo,
                 iconColor: AppColors.accentOrange,
-                iconBackground: const Color(0xFFFFF1E8),
+                iconBackground: AppColors.accentOrangeLight,
                 onTap: () => context.push('/bantuan/lapor'),
               ),
             ),
@@ -151,7 +151,10 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             child: Text(
               l10n.helpNoTopicsFound,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+              ),
             ),
           )
         else
@@ -164,10 +167,12 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
           ],
         const SizedBox(height: 24),
         Material(
-          color: const Color(0xFFFFF7ED),
+          color: AppColors.accentOrangeLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: Color(0xFFFED7AA)),
+            side: BorderSide(
+              color: AppColors.pinkAccent.withValues(alpha: 0.45),
+            ),
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(14),

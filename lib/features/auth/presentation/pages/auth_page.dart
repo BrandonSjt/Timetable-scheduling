@@ -66,7 +66,7 @@ class _AuthPageState extends State<AuthPage> {
     final l10n = AppLocalizations.of(context)!;
     final auth = AuthScope.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -92,7 +92,7 @@ class _AuthPageState extends State<AuthPage> {
                       height: 58,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue,
+                        gradient: AppColors.primaryGradient,
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: const Icon(
@@ -318,7 +318,7 @@ class _AuthPageState extends State<AuthPage> {
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFDCE3ED)),
+        borderSide: const BorderSide(color: AppColors.cardBorder),
       ),
     ),
   );
