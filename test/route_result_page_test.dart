@@ -88,7 +88,8 @@ void main() {
     expect(find.text('Tangerang'), findsWidgets);
     expect(find.text('134'), findsOneWidget);
     expect(find.text('Rp10.000'), findsWidgets);
-    expect(find.text('Transit di Duri'), findsOneWidget);
+    expect(find.text('Pindah peron di Duri'), findsOneWidget);
+    expect(find.text('Lanjut naik KRL Lin Tangerang'), findsOneWidget);
     expect(find.text('Urutan stasiun'), findsNothing);
 
     await tester.tap(find.text('Aksesibel'));
@@ -97,5 +98,26 @@ void main() {
     expect(find.text('Ulangi'), findsOneWidget);
     expect(find.text('Jeda'), findsOneWidget);
     expect(find.text('Hentikan'), findsOneWidget);
+  });
+
+  testWidgets('route timeline marks a pedestrian transfer distinctly', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final controller = RouteController(
+      _Repository(() async => testWalkingRoute),
+      _Speech(),
+    );
+
+    await tester.pumpWidget(_page(controller));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Berjalan dari Cikoko menuju Stasiun Cawang'),
+      findsOneWidget,
+    );
+    expect(find.text('Lanjut naik KRL Lin Bogor'), findsOneWidget);
+    expect(find.byKey(const ValueKey('route-timeline-walk-1')), findsOneWidget);
   });
 }

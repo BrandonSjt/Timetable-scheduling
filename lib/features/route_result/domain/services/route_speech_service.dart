@@ -20,7 +20,10 @@ String buildRouteNarration(RoutePlan route, String languageCode) {
             'Estimasi waktu ${route.travelTime} menit. '
             'Tarif Rp${_rupiah(route.fare)}.';
   final steps = route.steps
-      .map((step) => '${step.text}. ${step.detailNote}. ${step.durationText}.')
+      .map(
+        (step) =>
+            '${[step.text, step.detailNote, step.durationText].where((part) => part.trim().isNotEmpty).join('. ')}.',
+      )
       .join(' ');
   return '$summary $steps'.trim();
 }

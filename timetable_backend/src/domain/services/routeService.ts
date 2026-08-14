@@ -3,7 +3,11 @@ import { ApiError } from '../errors/ApiError';
 import { FareService } from './fareService';
 import { publicCodeForLine, stationDisplayName } from './stationIdentity';
 
+type RouteStepKind = 'board' | 'transfer' | 'continue' | 'arrive';
+
 interface RouteStep {
+  kind: RouteStepKind;
+  isWalking: boolean;
   text: string;
   durationText: string;
   detailNote: string;
@@ -224,43 +228,76 @@ export class RouteService {
     const serviceConnections = path.filter((connection) => !connection.isTransfer).length;
     const fare = FareService.quote(Math.max(1, serviceConnections), passengerCount);
     const transferConnections = path.filter((connection) => connection.isTransfer);
-    const steps: RouteStep[] = [
-      {
-        text: `Naik dari ${stationDisplayName(fromStation)}`,
-        durationText: '0 menit',
-        detailNote: originNode.line.name,
+    const steps: RouteStep[] = [];
+    let legStartNode = originNode;
+    let pathIndex = 0;
+    let isFirstLeg = true;
+
+    while (pathIndex < path.length) {
+      const relativeTransferIndex = path
+        .slice(pathIndex)
+        .findIndex((connection) => connection.isTransfer);
+      const transferIndex =
+        relativeTransferIndex < 0 ? path.length : pathIndex + relativeTransferIndex;
+      const legConnections = path.slice(pathIndex, transferIndex);
+      const legEndNode = legConnections.at(-1)?.toNode ?? legStartNode;
+      const legMinutes = legConnections.reduce(
+        (total, connection) => total + connection.travelTime,
+        0,
+      );
+      const startName = stationDisplayName(legStartNode.station);
+      const endName = stationDisplayName(legEndNode.station);
+
+      steps.push({
+        kind: isFirstLeg ? 'board' : 'continue',
+        isWalking: false,
+        text: isFirstLeg ? `Naik dari ${startName}` : `Lanjut naik ${legStartNode.line.name}`,
+        durationText: `${legMinutes} menit`,
+        detailNote: isFirstLeg
+          ? `${legStartNode.line.name} menuju ${endName}`
+          : `Dari ${startName} menuju ${endName}`,
         icon: 'train',
-        color: originNode.line.color,
-        isHeader: true,
+        color: legStartNode.line.color,
+        isHeader: isFirstLeg,
         isTransit: false,
         isDestination: false,
-      },
-      ...transferConnections.map((connection) => {
-        const isWalkingTransfer = connection.fromNode.stationId !== connection.toNode.stationId;
-        return {
-          text: isWalkingTransfer
-            ? `Berjalan dari ${stationDisplayName(connection.fromNode.station)} menuju Stasiun ${stationDisplayName(connection.toNode.station)}`
-            : `Transit di ${stationDisplayName(connection.fromNode.station)}`,
-          durationText: `${connection.travelTime} menit`,
-          detailNote: `Pindah ke ${connection.toNode.line.name}`,
-          icon: 'directions_walk',
-          color: connection.toNode.line.color,
-          isHeader: false,
-          isTransit: true,
-          isDestination: false,
-        };
-      }),
-      {
-        text: `Tiba di ${stationDisplayName(toStation)}`,
-        durationText: `${travelTime} menit`,
-        detailNote: 'Tujuan',
-        icon: 'place',
-        color: '#DC2626',
+      });
+
+      if (transferIndex === path.length) break;
+      const transfer = path[transferIndex];
+      const isWalking = transfer.fromNode.stationId !== transfer.toNode.stationId;
+      steps.push({
+        kind: 'transfer',
+        isWalking,
+        text: isWalking
+          ? `Berjalan dari ${stationDisplayName(transfer.fromNode.station)} menuju Stasiun ${stationDisplayName(transfer.toNode.station)}`
+          : `Pindah peron di ${stationDisplayName(transfer.fromNode.station)}`,
+        durationText: `${transfer.travelTime} menit`,
+        detailNote: `Pindah ke ${transfer.toNode.line.name}`,
+        icon: isWalking ? 'directions_walk' : 'sync_alt',
+        color: transfer.toNode.line.color,
         isHeader: false,
-        isTransit: false,
-        isDestination: true,
-      },
-    ];
+        isTransit: true,
+        isDestination: false,
+      });
+
+      legStartNode = transfer.toNode;
+      pathIndex = transferIndex + 1;
+      isFirstLeg = false;
+    }
+
+    steps.push({
+      kind: 'arrive',
+      isWalking: false,
+      text: `Tiba di ${stationDisplayName(toStation)}`,
+      durationText: `${travelTime} menit`,
+      detailNote: 'Tujuan',
+      icon: 'place',
+      color: '#DC2626',
+      isHeader: false,
+      isTransit: false,
+      isDestination: true,
+    });
 
     return {
       from: stationDisplayName(fromStation),

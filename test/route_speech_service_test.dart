@@ -9,9 +9,21 @@ void main() {
     expect(narration, contains('134 menit'));
     expect(narration, contains('Rp10.000'));
     expect(narration, contains('KRL Lin Bogor'));
-    expect(narration, contains('Transit di Duri'));
+    expect(narration, contains('Pindah peron di Duri'));
+    expect(narration, contains('Lanjut naik KRL Lin Tangerang'));
     expect(narration, contains('Tiba di Tangerang'));
   });
+
+  test(
+    'walking narration uses the same transfer and continue instructions',
+    () {
+      final narration = buildRouteNarration(testWalkingRoute, 'id');
+
+      expect(narration, contains('Berjalan dari Cikoko menuju Stasiun Cawang'));
+      expect(narration, contains('Lanjut naik KRL Lin Bogor'));
+      expect(narration, contains('Dari Cawang menuju Tebet'));
+    },
+  );
 
   test('English locale uses an English summary', () {
     final narration = buildRouteNarration(testRoute, 'en');
