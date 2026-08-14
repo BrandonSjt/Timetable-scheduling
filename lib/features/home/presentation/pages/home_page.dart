@@ -780,11 +780,15 @@ class _HomePageState extends State<HomePage> {
                                 color: AppColors.textHint,
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                l10n.searchStationHint,
-                                style: const TextStyle(
-                                  color: AppColors.textHint,
-                                  fontSize: 14,
+                              Expanded(
+                                child: Text(
+                                  l10n.searchStationHint,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.textHint,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
                             ],

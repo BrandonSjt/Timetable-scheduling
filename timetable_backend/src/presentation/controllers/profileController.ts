@@ -27,10 +27,10 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-const updateProfileSchema = z.object({
+export const updateProfileSchema = z.object({
   name: z.string().trim().min(2).max(100).optional(),
   phone: z.string().trim().min(8).max(20).nullable().optional(),
-  language: z.enum(['id', 'en']).optional(),
+  language: z.enum(['id', 'en', 'zh-Hans', 'ar']).optional(),
   accessibilityEnabled: z.boolean().optional(),
   notificationsEnabled: z.boolean().optional(),
 });

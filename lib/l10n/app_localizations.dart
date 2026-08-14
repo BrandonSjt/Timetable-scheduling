@@ -5,8 +5,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_id.dart';
+import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
 
@@ -94,8 +96,11 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
     Locale('en'),
     Locale('id'),
+    Locale('zh'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
   ];
 
   /// No description provided for @languagePageTitle.
@@ -128,6 +133,12 @@ abstract class AppLocalizations {
   /// **'Indonesia'**
   String get languageIndonesian;
 
+  /// No description provided for @languageIndonesianDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Gunakan Bahasa Indonesia untuk label aplikasi'**
+  String get languageIndonesianDesc;
+
   /// No description provided for @languageEnglish.
   ///
   /// In id, this message translates to:
@@ -139,6 +150,30 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Gunakan Bahasa Inggris untuk label aplikasi'**
   String get languageEnglishDesc;
+
+  /// No description provided for @languageSimplifiedChinese.
+  ///
+  /// In id, this message translates to:
+  /// **'简体中文'**
+  String get languageSimplifiedChinese;
+
+  /// No description provided for @languageSimplifiedChineseDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Gunakan Bahasa Mandarin Sederhana untuk label aplikasi'**
+  String get languageSimplifiedChineseDesc;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In id, this message translates to:
+  /// **'العربية'**
+  String get languageArabic;
+
+  /// No description provided for @languageArabicDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Gunakan Bahasa Arab untuk label aplikasi'**
+  String get languageArabicDesc;
 
   /// No description provided for @preview.
   ///
@@ -167,14 +202,20 @@ abstract class AppLocalizations {
   /// No description provided for @languageAppliedNote.
   ///
   /// In id, this message translates to:
-  /// **'Perubahan diterapkan langsung setelah dipilih.'**
+  /// **'Perubahan langsung diterapkan dan disimpan untuk kunjungan berikutnya.'**
   String get languageAppliedNote;
 
   /// No description provided for @languageAppliedSnackbar.
   ///
   /// In id, this message translates to:
-  /// **'Bahasa Indonesia diterapkan.'**
+  /// **'Bahasa diterapkan.'**
   String get languageAppliedSnackbar;
+
+  /// No description provided for @languageSaveFailedSnackbar.
+  ///
+  /// In id, this message translates to:
+  /// **'Bahasa diubah untuk sesi ini, tetapi preferensi Anda tidak dapat disimpan.'**
+  String get languageSaveFailedSnackbar;
 
   /// No description provided for @profileAccount.
   ///
@@ -3584,19 +3625,35 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'id'].contains(locale.languageCode);
+      <String>['ar', 'en', 'id', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+script codes are specified.
+  switch (locale.languageCode) {
+    case 'zh':
+      {
+        switch (locale.scriptCode) {
+          case 'Hans':
+            return AppLocalizationsZhHans();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'ar':
+      return AppLocalizationsAr();
     case 'en':
       return AppLocalizationsEn();
     case 'id':
       return AppLocalizationsId();
+    case 'zh':
+      return AppLocalizationsZh();
   }
 
   throw FlutterError(

@@ -299,7 +299,7 @@ class _InformationRow extends StatelessWidget {
         Flexible(
           child: Text(
             value,
-            textAlign: TextAlign.right,
+            textAlign: TextAlign.end,
             style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 13,
