@@ -89,6 +89,16 @@ class LandmarkData {
 const double kMapWidth = 2950.0;
 const double kMapHeight = 3100.0;
 
+const Set<String> kKrlLineIds = {
+  'bogor',
+  'bogor_nambo',
+  'cikarang_loop',
+  'cikarang_east',
+  'tangerang',
+  'tanjung_priok',
+  'rangkasbitung',
+};
+
 // Stasiun transit besar — ditampilkan sebagai pill besar dengan nama di tengah
 const Set<String> _majorTransitIds = {'duri', 'jakarta_kota', 'cawang_lrt'};
 
@@ -1360,6 +1370,7 @@ final List<LineData> transitLines = [
     id: 'bogor',
     name: 'KRL Lin Bogor',
     color: AppColors.lineBogor,
+    strokeWidth: 8,
     stationIds: [
       'jakarta_kota_bk',
       'wp_bogor_jayakarta',
@@ -1395,6 +1406,7 @@ final List<LineData> transitLines = [
     id: 'bogor_nambo',
     name: 'KRL Cabang Nambo',
     color: AppColors.lineBogor,
+    strokeWidth: 8,
     stationIds: [
       'citayam',
       'wp_nambo_split',
@@ -1409,6 +1421,7 @@ final List<LineData> transitLines = [
     id: 'cikarang_loop',
     name: 'KRL Cikarang Loop',
     color: AppColors.lineCikarang,
+    strokeWidth: 8,
     stationIds: [
       'jatinegara',
       'wp_cikarang_jatinegara',
@@ -1447,6 +1460,7 @@ final List<LineData> transitLines = [
     id: 'cikarang_east',
     name: 'KRL Cikarang Timur',
     color: AppColors.lineCikarang,
+    strokeWidth: 8,
     stationIds: [
       'jatinegara',
       'klender',
@@ -1466,6 +1480,7 @@ final List<LineData> transitLines = [
     id: 'tangerang',
     name: 'KRL Lin Tangerang',
     color: AppColors.lineTangerang,
+    strokeWidth: 8,
     stationIds: [
       'duri_t',
       'grogol',
@@ -1486,6 +1501,7 @@ final List<LineData> transitLines = [
     id: 'tanjung_priok',
     name: 'KRL Lin Tanjung Priok',
     color: AppColors.lineTanjungPriok,
+    strokeWidth: 8,
     stationIds: [
       'jakarta_kota_tp',
       'kampung_bandan_tp',
@@ -1500,6 +1516,7 @@ final List<LineData> transitLines = [
     id: 'rangkasbitung',
     name: 'KRL Lin Rangkasbitung',
     color: AppColors.lineRangkasbitung,
+    strokeWidth: 8,
     stationIds: [
       'tanah_abang_r',
       'wp_rangkas_1',
@@ -1638,6 +1655,24 @@ Color _getStationColor(StationData station) {
   return AppColors.textSecondary;
 }
 
+bool _isKrlStation(StationData station) =>
+    station.lines.any(kKrlLineIds.contains) ||
+    transitLines.any(
+      (line) =>
+          kKrlLineIds.contains(line.id) && line.stationIds.contains(station.id),
+    );
+
+double stationNodeRadius(StationData station) {
+  if (!_isKrlStation(station)) {
+    return station.code.isNotEmpty
+        ? (station.isTransit ? 12 : 10)
+        : (station.isTransit ? 8 : 5.5);
+  }
+  return station.code.isNotEmpty
+      ? (station.isTransit ? 15 : 12)
+      : (station.isTransit ? 10 : 7);
+}
+
 // ════════════════════════════════════════════════════════════════════
 // SCHEMATIC MAP PAINTER
 // ════════════════════════════════════════════════════════════════════
@@ -1716,12 +1751,14 @@ class SchematicMapPainter extends CustomPainter {
   final String? selectedStation;
   final String? fromStation;
   final Set<String>? visibleLineIds;
+  final String? nearestStation;
 
   SchematicMapPainter({
     this.showColors = false,
     this.selectedStation,
     this.fromStation,
     this.visibleLineIds,
+    this.nearestStation,
   });
 
   @override
@@ -1735,10 +1772,48 @@ class SchematicMapPainter extends CustomPainter {
     _drawLandmarks(canvas);
     // 4. Draw station nodes (dots, code badges)
     _drawStations(canvas);
-    // 5. Draw station labels
+    // 5. Draw the nearest-station marker as a separate overlay
+    _drawNearestStationMarker(canvas);
+    // 6. Draw station labels
     _drawAllLabels(canvas);
-    // 6. Draw line route identity badges
+    // 7. Draw line route identity badges
     _drawLineBadges(canvas);
+  }
+
+  void _drawNearestStationMarker(Canvas canvas) {
+    if (nearestStation == null) return;
+    final station = _findStation(nearestStation!);
+    if (station == null) return;
+
+    var center = station.position;
+    final pairedId =
+        kMergedStationPairs[station.id] ??
+        kMergedStationPairs.entries
+            .where((entry) => entry.value == station.id)
+            .map((entry) => entry.key)
+            .firstOrNull;
+    final paired = pairedId == null ? null : _findStation(pairedId);
+    if (paired != null) {
+      center = Offset(
+        (center.dx + paired.position.dx) / 2,
+        (center.dy + paired.position.dy) / 2,
+      );
+    }
+
+    canvas.drawCircle(
+      center,
+      23,
+      Paint()..color = const Color(0xFF1976D2).withValues(alpha: 0.16),
+    );
+    canvas.drawCircle(
+      center,
+      19,
+      Paint()
+        ..color = const Color(0xFF1976D2)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4,
+    );
+    canvas.drawCircle(center, 4, Paint()..color = const Color(0xFF1976D2));
   }
 
   // ── DRAW LINES ──────────────────────────────────────────────────
@@ -2253,8 +2328,8 @@ class SchematicMapPainter extends CustomPainter {
     // Jika stasiun punya kode, gambar sebagai lingkaran berwarna dengan kode di dalam
     if (station.code.isNotEmpty) {
       final color = _getStationColor(station);
-      final double radius = station.isTransit ? 12.0 : 10.0;
-      final double effectiveR = isSelected || isFrom ? 13.0 : radius;
+      final radius = stationNodeRadius(station);
+      final effectiveR = isSelected || isFrom ? max(radius, 13.0) : radius;
 
       // Lingkaran putih (latar)
       canvas.drawCircle(
@@ -2343,8 +2418,8 @@ class SchematicMapPainter extends CustomPainter {
       }
     } else {
       // Stasiun tanpa kode — gambar dot biasa
-      final double radius = station.isTransit ? 8 : 5.5;
-      final double effectiveR = isSelected || isFrom ? 10 : radius;
+      final radius = stationNodeRadius(station);
+      final effectiveR = isSelected || isFrom ? max(radius, 10.0) : radius;
 
       canvas.drawCircle(
         station.position,
@@ -2940,7 +3015,8 @@ class SchematicMapPainter extends CustomPainter {
     return oldDelegate.showColors != showColors ||
         oldDelegate.selectedStation != selectedStation ||
         oldDelegate.fromStation != fromStation ||
-        oldDelegate.visibleLineIds != visibleLineIds;
+        oldDelegate.visibleLineIds != visibleLineIds ||
+        oldDelegate.nearestStation != nearestStation;
   }
 }
 
