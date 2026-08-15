@@ -152,6 +152,19 @@ void main() {
     expect(kTransitStationLabelOffset, 40);
   });
 
+  test('reported station labels avoid nearby map components', () {
+    final painter = SchematicMapPainter();
+
+    expect(
+      painter.stationLabelPositionFor(station('lebak_bulus')),
+      LabelPos.top,
+    );
+    expect(
+      painter.stationLabelPositionFor(station('sudirman')),
+      LabelPos.right,
+    );
+  });
+
   test('Cikoko to Cawang is a separate black walking overlay', () async {
     expect(walkingConnections, hasLength(1));
     expect(walkingConnections.single.fromStationId, 'cawang_krl');

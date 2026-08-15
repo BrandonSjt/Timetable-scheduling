@@ -2525,7 +2525,7 @@ class SchematicMapPainter extends CustomPainter {
           break;
       }
     } else {
-      final pos = _getLabelPos(station);
+      final pos = stationLabelPositionFor(station);
       final offset = station.isTransit ? 14.0 : 10.0;
       switch (pos) {
         case LabelPos.right:
@@ -2623,7 +2623,7 @@ class SchematicMapPainter extends CustomPainter {
   void _drawLabel(Canvas canvas, StationData station, {List<Rect>? occupied}) {
     final fontSize = stationLabelFontSize(station);
 
-    final preferredPos = _getLabelPos(station);
+    final preferredPos = stationLabelPositionFor(station);
 
     // ── Rotated label (diagonal, seperti di PDF) ──
     if (preferredPos == LabelPos.topRotated) {
@@ -2822,7 +2822,8 @@ class SchematicMapPainter extends CustomPainter {
 
   // ── LABEL POSITIONING ────────────────────────────────────────────
 
-  LabelPos _getLabelPos(StationData station) {
+  @visibleForTesting
+  LabelPos stationLabelPositionFor(StationData station) {
     final id = station.id;
 
     // ── Specific overrides ──
@@ -2850,7 +2851,7 @@ class SchematicMapPainter extends CustomPainter {
       'cikarang': LabelPos.topRotated,
       // Cikarang horizontal band (y=700) → bottom
       'tanah_abang': LabelPos.left,
-      'karet': LabelPos.bottom, 'sudirman': LabelPos.top,
+      'karet': LabelPos.bottom, 'sudirman': LabelPos.right,
       // Tanjung Priok → topRotated
       'ancol': LabelPos.topRotated, 'jis': LabelPos.topRotated,
       'tanjung_priok': LabelPos.top,
@@ -2900,7 +2901,7 @@ class SchematicMapPainter extends CustomPainter {
       'senayan': LabelPos.left, 'asean': LabelPos.left,
       'blok_m': LabelPos.left, 'blok_a': LabelPos.left,
       'haji_nawi': LabelPos.left, 'cipete_raya': LabelPos.left,
-      'fatmawati': LabelPos.top, 'lebak_bulus': LabelPos.left,
+      'fatmawati': LabelPos.top, 'lebak_bulus': LabelPos.top,
       'setiabudi': LabelPos.left, 'dukuh_atas': LabelPos.left,
     };
 
