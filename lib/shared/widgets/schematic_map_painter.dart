@@ -88,12 +88,12 @@ class LandmarkData {
 
 const double kMapWidth = 2950.0;
 const double kMapHeight = 3100.0;
-const double kRegularStationLabelFontSize = 12.0;
-const double kTransitStationLabelFontSize = 14.0;
-const double kHubStationNameFontSize = 12.0;
-const double kStationLabelOutlineWidth = 3.0;
-const double kRegularStationLabelOffset = 24.0;
-const double kTransitStationLabelOffset = 30.0;
+const double kStationLabelFontSize = 16.0;
+const FontWeight kStationLabelFontWeight = FontWeight.w700;
+const double kHubStationNameFontSize = 14.0;
+const double kStationLabelOutlineWidth = 3.5;
+const double kRegularStationLabelOffset = 32.0;
+const double kTransitStationLabelOffset = 40.0;
 
 const Set<String> kKrlLineIds = {
   'bogor',
@@ -1683,9 +1683,7 @@ double stationNodeRadius(StationData station) {
       : (station.isTransit ? 10 : 7);
 }
 
-double stationLabelFontSize(StationData station) => station.isTransit
-    ? kTransitStationLabelFontSize
-    : kRegularStationLabelFontSize;
+double stationLabelFontSize(StationData _) => kStationLabelFontSize;
 
 // ════════════════════════════════════════════════════════════════════
 // SCHEMATIC MAP PAINTER
@@ -2623,10 +2621,6 @@ class SchematicMapPainter extends CustomPainter {
   }
 
   void _drawLabel(Canvas canvas, StationData station, {List<Rect>? occupied}) {
-    final isSelected =
-        selectedStation == station.id || selectedStation == station.name;
-    final isFrom = fromStation == station.id || fromStation == station.name;
-    final bool isBold = station.isTransit || isSelected || isFrom;
     final fontSize = stationLabelFontSize(station);
 
     final preferredPos = _getLabelPos(station);
@@ -2639,7 +2633,7 @@ class SchematicMapPainter extends CustomPainter {
         text: station.name,
         style: TextStyle(
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
           foreground: Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = kStationLabelOutlineWidth
@@ -2656,7 +2650,7 @@ class SchematicMapPainter extends CustomPainter {
         style: TextStyle(
           color: AppColors.textPrimary,
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
         ),
       );
       final textTP = TextPainter(
@@ -2689,7 +2683,7 @@ class SchematicMapPainter extends CustomPainter {
         text: station.name,
         style: TextStyle(
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
           foreground: Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = kStationLabelOutlineWidth
@@ -2706,7 +2700,7 @@ class SchematicMapPainter extends CustomPainter {
         style: TextStyle(
           color: AppColors.textPrimary,
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
         ),
       );
       final textTP = TextPainter(
@@ -2736,7 +2730,7 @@ class SchematicMapPainter extends CustomPainter {
       text: station.name,
       style: TextStyle(
         fontSize: fontSize,
-        fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+        fontWeight: kStationLabelFontWeight,
         foreground: Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = kStationLabelOutlineWidth
@@ -2753,7 +2747,7 @@ class SchematicMapPainter extends CustomPainter {
       style: TextStyle(
         color: AppColors.textPrimary,
         fontSize: fontSize,
-        fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+        fontWeight: kStationLabelFontWeight,
       ),
     );
     final textPainter = TextPainter(

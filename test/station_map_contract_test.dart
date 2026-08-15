@@ -143,12 +143,13 @@ void main() {
     expect(stationNodeRadius(station('bundaran_hi')), 12);
     expect(stationNodeRadius(station('setiabudi')), 14);
 
-    expect(stationLabelFontSize(station('bogor')), 12);
-    expect(stationLabelFontSize(station('bekasi')), 14);
-    expect(kHubStationNameFontSize, 12);
-    expect(kStationLabelOutlineWidth, 3);
-    expect(kRegularStationLabelOffset, 24);
-    expect(kTransitStationLabelOffset, 30);
+    expect(stationLabelFontSize(station('bogor')), 16);
+    expect(stationLabelFontSize(station('bekasi')), 16);
+    expect(kStationLabelFontWeight, FontWeight.w700);
+    expect(kHubStationNameFontSize, 14);
+    expect(kStationLabelOutlineWidth, 3.5);
+    expect(kRegularStationLabelOffset, 32);
+    expect(kTransitStationLabelOffset, 40);
   });
 
   test('Cikoko to Cawang is a separate black walking overlay', () async {
