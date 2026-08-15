@@ -116,11 +116,11 @@ void main() {
     expect(fingerprint, 721664269);
   });
 
-  test('only KRL lines and nodes use the enlarged visual scale', () {
+  test('route lines, nodes, and station labels use readable visual sizes', () {
     for (final line in transitLines) {
       expect(
         line.strokeWidth,
-        kKrlLineIds.contains(line.id) ? 8 : 6,
+        kKrlLineIds.contains(line.id) ? 8 : 7,
         reason: '${line.id} has the wrong visual weight',
       );
     }
@@ -140,7 +140,15 @@ void main() {
       ),
       10,
     );
-    expect(stationNodeRadius(station('bundaran_hi')), 10);
+    expect(stationNodeRadius(station('bundaran_hi')), 12);
+    expect(stationNodeRadius(station('setiabudi')), 14);
+
+    expect(stationLabelFontSize(station('bogor')), 12);
+    expect(stationLabelFontSize(station('bekasi')), 14);
+    expect(kHubStationNameFontSize, 12);
+    expect(kStationLabelOutlineWidth, 3);
+    expect(kRegularStationLabelOffset, 24);
+    expect(kTransitStationLabelOffset, 30);
   });
 
   test('Cikoko to Cawang is a separate black walking overlay', () async {

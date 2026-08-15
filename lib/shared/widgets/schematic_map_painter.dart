@@ -88,6 +88,12 @@ class LandmarkData {
 
 const double kMapWidth = 2950.0;
 const double kMapHeight = 3100.0;
+const double kRegularStationLabelFontSize = 12.0;
+const double kTransitStationLabelFontSize = 14.0;
+const double kHubStationNameFontSize = 12.0;
+const double kStationLabelOutlineWidth = 3.0;
+const double kRegularStationLabelOffset = 24.0;
+const double kTransitStationLabelOffset = 30.0;
 
 const Set<String> kKrlLineIds = {
   'bogor',
@@ -1547,6 +1553,7 @@ final List<LineData> transitLines = [
     id: 'mrt',
     name: 'MRT Jakarta',
     color: AppColors.lineMRT,
+    strokeWidth: 7,
     stationIds: [
       'bundaran_hi',
       'dukuh_atas',
@@ -1573,6 +1580,7 @@ final List<LineData> transitLines = [
     id: 'lrt_bekasi',
     name: 'LRT Jabodebek (Bekasi)',
     color: AppColors.lineLRTBekasi,
+    strokeWidth: 7,
     stationIds: [
       'dukuh_atas_lrt_bk',
       'wp_lrt_dukuh_bk',
@@ -1596,6 +1604,7 @@ final List<LineData> transitLines = [
     id: 'lrt_cibubur',
     name: 'LRT Jabodebek (Cibubur)',
     color: AppColors.lineLRTCibubur,
+    strokeWidth: 7,
     stationIds: [
       'dukuh_atas_lrt_cb',
       'wp_lrt_dukuh_cb',
@@ -1618,6 +1627,7 @@ final List<LineData> transitLines = [
     id: 'lrt_jakarta',
     name: 'LRT Jakarta',
     color: AppColors.lineLRTJakarta,
+    strokeWidth: 7,
     stationIds: [
       'pegangsaan_dua',
       'boulevard_utara',
@@ -1665,13 +1675,17 @@ bool _isKrlStation(StationData station) =>
 double stationNodeRadius(StationData station) {
   if (!_isKrlStation(station)) {
     return station.code.isNotEmpty
-        ? (station.isTransit ? 12 : 10)
+        ? (station.isTransit ? 14 : 12)
         : (station.isTransit ? 8 : 5.5);
   }
   return station.code.isNotEmpty
       ? (station.isTransit ? 15 : 12)
       : (station.isTransit ? 10 : 7);
 }
+
+double stationLabelFontSize(StationData station) => station.isTransit
+    ? kTransitStationLabelFontSize
+    : kRegularStationLabelFontSize;
 
 // ════════════════════════════════════════════════════════════════════
 // SCHEMATIC MAP PAINTER
@@ -1695,7 +1709,7 @@ TextPainter _buildMajorHubTextPainter(
     text: station.name,
     style: TextStyle(
       color: isFrom ? AppColors.primaryBlue : AppColors.textPrimary,
-      fontSize: 10,
+      fontSize: kHubStationNameFontSize,
       fontWeight: FontWeight.w800,
     ),
   );
@@ -1723,7 +1737,7 @@ TextPainter _buildMergedHubTextPainter(
     text: _mergedStationName(primary, secondary),
     style: const TextStyle(
       color: AppColors.textPrimary,
-      fontSize: 10,
+      fontSize: kHubStationNameFontSize,
       fontWeight: FontWeight.w800,
     ),
   ),
@@ -2577,7 +2591,7 @@ class SchematicMapPainter extends CustomPainter {
       if (_majorTransitIds.contains(station.id)) {
         occupied.add(_majorHubRect(station).inflate(7));
       } else {
-        final radius = station.isTransit ? 11.0 : 8.0;
+        final radius = stationNodeRadius(station) + 4;
         occupied.add(Rect.fromCircle(center: station.position, radius: radius));
       }
       if (station.code.isNotEmpty) {
@@ -2613,7 +2627,7 @@ class SchematicMapPainter extends CustomPainter {
         selectedStation == station.id || selectedStation == station.name;
     final isFrom = fromStation == station.id || fromStation == station.name;
     final bool isBold = station.isTransit || isSelected || isFrom;
-    final double fontSize = station.isTransit ? 10 : 9;
+    final fontSize = stationLabelFontSize(station);
 
     final preferredPos = _getLabelPos(station);
 
@@ -2628,7 +2642,7 @@ class SchematicMapPainter extends CustomPainter {
           fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
           foreground: Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.5
+            ..strokeWidth = kStationLabelOutlineWidth
             ..color = Colors.white.withValues(alpha: 0.9),
         ),
       );
@@ -2650,7 +2664,9 @@ class SchematicMapPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
 
-      final offset = station.isTransit ? 22.0 : 18.0;
+      final offset = station.isTransit
+          ? kTransitStationLabelOffset
+          : kRegularStationLabelOffset;
       // Pivot point = tepat di atas node, lebih jauh agar tidak numpuk line
       final pivotX = station.position.dx;
       final pivotY = station.position.dy - offset;
@@ -2676,7 +2692,7 @@ class SchematicMapPainter extends CustomPainter {
           fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
           foreground: Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.5
+            ..strokeWidth = kStationLabelOutlineWidth
             ..color = Colors.white.withValues(alpha: 0.9),
         ),
       );
@@ -2698,7 +2714,9 @@ class SchematicMapPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
 
-      final offset = station.isTransit ? 22.0 : 18.0;
+      final offset = station.isTransit
+          ? kTransitStationLabelOffset
+          : kRegularStationLabelOffset;
       // Pivot point = tepat di bawah node
       final pivotX = station.position.dx;
       final pivotY = station.position.dy + offset;
@@ -2721,7 +2739,7 @@ class SchematicMapPainter extends CustomPainter {
         fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
         foreground: Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.5
+          ..strokeWidth = kStationLabelOutlineWidth
           ..color = Colors.white.withValues(alpha: 0.9),
       ),
     );
@@ -2743,7 +2761,9 @@ class SchematicMapPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     )..layout();
 
-    final labelOffset = station.isTransit ? 22.0 : 18.0;
+    final labelOffset = station.isTransit
+        ? kTransitStationLabelOffset
+        : kRegularStationLabelOffset;
 
     Rect rectFor(LabelPos pos) {
       double labelX, labelY;
@@ -2886,7 +2906,7 @@ class SchematicMapPainter extends CustomPainter {
       'senayan': LabelPos.left, 'asean': LabelPos.left,
       'blok_m': LabelPos.left, 'blok_a': LabelPos.left,
       'haji_nawi': LabelPos.left, 'cipete_raya': LabelPos.left,
-      'fatmawati': LabelPos.left, 'lebak_bulus': LabelPos.left,
+      'fatmawati': LabelPos.top, 'lebak_bulus': LabelPos.left,
       'setiabudi': LabelPos.left, 'dukuh_atas': LabelPos.left,
     };
 
