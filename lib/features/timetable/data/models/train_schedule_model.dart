@@ -26,6 +26,7 @@ class TrainScheduleModel extends TrainSchedule {
     required super.trainType,
     required super.stationName,
     required super.isWeekend,
+    super.dayOffset,
   });
 
   factory TrainScheduleModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +44,7 @@ class TrainScheduleModel extends TrainSchedule {
       trainType: (json['trainType'] as String?) ?? '',
       stationName: stationName,
       isWeekend: (json['isWeekend'] as bool?) ?? false,
+      dayOffset: (json['dayOffset'] as num?)?.toInt() ?? 0,
     );
   }
 }
