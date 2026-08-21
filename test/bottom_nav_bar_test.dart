@@ -19,7 +19,7 @@ Widget _localized(Widget child) => MaterialApp(
 );
 
 void main() {
-  testWidgets('navbar has a one-pixel top border', (tester) async {
+  testWidgets('navbar has a clear two-pixel top border', (tester) async {
     await tester.pumpWidget(_localized(const AppBottomNavBar(currentIndex: 0)));
 
     final container = tester.widget<Container>(
@@ -32,8 +32,8 @@ void main() {
     );
     final border = (container.decoration! as BoxDecoration).border! as Border;
 
-    expect(border.top.width, 1);
-    expect(border.top.color, AppColors.cardBorder);
+    expect(border.top.width, 2);
+    expect(border.top.color, AppColors.primaryPurple);
     expect(border.bottom.width, 0);
   });
 

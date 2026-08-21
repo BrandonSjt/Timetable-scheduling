@@ -2058,6 +2058,38 @@ class SchematicMapPainter extends CustomPainter {
     }
   }
 
+  void _drawSelectionHalo(
+    Canvas canvas,
+    Offset center, {
+    required bool isSelected,
+    required bool isFrom,
+    required double radius,
+  }) {
+    if (!isSelected && !isFrom) return;
+    final color = isSelected ? AppColors.primaryPurple : AppColors.primaryBlue;
+    canvas.drawCircle(
+      center,
+      radius + 7,
+      Paint()..color = color.withValues(alpha: 0.16),
+    );
+    canvas.drawCircle(
+      center,
+      radius + 3,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
+    canvas.drawCircle(
+      center,
+      radius + 5,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5,
+    );
+  }
+
   /// Gambar node gabungan:
   /// Rounded rect pill dengan nama stasiun di tengah, badge secondary kiri/bawah & primary kanan/atas
   void _drawMergedNode(
@@ -2084,6 +2116,14 @@ class SchematicMapPainter extends CustomPainter {
     final nameTp = _buildMergedHubTextPainter(primaryStation, secondaryStation);
     final hubRect = mergedStationHubRect(primaryStation, secondaryStation);
     final rrect = RRect.fromRectAndRadius(hubRect, const Radius.circular(12));
+
+    _drawSelectionHalo(
+      canvas,
+      center,
+      isSelected: isSelected,
+      isFrom: isFrom,
+      radius: 24,
+    );
 
     // White fill
     canvas.drawRRect(rrect, Paint()..color = Colors.white);
@@ -2271,13 +2311,13 @@ class SchematicMapPainter extends CustomPainter {
     bool isSelected = false,
     bool isFrom = false,
   }) {
-    // Highlight glow
-    if (isFrom) {
-      final glow = Paint()
-        ..color = AppColors.primaryBlue.withValues(alpha: 0.25)
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(station.position, 30, glow);
-    }
+    _drawSelectionHalo(
+      canvas,
+      station.position,
+      isSelected: isSelected,
+      isFrom: isFrom,
+      radius: 30,
+    );
 
     final nameTp = _buildMajorHubTextPainter(station, isFrom: isFrom);
     final hubRect = Rect.fromCenter(
@@ -2320,22 +2360,13 @@ class SchematicMapPainter extends CustomPainter {
     bool isSelected = false,
     bool isFrom = false,
   }) {
-    // Highlight glow for "from" station
-    if (isFrom) {
-      canvas.drawCircle(
-        station.position,
-        18,
-        Paint()..color = AppColors.primaryBlue.withValues(alpha: 0.25),
-      );
-      canvas.drawCircle(
-        station.position,
-        18,
-        Paint()
-          ..color = AppColors.primaryBlue
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.0,
-      );
-    }
+    _drawSelectionHalo(
+      canvas,
+      station.position,
+      isSelected: isSelected,
+      isFrom: isFrom,
+      radius: 13,
+    );
 
     // Jika stasiun punya kode, gambar sebagai lingkaran berwarna dengan kode di dalam
     if (station.code.isNotEmpty) {
@@ -2622,6 +2653,11 @@ class SchematicMapPainter extends CustomPainter {
 
   void _drawLabel(Canvas canvas, StationData station, {List<Rect>? occupied}) {
     final fontSize = stationLabelFontSize(station);
+    final isSelected =
+        selectedStation == station.id || selectedStation == station.name;
+    final labelColor = isSelected
+        ? AppColors.primaryPurple
+        : AppColors.textPrimary;
 
     final preferredPos = stationLabelPositionFor(station);
 
@@ -2648,7 +2684,7 @@ class SchematicMapPainter extends CustomPainter {
       final textSpan = TextSpan(
         text: station.name,
         style: TextStyle(
-          color: AppColors.textPrimary,
+          color: labelColor,
           fontSize: fontSize,
           fontWeight: kStationLabelFontWeight,
         ),
@@ -2698,7 +2734,7 @@ class SchematicMapPainter extends CustomPainter {
       final textSpan = TextSpan(
         text: station.name,
         style: TextStyle(
-          color: AppColors.textPrimary,
+          color: labelColor,
           fontSize: fontSize,
           fontWeight: kStationLabelFontWeight,
         ),
@@ -2745,7 +2781,7 @@ class SchematicMapPainter extends CustomPainter {
     final textSpan = TextSpan(
       text: station.name,
       style: TextStyle(
-        color: AppColors.textPrimary,
+        color: labelColor,
         fontSize: fontSize,
         fontWeight: kStationLabelFontWeight,
       ),

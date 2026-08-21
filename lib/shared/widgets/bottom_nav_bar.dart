@@ -78,7 +78,7 @@ class AppBottomNavBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: const Border(
-          top: BorderSide(color: AppColors.cardBorder, width: 1),
+          top: BorderSide(color: AppColors.primaryPurple, width: 2),
         ),
         boxShadow: [
           BoxShadow(
