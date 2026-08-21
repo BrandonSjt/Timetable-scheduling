@@ -387,6 +387,49 @@ async function seedSchedulesWhenEmpty() {
   }
 }
 
+async function seedPlatformRules(stationIds: Map<string, string>) {
+  const rules = [
+    ['Manggarai', 'bogor', 'Jakarta Kota', '10'],
+    ['Manggarai', 'bogor', 'Bogor', '12'],
+    ['Manggarai', 'cikarang', 'Cikarang', '3'],
+    ['Tanah Abang', 'rangkasbitung', 'Rangkasbitung', '5'],
+    ['Duri', 'tangerang', 'Tangerang', '1'],
+    ['Bekasi', 'cikarang', 'Cikarang', '2'],
+    ['Jakarta Kota', 'bogor', 'Bogor', '1'],
+    ['Jakarta Kota', 'tanjung_priok', 'Tanjung Priok', '2'],
+  ] as const;
+  const sourceName = 'Pemetaan peron demo Commuter Line Februari 2026';
+  const sourceUrl = 'https://www.commuterline.id/';
+  const verifiedAt = new Date('2026-02-01T00:00:00.000Z');
+
+  for (const [stationName, lineSlug, destination, platform] of rules) {
+    const stationId = stationIds.get(stationName);
+    if (!stationId) throw new Error(`Platform rule station missing: ${stationName}`);
+    await prisma.stationPlatformRule.upsert({
+      where: {
+        stationId_lineSlug_direction_destination: {
+          stationId,
+          lineSlug,
+          direction: 'ANY',
+          destination,
+        },
+      },
+      update: { platform, sourceName, sourceUrl, verifiedAt },
+      create: {
+        stationId,
+        lineSlug,
+        direction: 'ANY',
+        destination,
+        platform,
+        sourceName,
+        sourceUrl,
+        validFrom: new Date('2026-02-01T00:00:00.000Z'),
+        verifiedAt,
+      },
+    });
+  }
+}
+
 async function main() {
   console.log('Seeding mobile-aligned transit network...');
   const lineIds = await seedLines();
@@ -395,6 +438,7 @@ async function main() {
   await seedPublicCodes(lineIds, stationIds);
   await seedConnections(stationIds);
   await seedSchedulesWhenEmpty();
+  await seedPlatformRules(stationIds);
   console.log(
     `Seeded ${stationIds.size} stations, ${networkData.lines.length} lines, and ${await prisma.routeConnection.count()} directed connections.`,
   );

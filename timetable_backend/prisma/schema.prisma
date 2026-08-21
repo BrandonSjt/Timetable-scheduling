@@ -30,6 +30,7 @@ model Station {
   nodes        StationNode[]
   publicCodes  StationPublicCode[]
   schedules    Schedule[]
+  platformRules StationPlatformRule[]
   stopTimes    TrainStopTime[]
   originTickets Ticket[] @relation("TicketOrigin")
   destinationTickets Ticket[] @relation("TicketDestination")
@@ -111,6 +112,26 @@ model Schedule {
   reminders     Reminder[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model StationPlatformRule {
+  id          String   @id @default(uuid())
+  stationId   String
+  lineSlug    String
+  direction   String
+  destination String?
+  platform    String
+  sourceName  String
+  sourceUrl   String
+  validFrom   DateTime? @db.Date
+  validTo     DateTime? @db.Date
+  verifiedAt  DateTime
+  station     Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([stationId, lineSlug, direction, destination])
+  @@index([stationId, lineSlug, direction])
 }
 
 model TimetableDataset {
