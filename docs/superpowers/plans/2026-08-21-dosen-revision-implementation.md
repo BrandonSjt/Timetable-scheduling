@@ -135,6 +135,7 @@
 - [ ] Process one frame at a time, skip busy frames, call Gemini only on scene change or after 5–10 seconds.
 - [ ] Stop camera, frame upload, detector, and TTS when backgrounded or disposed.
 - [ ] Add `/api/v1/assistant/vision`, accept JPEG only up to 1 MB, validate structured response, rate-limit, and never log image bytes.
+- [ ] Keep vision request bytes in memory only: do not add a Neon table/column, filesystem write, object-storage upload, persistent cache, request-body logging, or image history.
 - [ ] Provide local ML Kit/TTS fallback when offline; never claim crossing or path safety.
 - [ ] Add TalkBack labels, large stop button, relative direction copy, cooldown against repeated speech, and offline/error states.
 - [ ] Commit: `feat: add automatic accessible camera guide`.

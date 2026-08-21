@@ -311,6 +311,9 @@ Backend harus:
 ### 8.6 Privasi dan keselamatan
 
 - Frame kamera tidak disimpan di Neon atau filesystem backend.
+- Tidak ada tabel, kolom, object storage, cache persisten, atau histori gambar untuk fitur kamera.
+- Backend membaca byte JPEG di memory, meneruskan frame terpilih ke Gemini, lalu membuang byte setelah request selesai.
+- Body request vision tidak boleh ditulis ke request log, error log, tracing payload, atau analytics.
 - Hanya frame terpilih yang dikirim ke Gemini.
 - Sebelum penggunaan pertama, jelaskan bahwa gambar akan diproses oleh layanan Google.
 - Mode kamera tidak menyala diam-diam di background.
