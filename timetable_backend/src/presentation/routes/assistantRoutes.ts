@@ -1,7 +1,14 @@
-import { Router } from 'express';
-import { askAssistant } from '../controllers/assistantController';
+import express, { Router } from 'express';
+import rateLimit from 'express-rate-limit';
+import { analyzeVision, askAssistant } from '../controllers/assistantController';
 
 const router = Router();
+const visionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 /**
  * @swagger
@@ -23,5 +30,12 @@ const router = Router();
  *         description: AI Response
  */
 router.post('/chat', askAssistant);
+
+router.post(
+  '/vision',
+  visionLimiter,
+  express.raw({ type: 'image/jpeg', limit: '1mb' }),
+  analyzeVision,
+);
 
 export default router;

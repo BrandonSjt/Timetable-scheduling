@@ -271,6 +271,11 @@ class _AssistantPageState extends State<AssistantPage>
                           icon: Icons.support_agent_rounded,
                           onTap: () => context.go('/pusat-bantuan'),
                         ),
+                        AssistantQuickAction(
+                          label: 'Pemandu Kamera',
+                          icon: Icons.camera_alt_rounded,
+                          onTap: () => context.push('/asisten/pemandu-kamera'),
+                        ),
                       ],
                     ),
                   ],

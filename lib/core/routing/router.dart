@@ -7,6 +7,7 @@ import '../../features/route_result/domain/entities/route_plan.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
 import '../../features/assistant/presentation/pages/assistant_page.dart';
+import '../../features/assistant/presentation/pages/camera_guide_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
@@ -74,6 +75,10 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => NoTransitionPage(
         child: AssistantPage(alarmController: TravelAlarmScope.of(context)),
       ),
+    ),
+    GoRoute(
+      path: '/asisten/pemandu-kamera',
+      builder: (context, state) => const CameraGuidePage(),
     ),
 
     // Tautan lama tetap menuju tab Asisten.

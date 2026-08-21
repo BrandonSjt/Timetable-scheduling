@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../../domain/errors/ApiError';
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
+  // Never print request bodies: the vision endpoint receives transient image bytes.
+  console.error(err instanceof Error ? err.message : String(err));
 
   const statusCode = err instanceof ApiError ? err.statusCode : 500;
   const message = err instanceof ApiError ? err.message : 'Internal Server Error';
