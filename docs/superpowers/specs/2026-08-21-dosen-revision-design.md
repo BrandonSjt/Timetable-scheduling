@@ -10,13 +10,14 @@ Revisi ini menindaklanjuti seluruh notulen dosen:
 
 1. jadwal dan status yang terus diperbarui;
 2. map default yang lebih mudah dibaca;
-3. indikator **You Are Here**;
-4. navbar yang batasnya lebih jelas;
-5. integrasi AI;
-6. panduan aksesibel untuk pengguna tunanetra;
-7. kamera otomatis yang memberi panduan suara;
-8. informasi **Peron**;
-9. backend online dan APK yang dapat didemokan di perangkat Android.
+3. preview line yang dipilih pengguna;
+4. indikator **You Are Here**;
+5. navbar yang batasnya lebih jelas;
+6. integrasi AI;
+7. panduan aksesibel untuk pengguna tunanetra;
+8. kamera otomatis yang memberi panduan suara;
+9. informasi **Peron**;
+10. backend online dan APK yang dapat didemokan di perangkat Android.
 
 Implementasi harus mempertahankan layout map existing. Perubahan map dibatasi pada skala, jarak, keterbacaan, dan penanda pilihan.
 
@@ -28,6 +29,7 @@ Implementasi harus mempertahankan layout map existing. Perubahan map dibatasi pa
 - Line, node, dan font nama stasiun telah diperbesar.
 - Semua nama stasiun telah dibuat tebal dan beberapa tabrakan label telah diperbaiki, termasuk area Lebak Bulus dan Sudirman.
 - Map telah memiliki state stasiun terpilih dan highlight node.
+- Map telah memiliki filter beberapa line melalui `visibleLineIds`, tetapi belum memiliki mode fokus satu line yang mempertahankan konteks seluruh jaringan.
 - Navbar telah memiliki border atas 1 px dan shadow tipis.
 - Halaman jadwal menghitung status berdasarkan jam perangkat dan me-refresh tampilan setiap 30 detik.
 - Jadwal Commuter Line Februari 2026 telah diimpor ke Neon: 1.145 perjalanan dan 19.328 pemberhentian.
@@ -110,6 +112,23 @@ Animasi harus berhenti ketika halaman tidak aktif dan tidak boleh menyebabkan ma
 - Tidak memindahkan layout yang sudah disetujui kecuali penyesuaian kecil untuk mencegah tabrakan.
 - Posisi khusus nama Lebak Bulus dan Sudirman tetap dipertahankan.
 - Perubahan harus diuji pada ukuran layar Android kecil dan besar.
+
+### 4.3 Preview line terpilih
+
+Pengguna dapat memilih satu line untuk melihat rutenya dengan lebih jelas tanpa kehilangan konteks jaringan.
+
+- Line terpilih tetap memakai warna asli dan stroke sedikit lebih tebal.
+- Semua line lain tetap digambar, tetapi memakai abu-abu netral dengan opacity rendah.
+- Node dan nama stasiun pada line terpilih tetap penuh dan mudah dibaca.
+- Node dan nama stasiun di luar line terpilih diredupkan, bukan dihilangkan.
+- Stasiun transit yang dilalui line terpilih tetap ditampilkan penuh.
+- Walking connection yang tidak berkaitan dengan line terpilih ikut diredupkan.
+- Tombol/opsi **Semua Line** mengembalikan warna seluruh jaringan.
+- Memilih line lain langsung memindahkan fokus tanpa perlu menonaktifkan pilihan sebelumnya.
+- Pemilihan memakai satu state fokus, bukan kombinasi checkbox yang dapat menghasilkan map kosong.
+- Untuk service yang memiliki lebih dari satu segmen geometri, satu pilihan mengaktifkan seluruh segmennya. Contoh: Bogor mencakup `bogor` dan `bogor_nambo`; Cikarang mencakup `cikarang_loop` dan `cikarang_east`.
+
+Mode preview tidak mengubah koordinat, urutan station, posisi label, zoom, atau layout map. Perubahan hanya memengaruhi warna, opacity, dan ketebalan visual.
 
 ## 5. Perubahan Navbar
 
@@ -331,15 +350,16 @@ Tujuan perbaikan adalah membuat test merepresentasikan sumber data aktual, bukan
 1. Perbaiki test legacy agar baseline test bersih.
 2. Tambahkan model, migrasi, seed, dan resolver Peron.
 3. Hubungkan field Peron ke API dan kartu jadwal.
-4. Perjelas highlight You Are Here tanpa mengubah layout map.
-5. Tebalkan border navbar.
-6. Modernisasi endpoint Gemini chat dan hubungkan UI Asisten ke backend.
-7. Tambahkan kamera, ML Kit, TTS, permission, dan halaman pemandu.
-8. Tambahkan endpoint vision serta fallback error/kuota.
-9. Terapkan migrasi dan seed ke Neon.
-10. Deploy backend ke cloud dan pasang URL HTTPS pada build Flutter.
-11. Jalankan pengujian backend, Flutter, dan perangkat Android nyata.
-12. Build APK demo.
+4. Tambahkan preview satu line dan opsi Semua Line tanpa mengubah layout map.
+5. Perjelas highlight You Are Here tanpa mengubah layout map.
+6. Tebalkan border navbar.
+7. Modernisasi endpoint Gemini chat dan hubungkan UI Asisten ke backend.
+8. Tambahkan kamera, ML Kit, TTS, permission, dan halaman pemandu.
+9. Tambahkan endpoint vision serta fallback error/kuota.
+10. Terapkan migrasi dan seed ke Neon.
+11. Deploy backend ke cloud dan pasang URL HTTPS pada build Flutter.
+12. Jalankan pengujian backend, Flutter, dan perangkat Android nyata.
+13. Build APK demo.
 
 Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah fitur kamera menutupi masalah data atau koneksi backend.
 
@@ -361,6 +381,9 @@ Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah 
 
 - highlight stasiun berpindah sesuai pilihan;
 - treatment highlight konsisten pada semua jenis node;
+- line terpilih tetap berwarna dan line lain berubah abu-abu tanpa menghilangkan konteks map;
+- opsi Semua Line memulihkan seluruh warna;
+- kelompok line Bogor dan Cikarang menyorot seluruh segmen geometrinya;
 - navbar memiliki border 2 px tanpa mengubah tinggi;
 - kartu jadwal menampilkan **Peron N** atau **Peron belum tersedia**;
 - state chat berhasil, loading, error, dan retry dapat diuji tanpa API nyata;
@@ -385,6 +408,7 @@ Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah 
 Revisi dianggap selesai untuk demo apabila:
 
 - map tetap utuh dan stasiun terpilih memiliki highlight You Are Here yang jelas;
+- pengguna dapat mem-preview satu line sementara line lain tetap terlihat dalam warna abu-abu;
 - navbar memiliki batas atas yang tegas;
 - jadwal Februari 2026 terbaca dari Neon dengan status otomatis yang jujur;
 - informasi Peron tampil untuk stasiun prioritas dan fallback benar untuk lainnya;
@@ -403,4 +427,3 @@ Revisi dianggap selesai untuk demo apabila:
 - penyimpanan atau histori foto kamera;
 - pemetaan peron semua stasiun tanpa sumber terverifikasi;
 - penggantian total layout map.
-
