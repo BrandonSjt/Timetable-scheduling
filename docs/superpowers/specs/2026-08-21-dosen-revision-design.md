@@ -115,18 +115,26 @@ Animasi harus berhenti ketika halaman tidak aktif dan tidak boleh menyebabkan ma
 
 ### 4.3 Preview line terpilih
 
-Pengguna dapat memilih satu line untuk melihat rutenya dengan lebih jelas tanpa kehilangan konteks jaringan.
+Preview line diakses dari halaman hasil/preview perjalanan, bukan menjadi kontrol utama pada halaman map.
 
-- Line terpilih tetap memakai warna asli dan stroke sedikit lebih tebal.
+- Setelah rute berhasil ditemukan, tampilkan `FloatingActionButton.extended` di kanan bawah dengan ikon map dan label **Lihat Line di Peta**.
+- Floating button hanya tampil pada state hasil berhasil; tidak tampil saat loading, error, atau hasil kosong.
+- Posisi tombol berada di atas navbar dengan safe margin sehingga tidak menutup isi perjalanan maupun navigasi bawah.
+- Saat ditekan, tombol membuka map preview layar penuh memakai navigasi `push`; tombol kembali mengembalikan pengguna ke hasil perjalanan yang sama.
+- Map preview memakai komponen dan koordinat map existing. Tidak membuat desain jaringan baru.
+- Jika perjalanan memakai satu line, hanya line tersebut yang menjadi fokus.
+- Jika perjalanan membutuhkan transit, semua line yang dipakai perjalanan tetap memakai warna aslinya agar seluruh perjalanan terbaca.
+
+- Line perjalanan tetap memakai warna asli dan stroke sedikit lebih tebal.
 - Semua line lain tetap digambar, tetapi memakai abu-abu netral dengan opacity rendah.
-- Node dan nama stasiun pada line terpilih tetap penuh dan mudah dibaca.
-- Node dan nama stasiun di luar line terpilih diredupkan, bukan dihilangkan.
-- Stasiun transit yang dilalui line terpilih tetap ditampilkan penuh.
-- Walking connection yang tidak berkaitan dengan line terpilih ikut diredupkan.
-- Tombol/opsi **Semua Line** mengembalikan warna seluruh jaringan.
-- Memilih line lain langsung memindahkan fokus tanpa perlu menonaktifkan pilihan sebelumnya.
-- Pemilihan memakai satu state fokus, bukan kombinasi checkbox yang dapat menghasilkan map kosong.
-- Untuk service yang memiliki lebih dari satu segmen geometri, satu pilihan mengaktifkan seluruh segmennya. Contoh: Bogor mencakup `bogor` dan `bogor_nambo`; Cikarang mencakup `cikarang_loop` dan `cikarang_east`.
+- Node dan nama stasiun pada perjalanan tetap penuh dan mudah dibaca.
+- Node dan nama stasiun di luar perjalanan diredupkan, bukan dihilangkan.
+- Stasiun asal menjadi pilihan awal dan mendapat indikator **You Are Here**.
+- Stasiun transit dan tujuan perjalanan tetap ditampilkan penuh.
+- Walking connection yang dipakai perjalanan tetap penuh; walking connection lain ikut diredupkan.
+- Tombol/opsi **Semua Line** pada map preview mengembalikan warna seluruh jaringan tanpa menutup preview.
+- Fokus perjalanan memakai satu state berdasarkan kumpulan ID line dari hasil rute, bukan kombinasi checkbox yang dapat menghasilkan map kosong.
+- Untuk service yang memiliki lebih dari satu segmen geometri, satu line mengaktifkan seluruh segmennya. Contoh: Bogor mencakup `bogor` dan `bogor_nambo`; Cikarang mencakup `cikarang_loop` dan `cikarang_east`.
 
 Mode preview tidak mengubah koordinat, urutan station, posisi label, zoom, atau layout map. Perubahan hanya memengaruhi warna, opacity, dan ketebalan visual.
 
@@ -350,7 +358,7 @@ Tujuan perbaikan adalah membuat test merepresentasikan sumber data aktual, bukan
 1. Perbaiki test legacy agar baseline test bersih.
 2. Tambahkan model, migrasi, seed, dan resolver Peron.
 3. Hubungkan field Peron ke API dan kartu jadwal.
-4. Tambahkan preview satu line dan opsi Semua Line tanpa mengubah layout map.
+4. Tambahkan floating button pada hasil perjalanan dan map preview line perjalanan tanpa mengubah layout map.
 5. Perjelas highlight You Are Here tanpa mengubah layout map.
 6. Tebalkan border navbar.
 7. Modernisasi endpoint Gemini chat dan hubungkan UI Asisten ke backend.
@@ -381,7 +389,9 @@ Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah 
 
 - highlight stasiun berpindah sesuai pilihan;
 - treatment highlight konsisten pada semua jenis node;
-- line terpilih tetap berwarna dan line lain berubah abu-abu tanpa menghilangkan konteks map;
+- floating button hanya muncul pada hasil perjalanan yang berhasil dan tidak menutupi navbar;
+- menekan floating button membuka map preview serta tombol kembali mempertahankan hasil perjalanan;
+- line perjalanan tetap berwarna dan line lain berubah abu-abu tanpa menghilangkan konteks map;
 - opsi Semua Line memulihkan seluruh warna;
 - kelompok line Bogor dan Cikarang menyorot seluruh segmen geometrinya;
 - navbar memiliki border 2 px tanpa mengubah tinggi;
@@ -408,7 +418,7 @@ Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah 
 Revisi dianggap selesai untuk demo apabila:
 
 - map tetap utuh dan stasiun terpilih memiliki highlight You Are Here yang jelas;
-- pengguna dapat mem-preview satu line sementara line lain tetap terlihat dalam warna abu-abu;
+- pengguna dapat membuka preview line perjalanan melalui floating button pada halaman hasil perjalanan, sementara line lain tetap terlihat dalam warna abu-abu;
 - navbar memiliki batas atas yang tegas;
 - jadwal Februari 2026 terbaca dari Neon dengan status otomatis yang jujur;
 - informasi Peron tampil untuk stasiun prioritas dan fallback benar untuk lainnya;
