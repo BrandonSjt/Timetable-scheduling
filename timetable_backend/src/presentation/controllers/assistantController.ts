@@ -1,33 +1,37 @@
-import { Request, Response } from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextFunction, Request, Response } from 'express';
+import { z } from 'zod';
+import { ApiError } from '../../domain/errors/ApiError';
+import {
+  AssistantProviderError,
+  AssistantService,
+} from '../../domain/services/assistantService';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy_key');
+export const assistantMessageSchema = z.object({
+  message: z.string().trim().min(1).max(1000),
+});
 
-export const askAssistant = async (req: Request, res: Response): Promise<void> => {
+const assistantService = new AssistantService();
+
+export const askAssistant = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const parsed = assistantMessageSchema.safeParse(req.body);
+  if (!parsed.success) {
+    next(new ApiError(400, 'Message must contain 1-1000 characters.', 'VALIDATION_ERROR'));
+    return;
+  }
+
   try {
-    const { message } = req.body;
-    if (!message) {
-      res.status(400).json({ error: 'Message is required' });
-      return;
-    }
-
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
-      res.json({ reply: 'Halo! Saya adalah Asisten Perjalanan Anda. (Kunci API Gemini belum dikonfigurasi, ini adalah pesan otomatis).' });
-      return;
-    }
-
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `Kamu adalah asisten perjalanan kereta KRL/LRT di Jabodetabek bernama KAI Metro Access. 
-Jawablah pertanyaan berikut dengan singkat, ramah, dan membantu:
-Pertanyaan: ${message}`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    res.json({ reply: text });
+    const reply = await assistantService.reply(parsed.data.message);
+    res.json({ success: true, data: { reply } });
   } catch (error) {
-    console.error('Error generating AI response:', error);
-    res.status(500).json({ error: 'Failed to communicate with AI Assistant' });
+    if (error instanceof AssistantProviderError) {
+      const status = error.code === 'AI_NOT_CONFIGURED' ? 503 : 502;
+      next(new ApiError(status, error.message, error.code));
+      return;
+    }
+    next(error);
   }
 };

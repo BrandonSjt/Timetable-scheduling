@@ -5,18 +5,25 @@ import 'package:flutter/foundation.dart';
 import '../../../travel_alarm/domain/entities/travel_alarm_state.dart';
 import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../../domain/entities/assistant_conversation_item.dart';
+import '../../domain/repositories/assistant_chat_repository.dart';
 
 class AssistantConversationController extends ChangeNotifier {
-  AssistantConversationController({required this.alarmController});
+  AssistantConversationController({
+    required this.alarmController,
+    this.chatRepository,
+  });
 
   final TravelAlarmController alarmController;
+  final AssistantChatRepository? chatRepository;
   final List<AssistantConversationItem> _items = [];
   int _nextId = 0;
+  bool _isSending = false;
 
   UnmodifiableListView<AssistantConversationItem> get items =>
       UnmodifiableListView(_items);
+  bool get isSending => _isSending;
 
-  void submitText(String rawText) {
+  Future<void> submitText(String rawText) async {
     final text = rawText.trim();
     if (text.isEmpty) return;
 
@@ -25,7 +32,27 @@ class AssistantConversationController extends ChangeNotifier {
       kind: AssistantConversationItemKind.message,
       text: text,
     );
-    _handleCommand(text.toLowerCase());
+    final handled = _handleCommand(text.toLowerCase());
+    if (!handled && chatRepository != null) {
+      _isSending = true;
+      notifyListeners();
+      try {
+        _appendAssistant(await chatRepository!.ask(text));
+      } on Exception {
+        _appendAssistant(
+          'Asisten sedang tidak tersedia. Coba lagi atau cek informasi resmi stasiun.',
+        );
+      } finally {
+        _isSending = false;
+      }
+      notifyListeners();
+      return;
+    }
+    if (!handled) {
+      _appendAssistant(
+        'Saya belum memahami perintah itu. Coba: "Alarm berikutnya kapan?" atau "Aktifkan semua alarm tiket saya".',
+      );
+    }
     notifyListeners();
   }
 
@@ -51,57 +78,54 @@ class AssistantConversationController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleCommand(String normalized) {
+  bool _handleCommand(String normalized) {
     if (_requiresTicket(normalized) && !alarmController.state.hasActiveTicket) {
       _append(
         author: AssistantMessageAuthor.assistant,
         kind: AssistantConversationItemKind.noActiveTicket,
         text: 'Belum ada tiket aktif',
       );
-      return;
+      return true;
     }
 
     if (normalized.contains('batalkan semua alarm')) {
       if (!alarmController.state.hasAnyAlarm) {
         _appendAssistant('Tidak ada alarm aktif.');
-        return;
+        return true;
       }
       alarmController.cancelAllAlarms();
       _appendAssistant('Semua alarm perjalanan dibatalkan.');
-      return;
+      return true;
     }
 
     if (normalized.contains('matikan alarm tujuan')) {
       if (!alarmController.state.destinationAlarmEnabled) {
         _appendAlarmStatus('Alarm tujuan sudah nonaktif.');
-        return;
+        return true;
       }
       alarmController.disableDestinationAlarm();
       _appendAlarmStatus('Alarm tujuan dinonaktifkan.');
-      return;
+      return true;
     }
 
     if (normalized.contains('aktifkan semua alarm')) {
       alarmController.configureAlarms(departure: true, destination: true);
       _appendAlarmStatus('Semua alarm perjalanan aktif.');
-      return;
+      return true;
     }
 
     if (normalized.contains('alarm berikutnya')) {
       _appendAlarmStatus(alarmController.nextAlarmDescription);
-      return;
+      return true;
     }
 
     if (normalized.contains('datang') || normalized.contains('berapa menit')) {
       _appendAssistant(
         'Kereta datang ${alarmController.state.minutesUntilTrain} menit lagi',
       );
-      return;
+      return true;
     }
-
-    _appendAssistant(
-      'Saya belum memahami perintah itu. Coba: "Alarm berikutnya kapan?" atau "Aktifkan semua alarm tiket saya".',
-    );
+    return false;
   }
 
   bool _requiresTicket(String text) {
