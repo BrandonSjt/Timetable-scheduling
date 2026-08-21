@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
+
+import '../../data/datasources/vision_guide_remote_data_source.dart';
 
 enum CameraGuideState {
   loading,
@@ -16,14 +19,21 @@ enum CameraGuideState {
 }
 
 class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
-  CameraGuideController({CameraController? camera, FlutterTts? tts})
-    : _camera = camera,
-      _tts = tts ?? FlutterTts();
+  CameraGuideController({
+    CameraController? camera,
+    FlutterTts? tts,
+    VisionGuideRemoteDataSource? vision,
+  }) : _camera = camera,
+       _tts = tts ?? FlutterTts(),
+       _vision = vision ?? VisionGuideRemoteDataSource();
 
   CameraController? _camera;
   final FlutterTts _tts;
+  final VisionGuideRemoteDataSource _vision;
   ObjectDetector? _detector;
   Timer? _speechCooldown;
+  DateTime? _lastVisionRequest;
+  bool _visionBusy = false;
   bool _busy = false;
   bool _stopped = false;
 
@@ -51,7 +61,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
         ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
-            ? ImageFormatGroup.nv21
+            ? ImageFormatGroup.jpeg
             : ImageFormatGroup.bgra8888,
       );
       await _camera!.initialize();
@@ -101,6 +111,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     if (_busy || _stopped || _detector == null || _camera == null) return;
     _busy = true;
     try {
+      _sendRemoteVisionIfDue(image);
       final input = _inputImageFromCameraImage(image);
       if (input == null) return;
       final objects = await _detector!.processImage(input);
@@ -123,6 +134,31 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
       notifyListeners();
     } finally {
       _busy = false;
+    }
+  }
+
+  void _sendRemoteVisionIfDue(CameraImage image) {
+    if (!Platform.isAndroid || _visionBusy || image.planes.length != 1) return;
+    final now = DateTime.now();
+    if (_lastVisionRequest != null &&
+        now.difference(_lastVisionRequest!) < const Duration(seconds: 8)) {
+      return;
+    }
+    final bytes = image.planes.first.bytes;
+    if (bytes.isEmpty || bytes.length > 1_048_576) return;
+    _lastVisionRequest = now;
+    _visionBusy = true;
+    unawaited(_requestRemoteVision(Uint8List.fromList(bytes)));
+  }
+
+  Future<void> _requestRemoteVision(Uint8List bytes) async {
+    try {
+      final result = await _vision.analyzeJpeg(bytes);
+      if (result != null && !_stopped) _announce(result.spokenText);
+    } catch (_) {
+      // Local ML Kit remains active when the backend is unavailable.
+    } finally {
+      _visionBusy = false;
     }
   }
 
@@ -184,6 +220,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
   void dispose() {
     unawaited(stop());
     _tts.stop();
+    _vision.close();
     super.dispose();
   }
 }
