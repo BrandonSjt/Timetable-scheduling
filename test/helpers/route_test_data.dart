@@ -63,7 +63,30 @@ const testRoute = RoutePlan(
       isDestination: true,
     ),
   ],
-  stationSequence: [],
+  stationSequence: [
+    RouteStation(
+      stationId: 'bogor',
+      name: 'Bogor',
+      line: RouteLine(
+        id: 'line-bogor',
+        slug: 'bogor',
+        name: 'Lin Bogor',
+        color: '#E53935',
+        serviceType: 'KRL',
+      ),
+    ),
+    RouteStation(
+      stationId: 'tangerang',
+      name: 'Tangerang',
+      line: RouteLine(
+        id: 'line-tangerang',
+        slug: 'tangerang',
+        name: 'Lin Tangerang',
+        color: '#8E44AD',
+        serviceType: 'KRL',
+      ),
+    ),
+  ],
   exitGateA: 'Pintu utama',
   exitGateB: 'Area antar-jemput',
 );

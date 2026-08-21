@@ -7,6 +7,7 @@ import 'package:timetable/features/route_result/domain/repositories/route_reposi
 import 'package:timetable/features/route_result/domain/services/route_speech_service.dart';
 import 'package:timetable/features/route_result/presentation/controllers/route_controller.dart';
 import 'package:timetable/features/route_result/presentation/pages/route_result_page.dart';
+import 'package:timetable/features/route_result/presentation/pages/route_map_preview_page.dart';
 import 'package:timetable/l10n/app_localizations.dart';
 import 'helpers/route_test_data.dart';
 
@@ -90,6 +91,7 @@ void main() {
     expect(find.text('Rp10.000'), findsWidgets);
     expect(find.text('Pindah peron di Duri'), findsOneWidget);
     expect(find.text('Lanjut naik KRL Lin Tangerang'), findsOneWidget);
+    expect(find.byKey(const Key('journey-map-preview-button')), findsOneWidget);
     expect(find.text('Urutan stasiun'), findsNothing);
 
     await tester.tap(find.text('Aksesibel'));
@@ -119,5 +121,38 @@ void main() {
     );
     expect(find.text('Lanjut naik KRL Lin Bogor'), findsOneWidget);
     expect(find.byKey(const ValueKey('route-timeline-walk-1')), findsOneWidget);
+    expect(find.byKey(const Key('journey-map-preview-button')), findsNothing);
+  });
+
+  testWidgets('journey map preview focuses route lines and origin', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('id'),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: RouteMapPreviewPage(route: testRoute),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Preview Line Perjalanan'), findsOneWidget);
+    expect(find.text('You Are Here: Bogor'), findsOneWidget);
+    expect(find.text('Lin Bogor'), findsOneWidget);
+    expect(find.text('Lin Tangerang'), findsOneWidget);
+    expect(find.text('Semua Line'), findsOneWidget);
+
+    await tester.tap(find.text('Semua Line'));
+    await tester.pump();
+    expect(find.text('Fokus Perjalanan'), findsOneWidget);
   });
 }
