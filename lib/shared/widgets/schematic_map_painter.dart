@@ -3030,6 +3030,20 @@ class SchematicMapPainter extends CustomPainter {
           continue;
         }
       }
+      // Preview perjalanan hanya menampilkan badge line yang punya segmen
+      // aktif. Badge line lain tidak boleh membuat pengguna mengira line itu
+      // ikut dilewati.
+      if (highlightedSegmentIds != null) {
+        final lineId = _badgeToLineId(badge.code);
+        if (lineId == null ||
+            !lineId.any(
+              (id) => highlightedSegmentIds!.any(
+                (segment) => segment.startsWith('$id|'),
+              ),
+            )) {
+          continue;
+        }
+      }
       _drawSingleLineBadge(canvas, badge);
     }
   }
