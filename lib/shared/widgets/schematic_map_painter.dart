@@ -44,6 +44,21 @@ class LineData {
   });
 }
 
+/// Stable key for one physical line segment between two station nodes.
+/// Station names are used because the route API and schematic map use
+/// different internal station identifiers.
+String mapRouteSegmentKey(
+  String lineId,
+  String firstStation,
+  String secondStation,
+) {
+  final stations = [
+    firstStation.trim().toLowerCase(),
+    secondStation.trim().toLowerCase(),
+  ]..sort();
+  return '$lineId|${stations[0]}|${stations[1]}';
+}
+
 /// Koneksi antarmoda yang ditempuh dengan berjalan kaki, bukan jalur rel.
 class WalkingConnectionData {
   final String fromStationId;
@@ -1763,6 +1778,7 @@ class SchematicMapPainter extends CustomPainter {
   final String? selectedStation;
   final String? fromStation;
   final Set<String>? visibleLineIds;
+  final Set<String>? highlightedSegmentIds;
   final String? nearestStation;
 
   SchematicMapPainter({
@@ -1770,6 +1786,7 @@ class SchematicMapPainter extends CustomPainter {
     this.selectedStation,
     this.fromStation,
     this.visibleLineIds,
+    this.highlightedSegmentIds,
     this.nearestStation,
   });
 
@@ -1834,8 +1851,11 @@ class SchematicMapPainter extends CustomPainter {
     for (final line in transitLines) {
       final bool isVisible =
           visibleLineIds == null || visibleLineIds!.contains(line.id);
+      final segmentMode = highlightedSegmentIds != null;
       final paint = Paint()
-        ..color = isVisible
+        ..color = segmentMode
+            ? line.color.withValues(alpha: 0.10)
+            : isVisible
             ? (showColors ? line.color : line.color.withValues(alpha: 0.85))
             : line.color.withValues(alpha: 0.08)
         ..strokeWidth = line.strokeWidth
@@ -1843,12 +1863,31 @@ class SchematicMapPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
 
-      final points = <Offset>[];
+      final lineStations = <StationData>[];
       for (final stationId in line.stationIds) {
         final station = _findStation(stationId);
-        if (station != null) points.add(station.position);
+        if (station != null) lineStations.add(station);
       }
+      final points = lineStations.map((station) => station.position).toList();
       _drawRoundedPath(canvas, points, paint);
+
+      if (highlightedSegmentIds == null) continue;
+      final highlightPaint = Paint()
+        ..color = showColors ? line.color : line.color.withValues(alpha: 0.95)
+        ..strokeWidth = line.strokeWidth + 2
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+      for (var index = 0; index < lineStations.length - 1; index++) {
+        final from = lineStations[index];
+        final to = lineStations[index + 1];
+        if (!highlightedSegmentIds!.contains(
+          mapRouteSegmentKey(line.id, from.name, to.name),
+        )) {
+          continue;
+        }
+        _drawRoundedPath(canvas, [from.position, to.position], highlightPaint);
+      }
     }
   }
 
@@ -3067,6 +3106,7 @@ class SchematicMapPainter extends CustomPainter {
         oldDelegate.selectedStation != selectedStation ||
         oldDelegate.fromStation != fromStation ||
         oldDelegate.visibleLineIds != visibleLineIds ||
+        oldDelegate.highlightedSegmentIds != highlightedSegmentIds ||
         oldDelegate.nearestStation != nearestStation;
   }
 }

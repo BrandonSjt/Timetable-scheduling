@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../home/presentation/widgets/map_widgets.dart';
+import '../../../../shared/widgets/schematic_map_painter.dart';
 import '../../domain/entities/route_plan.dart';
 
 class RouteMapPreviewPage extends StatefulWidget {
@@ -37,7 +38,9 @@ class _RouteMapPreviewPageState extends State<RouteMapPreviewPage> {
                 showColors: true,
                 selectedStation: route.from,
                 fromStation: route.from,
-                visibleLineIds: _showAllLines ? null : route.lineSlugs,
+                highlightedSegmentIds: _showAllLines
+                    ? null
+                    : _routeSegmentIds(route),
               ),
             ),
             _PreviewControls(
@@ -51,6 +54,57 @@ class _RouteMapPreviewPageState extends State<RouteMapPreviewPage> {
         ),
       ),
     );
+  }
+
+  Set<String> _routeSegmentIds(RoutePlan route) {
+    final segments = <String>{};
+    for (var index = 0; index < route.stationSequence.length - 1; index++) {
+      final from = route.stationSequence[index];
+      final to = route.stationSequence[index + 1];
+      if (from.line.slug != to.line.slug) continue;
+
+      final line = transitLines
+          .where((item) => item.id == from.line.slug)
+          .firstOrNull;
+      if (line == null) continue;
+      final orderedStations = [
+        for (final stationId in line.stationIds)
+          for (final station in stations)
+            if (station.id == stationId) station,
+      ];
+      final fromIndex = orderedStations.indexWhere(
+        (station) => _matchesRouteStation(station, from),
+      );
+      final toIndex = orderedStations.indexWhere(
+        (station) => _matchesRouteStation(station, to),
+      );
+      if (fromIndex == -1 || toIndex == -1 || fromIndex == toIndex) continue;
+
+      final start = fromIndex < toIndex ? fromIndex : toIndex;
+      final end = fromIndex < toIndex ? toIndex : fromIndex;
+      for (var edge = start; edge < end; edge++) {
+        segments.add(
+          mapRouteSegmentKey(
+            line.id,
+            orderedStations[edge].name,
+            orderedStations[edge + 1].name,
+          ),
+        );
+      }
+    }
+    return segments;
+  }
+
+  bool _matchesRouteStation(StationData mapStation, RouteStation routeStation) {
+    final sameName =
+        mapStation.name.trim().toLowerCase() ==
+        routeStation.name.trim().toLowerCase();
+    final sameCode =
+        routeStation.nodeCode != null &&
+        routeStation.nodeCode!.isNotEmpty &&
+        mapStation.code.trim().toLowerCase() ==
+            routeStation.nodeCode!.trim().toLowerCase();
+    return sameName || sameCode;
   }
 }
 

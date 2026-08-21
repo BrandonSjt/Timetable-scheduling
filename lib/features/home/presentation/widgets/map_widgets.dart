@@ -13,6 +13,7 @@ class MapView extends StatefulWidget {
   final String? fromStation;
   final ValueChanged<String>? onStationSelected;
   final Set<String>? visibleLineIds;
+  final Set<String>? highlightedSegmentIds;
   final String? nearestStationId;
   final VoidCallback? onLocateUser;
   final bool isLocating;
@@ -24,6 +25,7 @@ class MapView extends StatefulWidget {
     this.fromStation,
     this.onStationSelected,
     this.visibleLineIds,
+    this.highlightedSegmentIds,
     this.nearestStationId,
     this.onLocateUser,
     this.isLocating = false,
@@ -276,6 +278,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         selectedStation: widget.selectedStation,
                         fromStation: widget.fromStation,
                         visibleLineIds: widget.visibleLineIds,
+                        highlightedSegmentIds: widget.highlightedSegmentIds,
                         nearestStation: widget.nearestStationId,
                       ),
                     ),
