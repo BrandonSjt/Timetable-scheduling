@@ -104,15 +104,14 @@ Set<String> routeMapSegmentIds(RoutePlan route) {
 }
 
 bool _matchesRouteStation(StationData mapStation, RouteStation routeStation) {
-  final sameName =
-      mapStation.name.trim().toLowerCase() ==
+  final routeCode = routeStation.nodeCode?.trim().toLowerCase() ?? '';
+  if (routeCode.isNotEmpty) {
+    // Node code is line-specific; station names are not (Cawang, Duri,
+    // Jakarta Kota, and others have multiple map nodes).
+    return mapStation.code.trim().toLowerCase() == routeCode;
+  }
+  return mapStation.name.trim().toLowerCase() ==
       routeStation.name.trim().toLowerCase();
-  final sameCode =
-      routeStation.nodeCode != null &&
-      routeStation.nodeCode!.isNotEmpty &&
-      mapStation.code.trim().toLowerCase() ==
-          routeStation.nodeCode!.trim().toLowerCase();
-  return sameName || sameCode;
 }
 
 class _PreviewHeader extends StatelessWidget {
