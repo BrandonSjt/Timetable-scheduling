@@ -1854,7 +1854,7 @@ class SchematicMapPainter extends CustomPainter {
       final segmentMode = highlightedSegmentIds != null;
       final paint = Paint()
         ..color = segmentMode
-            ? line.color.withValues(alpha: 0.10)
+            ? const Color(0xFFCDD1DB)
             : isVisible
             ? (showColors ? line.color : line.color.withValues(alpha: 0.85))
             : line.color.withValues(alpha: 0.08)
