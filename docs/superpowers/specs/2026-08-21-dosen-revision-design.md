@@ -340,6 +340,34 @@ APK Flutter
 - Backend di-host pada layanan cloud gratis; target awal adalah Render atau layanan setara yang mendukung Node dan environment secret.
 - APK memakai base URL HTTPS melalui konfigurasi build, bukan `localhost`.
 
+### 9.1 Sesi auth pada APK
+
+Backend sudah memakai access token singkat dan refresh token yang dapat dirotasi. Flutter harus mengikuti lifecycle ini:
+
+- Access token berlaku 15 menit.
+- Refresh token berlaku 90 hari, disimpan di secure storage, dan tidak pernah ditulis ke log.
+- Saat API mengembalikan `401`, client mencoba refresh satu kali lalu mengulang request yang gagal.
+- Refresh token baru menggantikan token lama setelah rotasi berhasil.
+- Jika refresh gagal atau sesi kedaluwarsa, pengguna dikembalikan ke login; mode guest tetap dapat digunakan untuk jadwal dan rute.
+- Logout mencabut refresh token pada backend dan menghapus token lokal.
+- Request refresh harus memiliki guard agar beberapa request `401` bersamaan tidak membuat banyak refresh paralel.
+
+### 9.2 Kesiapan hosting gratis dan release APK
+
+- Environment debug boleh memakai `localhost`; build release wajib memakai URL backend HTTPS dari `--dart-define` atau konfigurasi build setara.
+- `DATABASE_URL`, `GEMINI_API_KEY`, JWT secret, dan secret lain hanya berada di environment backend.
+- Endpoint `/health` dipakai untuk pengecekan koneksi dan status startup.
+- Karena hosting gratis dapat mengalami cold start, APK menampilkan **Server sedang aktif** dan menyediakan retry, bukan menganggap timeout sebagai data kosong.
+- Timeout, error jaringan, dan respons `5xx` memakai pesan yang bisa dipahami pengguna.
+- Release APK memakai konfigurasi signing terpisah dari debug dan diuji pada perangkat Android tanpa komputer developer.
+
+### 9.3 Fallback demo
+
+- Map, rute, dan jadwal tetap dapat digunakan saat Gemini unavailable.
+- Chat menampilkan error terstruktur dan tombol **Coba lagi** tanpa menghapus percakapan.
+- Kamera tetap menjalankan ML Kit lokal saat internet atau kuota Gemini tidak tersedia; hasil diberi label bahwa deskripsi AI tidak aktif.
+- Jika tidak ada line ID yang cocok pada map preview, tampilkan map normal dan pesan fallback, bukan map kosong.
+
 ## 10. Perbaikan Test Legacy
 
 Test import Februari 2026 saat ini mencampur audit dataset normalized dengan jumlah `Schedule` legacy.
@@ -352,6 +380,13 @@ Perbaikannya:
 - jangan mengubah data PDF yang sudah lolos audit.
 
 Tujuan perbaikan adalah membuat test merepresentasikan sumber data aktual, bukan sekadar mengganti 205 menjadi 28 tanpa konteks.
+
+## 10.1 Transparansi dataset jadwal
+
+- UI menampilkan sumber **Jadwal Commuter Line Februari 2026** pada halaman jadwal atau detail informasi.
+- Waktu status memakai timezone `Asia/Jakarta` secara konsisten.
+- Copy status menyebut **status berdasarkan jadwal**, bukan posisi kereta live.
+- Refresh otomatis tetap berjalan setiap 30 detik dan tersedia tombol refresh manual.
 
 ## 11. Urutan Implementasi
 
@@ -366,8 +401,9 @@ Tujuan perbaikan adalah membuat test merepresentasikan sumber data aktual, bukan
 9. Tambahkan endpoint vision serta fallback error/kuota.
 10. Terapkan migrasi dan seed ke Neon.
 11. Deploy backend ke cloud dan pasang URL HTTPS pada build Flutter.
-12. Jalankan pengujian backend, Flutter, dan perangkat Android nyata.
-13. Build APK demo.
+12. Hubungkan lifecycle auth, health check, cold-start state, dan fallback demo.
+13. Jalankan pengujian backend, Flutter, dan perangkat Android nyata.
+14. Build dan sign APK demo.
 
 Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah fitur kamera menutupi masalah data atau koneksi backend.
 
@@ -382,6 +418,8 @@ Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah 
 - endpoint chat menangani API key kosong, timeout, dan kuota;
 - endpoint vision menolak MIME selain JPEG dan body terlalu besar;
 - output Gemini invalid tidak diteruskan ke APK;
+- refresh token dirotasi dan token lama tidak dapat dipakai ulang;
+- logout mencabut sesi dan health endpoint mengembalikan status yang konsisten;
 - gambar tidak tersimpan dan tidak tercetak di log;
 - seluruh test backend lolos.
 
@@ -398,6 +436,9 @@ Urutan ini menjaga aplikasi tetap dapat diuji setelah setiap tahap dan mencegah 
 - kartu jadwal menampilkan **Peron N** atau **Peron belum tersedia**;
 - state chat berhasil, loading, error, dan retry dapat diuji tanpa API nyata;
 - halaman kamera memiliki state permission ditolak, loading, aktif, offline, error, dan berhenti;
+- client melakukan satu kali refresh saat access token kedaluwarsa dan mencegah refresh paralel;
+- timeout/cold start menampilkan retry tanpa mengosongkan data yang sudah tersedia;
+- preview perjalanan dengan rute jalan kaki saja tidak menampilkan floating button;
 - TTS tidak mengulang kalimat yang sama;
 - kamera berhenti saat halaman ditutup/background;
 - seluruh widget penting memiliki semantics TalkBack;
@@ -422,11 +463,13 @@ Revisi dianggap selesai untuk demo apabila:
 - navbar memiliki batas atas yang tegas;
 - jadwal Februari 2026 terbaca dari Neon dengan status otomatis yang jujur;
 - informasi Peron tampil untuk stasiun prioritas dan fallback benar untuk lainnya;
+- sumber dataset, timezone, dan sifat status berbasis jadwal terlihat jelas;
 - chat Asisten memakai backend Gemini nyata, bukan simulasi;
 - kamera mulai otomatis setelah mode dibuka, mendeteksi objek, dan membacakan panduan;
 - API key hanya berada di backend;
 - backend dapat diakses lewat HTTPS publik;
 - semua test dan build berhasil;
+- APK release memakai backend HTTPS, dapat pulih dari cold start, dan memiliki fallback saat AI unavailable;
 - APK demo berhasil diuji pada perangkat Android nyata.
 
 ## 14. Di Luar Scope Demo
