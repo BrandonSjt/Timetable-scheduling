@@ -9,6 +9,7 @@ import 'package:timetable/features/route_result/presentation/controllers/route_c
 import 'package:timetable/features/route_result/presentation/pages/route_result_page.dart';
 import 'package:timetable/features/route_result/presentation/pages/route_map_preview_page.dart';
 import 'package:timetable/l10n/app_localizations.dart';
+import 'package:timetable/shared/widgets/schematic_map_painter.dart';
 import 'helpers/route_test_data.dart';
 
 class _Repository implements RouteRepository {
@@ -154,5 +155,70 @@ void main() {
     await tester.tap(find.text('Semua Line'));
     await tester.pump();
     expect(find.text('Fokus Perjalanan'), findsOneWidget);
+  });
+
+  test('walking transfer does not highlight a rail segment across Cikoko', () {
+    const route = RoutePlan(
+      from: 'Dukuh Atas Bank Syariah Indonesia',
+      to: 'Tebet',
+      travelTime: 29,
+      fare: 4000,
+      unitFare: 4000,
+      currency: 'IDR',
+      passengerCount: 1,
+      stops: 7,
+      serviceInfo: 'Layanan normal',
+      hasTransit: true,
+      transferCount: 1,
+      preference: RoutePreference.fastest,
+      steps: [],
+      stationSequence: [
+        RouteStation(
+          stationId: 'cikoko',
+          name: 'Cikoko',
+          nodeCode: 'CB06',
+          line: RouteLine(
+            id: 'line-lrt-cibubur',
+            slug: 'lrt_cibubur',
+            name: 'LRT Jabodebek (Cibubur)',
+            color: '#003399',
+            serviceType: 'LRT',
+          ),
+        ),
+        RouteStation(
+          stationId: 'cawang',
+          name: 'Cawang',
+          nodeCode: 'B11',
+          line: RouteLine(
+            id: 'line-bogor',
+            slug: 'bogor',
+            name: 'KRL Lin Bogor',
+            color: '#E53935',
+            serviceType: 'KRL',
+          ),
+        ),
+        RouteStation(
+          stationId: 'tebet',
+          name: 'Tebet',
+          nodeCode: 'B10',
+          line: RouteLine(
+            id: 'line-bogor',
+            slug: 'bogor',
+            name: 'KRL Lin Bogor',
+            color: '#E53935',
+            serviceType: 'KRL',
+          ),
+        ),
+      ],
+      exitGateA: 'Pintu utama',
+      exitGateB: 'Area antar-jemput',
+    );
+
+    final segments = routeMapSegmentIds(route);
+    expect(segments, contains(mapRouteSegmentKey('bogor', 'Cawang', 'Tebet')));
+    expect(
+      segments,
+      isNot(contains(mapRouteSegmentKey('lrt_cibubur', 'Cikoko', 'Cawang'))),
+    );
   });
 }

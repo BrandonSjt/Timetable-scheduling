@@ -40,7 +40,7 @@ class _RouteMapPreviewPageState extends State<RouteMapPreviewPage> {
                 fromStation: route.from,
                 highlightedSegmentIds: _showAllLines
                     ? null
-                    : _routeSegmentIds(route),
+                    : routeMapSegmentIds(route),
               ),
             ),
             _PreviewControls(
@@ -55,58 +55,64 @@ class _RouteMapPreviewPageState extends State<RouteMapPreviewPage> {
       ),
     );
   }
+}
 
-  Set<String> _routeSegmentIds(RoutePlan route) {
-    final segments = <String>{};
-    for (var index = 0; index < route.stationSequence.length - 1; index++) {
-      final from = route.stationSequence[index];
-      final to = route.stationSequence[index + 1];
-      final candidateLines = transitLines.where(
-        (line) => line.id == from.line.slug || line.id == to.line.slug,
+Set<String> routeMapSegmentIds(RoutePlan route) {
+  final segments = <String>{};
+  for (var index = 0; index < route.stationSequence.length - 1; index++) {
+    final from = route.stationSequence[index];
+    final to = route.stationSequence[index + 1];
+    // A line change with a different color represents a transfer (including
+    // the Cikoko LRT -> Cawang KRL walk), not a rail segment to highlight.
+    // Same-color changes are retained for branch handoffs such as Bogor.
+    if (from.line.slug != to.line.slug && from.line.color != to.line.color) {
+      continue;
+    }
+    final candidateLines = transitLines.where(
+      (line) => line.id == from.line.slug || line.id == to.line.slug,
+    );
+    for (final line in candidateLines) {
+      final orderedStations = [
+        for (final stationId in line.stationIds)
+          for (final station in stations)
+            if (station.id == stationId) station,
+      ];
+      final fromIndex = orderedStations.indexWhere(
+        (station) => _matchesRouteStation(station, from),
       );
-      for (final line in candidateLines) {
-        final orderedStations = [
-          for (final stationId in line.stationIds)
-            for (final station in stations)
-              if (station.id == stationId) station,
-        ];
-        final fromIndex = orderedStations.indexWhere(
-          (station) => _matchesRouteStation(station, from),
-        );
-        final toIndex = orderedStations.indexWhere(
-          (station) => _matchesRouteStation(station, to),
-        );
-        if (fromIndex == -1 || toIndex == -1 || fromIndex == toIndex) {
-          continue;
-        }
+      final toIndex = orderedStations.indexWhere(
+        (station) => _matchesRouteStation(station, to),
+      );
+      if (fromIndex == -1 || toIndex == -1 || fromIndex == toIndex) {
+        continue;
+      }
 
-        final start = fromIndex < toIndex ? fromIndex : toIndex;
-        final end = fromIndex < toIndex ? toIndex : fromIndex;
-        for (var edge = start; edge < end; edge++) {
-          segments.add(
-            mapRouteSegmentKey(
-              line.id,
-              orderedStations[edge].name,
-              orderedStations[edge + 1].name,
-            ),
-          );
-        }
+      final start = fromIndex < toIndex ? fromIndex : toIndex;
+      final end = fromIndex < toIndex ? toIndex : fromIndex;
+      for (var edge = start; edge < end; edge++) {
+        segments.add(
+          mapRouteSegmentKey(
+            line.id,
+            orderedStations[edge].name,
+            orderedStations[edge + 1].name,
+          ),
+        );
       }
     }
-    return segments;
   }
+  return segments;
+}
 
-  bool _matchesRouteStation(StationData mapStation, RouteStation routeStation) {
-    final sameName =
-        mapStation.name.trim().toLowerCase() ==
-        routeStation.name.trim().toLowerCase();
-    final sameCode =
-        routeStation.nodeCode != null &&
-        routeStation.nodeCode!.isNotEmpty &&
-        mapStation.code.trim().toLowerCase() ==
-            routeStation.nodeCode!.trim().toLowerCase();
-    return sameName || sameCode;
-  }
+bool _matchesRouteStation(StationData mapStation, RouteStation routeStation) {
+  final sameName =
+      mapStation.name.trim().toLowerCase() ==
+      routeStation.name.trim().toLowerCase();
+  final sameCode =
+      routeStation.nodeCode != null &&
+      routeStation.nodeCode!.isNotEmpty &&
+      mapStation.code.trim().toLowerCase() ==
+          routeStation.nodeCode!.trim().toLowerCase();
+  return sameName || sameCode;
 }
 
 class _PreviewHeader extends StatelessWidget {
