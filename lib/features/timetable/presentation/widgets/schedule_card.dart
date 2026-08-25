@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/train_schedule.dart';
+import '../../domain/services/platform_display.dart';
 import '../../domain/services/schedule_status.dart';
 
 class ScheduleCard extends StatelessWidget {
@@ -108,6 +109,7 @@ class ScheduleCard extends StatelessWidget {
                   ),
                   // Nomor Peron
                   Container(
+                    key: const Key('schedule-platform'),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 4,
@@ -118,7 +120,7 @@ class ScheduleCard extends StatelessWidget {
                       border: Border.all(color: AppColors.cardBorder),
                     ),
                     child: Text(
-                      l10n.departurePlatform(schedule.platform),
+                      PlatformDisplay.label(schedule.platform),
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -127,6 +129,15 @@ class ScheduleCard extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                PlatformDisplay.checkBoardHint,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textHint,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 8),
               // Rute perjalanan
@@ -168,6 +179,15 @@ class ScheduleCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Status berdasarkan jadwal (bukan posisi kereta live)',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textHint,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 14),

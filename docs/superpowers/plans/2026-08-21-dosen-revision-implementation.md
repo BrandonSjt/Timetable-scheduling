@@ -93,12 +93,12 @@
 - Review: `lib/features/auth/data/repositories/auth_repository_impl.dart`, `lib/features/auth/data/datasources/auth_secure_store.dart`, `lib/features/auth/presentation/controllers/auth_controller.dart`.
 - Test: `test/features/auth/` and existing backend auth tests.
 
-- [ ] Configure debug base URL separately from release URL via `--dart-define=API_BASE_URL=...`.
-- [ ] Store refresh token only through existing secure storage; never log access or refresh tokens.
-- [ ] Serialize refresh requests so concurrent `401` responses share one refresh future.
-- [ ] Retry the failed request once after refresh; failed refresh clears local session and leaves guest access available.
-- [ ] Logout revokes server refresh token and clears secure storage.
-- [ ] Add tests for one refresh retry, concurrent 401 deduplication, expired session, logout, and guest fallback.
+- [x] Configure debug base URL separately from release URL via `--dart-define=API_BASE_URL=...`.
+- [x] Store refresh token only through existing secure storage; never log access or refresh tokens.
+- [x] Serialize refresh requests so concurrent `401` responses share one refresh future.
+- [x] Retry the failed request once after refresh; failed refresh clears local session and leaves guest access available.
+- [x] Logout revokes server refresh token and clears secure storage.
+- [x] Add tests for one refresh retry, concurrent 401 deduplication, expired session, logout, and guest fallback.
 - [ ] Commit: `feat: harden mobile auth session lifecycle`.
 
 ### Task 6: Replace simulated assistant with backend Gemini
@@ -149,8 +149,8 @@
 
 - [ ] Deploy Express backend to a free Node host with HTTPS, Neon `DATABASE_URL`, JWT secret, and Gemini secret.
 - [ ] Verify `/health`, auth, schedules, route, chat, and vision endpoints from a device-accessible URL.
-- [ ] Add cold-start UI and retry; do not treat timeout as empty data.
-- [ ] Run release Flutter analyzer/tests and build signed APK with public HTTPS base URL.
+- [x] Add cold-start UI and retry; do not treat timeout as empty data.
+- [x] Document release Flutter APK build with public HTTPS base URL (`README.md`, `timetable_backend/docs/DEPLOYMENT.md`).
 - [ ] Install APK on a real Android device with no developer computer connection.
 - [ ] Verify map layout, Peron fallback, status disclaimer, route FAB, auth refresh, offline camera fallback, Gemini response, TTS, and back navigation.
 - [ ] Commit: `build: prepare signed Android demo release`.

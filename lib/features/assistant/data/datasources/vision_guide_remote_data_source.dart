@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_timeouts.dart';
 
 class VisionGuideResult {
   const VisionGuideResult({
@@ -30,7 +31,7 @@ class VisionGuideRemoteDataSource {
           headers: const {'Content-Type': 'image/jpeg'},
           body: bytes,
         )
-        .timeout(const Duration(seconds: 14));
+        .timeout(ApiTimeouts.request);
     if (response.statusCode != 200) return null;
     final decoded = jsonDecode(response.body);
     final data = decoded is Map<String, dynamic> ? decoded['data'] : null;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_timeouts.dart';
 import '../../domain/entities/train_schedule.dart';
 import '../models/train_schedule_model.dart';
 
@@ -37,7 +38,7 @@ class TimetableRemoteDataSource {
 
     final response = await _client
         .get(uri, headers: {'Content-Type': 'application/json'})
-        .timeout(const Duration(seconds: 10));
+        .timeout(ApiTimeouts.request);
 
     if (response.statusCode == 200) {
       final body = json.decode(response.body) as Map<String, dynamic>;

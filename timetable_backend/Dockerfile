@@ -18,11 +18,11 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
 
-# Refuse potentially destructive schema changes; production deployments should
-# replace db push with versioned `prisma migrate deploy` once a baseline exists.
+# Prefer versioned migrations in production. Seed/timetable import stay ops
+# steps because the runner image omits devDependencies (tsx).
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
-    echo 'npx prisma db push' >> /app/entrypoint.sh && \
-    echo 'npx prisma db seed' >> /app/entrypoint.sh && \
+    echo 'set -e' >> /app/entrypoint.sh && \
+    echo 'npx prisma migrate deploy' >> /app/entrypoint.sh && \
     echo 'node dist/app.js' >> /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 

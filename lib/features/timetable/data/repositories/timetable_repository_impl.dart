@@ -33,21 +33,25 @@ class TimetableRepositoryImpl implements TimetableRepository {
 
       // Jika remote kosong, fallback ke data lokal untuk stasiun tersebut.
       if (remoteSchedules.isEmpty) {
-        return _filterLocal(
+        final local = _filterLocal(
           station: station,
           trainType: trainType,
           isWeekend: isWeekend,
         );
+        return local.isNotEmpty ? local : remoteSchedules;
       }
 
       return remoteSchedules;
-    } catch (_) {
-      // Jika terjadi error jaringan, fallback ke data lokal.
-      return _filterLocal(
+    } catch (error) {
+      // Jaringan/cold-start: pakai lokal jika ada. Jangan anggap timeout
+      // sebagai jadwal kosong ketika fallback lokal juga kosong.
+      final local = _filterLocal(
         station: station,
         trainType: trainType,
         isWeekend: isWeekend,
       );
+      if (local.isNotEmpty) return local;
+      rethrow;
     }
   }
 

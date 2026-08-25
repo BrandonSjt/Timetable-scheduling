@@ -139,6 +139,12 @@ class _RouteError extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
           ),
+          const SizedBox(height: 8),
+          const Text(
+            'Jika baru membuka server gratis, tunggu cold start lalu coba lagi.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: onRetry,

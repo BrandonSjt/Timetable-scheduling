@@ -599,41 +599,46 @@ class _TimetablePageState extends State<TimetablePage> {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  // Error state
+                  // Error state — timeout/cold-start is not treated as empty data.
                   if (snapshot.hasError) {
                     return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.wifi_off_rounded,
-                            size: 48,
-                            color: AppColors.textHint.withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Gagal memuat jadwal',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.cloud_queue_rounded,
+                              size: 48,
+                              color: AppColors.textHint.withValues(alpha: 0.5),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Menggunakan data lokal sebagai fallback',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textHint,
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Server sedang aktif',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextButton.icon(
-                            onPressed: _loadSchedules,
-                            icon: const Icon(Icons.refresh_rounded, size: 18),
-                            label: const Text('Coba Lagi'),
-                          ),
-                        ],
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Koneksi ke backend masih disiapkan atau terputus. Coba lagi tanpa menganggap jadwal kosong.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextButton.icon(
+                              onPressed: _loadSchedules,
+                              icon: const Icon(Icons.refresh_rounded, size: 18),
+                              label: const Text('Coba Lagi'),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -714,7 +719,7 @@ class _TimetablePageState extends State<TimetablePage> {
                               SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  'Berdasarkan jadwal resmi Februari 2026',
+                                  'Jadwal Commuter Line Februari 2026 · status otomatis berdasarkan jadwal (bukan real-time KAI)',
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: AppColors.textSecondary,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_timeouts.dart';
 
 class AssistantChatRemoteDataSource {
   AssistantChatRemoteDataSource({http.Client? client})
@@ -17,7 +18,7 @@ class AssistantChatRemoteDataSource {
           headers: const {'content-type': 'application/json'},
           body: jsonEncode({'message': message}),
         )
-        .timeout(const Duration(seconds: 15));
+        .timeout(ApiTimeouts.request);
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200 || body['success'] != true) {
       final error = body['error'];

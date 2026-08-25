@@ -41,6 +41,40 @@ void main() {
 
     expect(find.text('Berangkat 7 menit lagi'), findsOneWidget);
     expect(find.byKey(const Key('schedule-status')), findsOneWidget);
+    expect(find.text('Peron 1'), findsOneWidget);
+    expect(find.text('Cek papan informasi stasiun'), findsOneWidget);
+    expect(
+      find.text('Status berdasarkan jadwal (bukan posisi kereta live)'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows honest Peron fallback when platform is missing', (
+    tester,
+  ) async {
+    const missingPlatform = TrainSchedule(
+      trainName: 'KRL 1001',
+      route: 'Bogor - Jakarta Kota',
+      departureTime: '10:00',
+      arrivalTime: '11:00',
+      platform: '',
+      trainType: 'KRL',
+      stationName: 'Bogor',
+      isWeekend: false,
+    );
+    await tester.pumpWidget(
+      localizedTestApp(
+        home: Scaffold(
+          body: ScheduleCard(
+            schedule: missingPlatform,
+            now: DateTime(2026, 8, 15, 9, 53),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Peron belum tersedia'), findsOneWidget);
+    expect(find.text('Cek papan informasi stasiun'), findsOneWidget);
   });
 
   testWidgets('shows now status at departure time', (tester) async {
