@@ -35,6 +35,9 @@ if (process.env.NODE_ENV === 'production') {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Render terminates HTTPS and forwards requests through one trusted proxy.
+app.set('trust proxy', 1);
+
 // Security and Utility Middlewares
 app.use(helmet());
 const allowedOrigins = process.env.CORS_ORIGINS

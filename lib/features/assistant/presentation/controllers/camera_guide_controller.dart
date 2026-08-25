@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 
 import '../../data/datasources/vision_guide_remote_data_source.dart';
+import '../utils/nv21_jpeg_encoder.dart';
 
 enum CameraGuideState {
   loading,
@@ -61,7 +63,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
         ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
-            ? ImageFormatGroup.jpeg
+            ? ImageFormatGroup.nv21
             : ImageFormatGroup.bgra8888,
       );
       await _camera!.initialize();
@@ -145,15 +147,36 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
       return;
     }
     final bytes = image.planes.first.bytes;
-    if (bytes.isEmpty || bytes.length > 1_048_576) return;
+    if (bytes.isEmpty) return;
     _lastVisionRequest = now;
     _visionBusy = true;
-    unawaited(_requestRemoteVision(Uint8List.fromList(bytes)));
+    unawaited(
+      _requestRemoteVision(
+        Uint8List.fromList(bytes),
+        width: image.width,
+        height: image.height,
+        rotationDegrees: _camera?.description.sensorOrientation ?? 0,
+      ),
+    );
   }
 
-  Future<void> _requestRemoteVision(Uint8List bytes) async {
+  Future<void> _requestRemoteVision(
+    Uint8List nv21Bytes, {
+    required int width,
+    required int height,
+    required int rotationDegrees,
+  }) async {
     try {
-      final result = await _vision.analyzeJpeg(bytes);
+      final jpegBytes = await Isolate.run(
+        () => encodeNv21ToJpeg(
+          nv21Bytes,
+          width: width,
+          height: height,
+          rotationDegrees: rotationDegrees,
+        ),
+      );
+      if (jpegBytes.length > 1_048_576) return;
+      final result = await _vision.analyzeJpeg(jpegBytes);
       if (result != null && !_stopped) _announce(result.spokenText);
     } catch (_) {
       // Local ML Kit remains active when the backend is unavailable.
@@ -210,8 +233,9 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
+    if (this.state == CameraGuideState.active &&
+        (state == AppLifecycleState.paused ||
+            state == AppLifecycleState.inactive)) {
       unawaited(stop());
     }
   }
