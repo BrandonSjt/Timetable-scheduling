@@ -38,14 +38,24 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
   bool _visionBusy = false;
   bool _busy = false;
   bool _stopped = false;
+  int _sessionId = 0;
+  bool _observingLifecycle = false;
+  bool _pausedByLifecycle = false;
+  Future<void>? _lifecyclePause;
 
   CameraGuideState state = CameraGuideState.loading;
   String message = 'Menyiapkan kamera…';
   CameraController? get camera => _camera;
 
   Future<void> start() async {
+    _sessionId += 1;
     _stopped = false;
-    WidgetsBinding.instance.addObserver(this);
+    _busy = false;
+    _visionBusy = false;
+    if (!_observingLifecycle) {
+      WidgetsBinding.instance.addObserver(this);
+      _observingLifecycle = true;
+    }
     if (_camera != null) {
       await _startDetectorAndStream();
       return;
@@ -111,12 +121,14 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _processImage(CameraImage image) async {
     if (_busy || _stopped || _detector == null || _camera == null) return;
+    final sessionId = _sessionId;
     _busy = true;
     try {
-      _sendRemoteVisionIfDue(image);
+      _sendRemoteVisionIfDue(image, sessionId: sessionId);
       final input = _inputImageFromCameraImage(image);
       if (input == null) return;
       final objects = await _detector!.processImage(input);
+      if (_stopped || sessionId != _sessionId) return;
       if (objects.isEmpty) {
         _announce('Belum ada objek jelas di depan.');
         return;
@@ -131,15 +143,16 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
           : '${labels.join(' dan ')} terdeteksi di depan.';
       _announce(description);
     } catch (_) {
+      if (_stopped || sessionId != _sessionId) return;
       state = CameraGuideState.offline;
       message = 'Deteksi lokal terbatas; koneksi AI tidak tersedia.';
       notifyListeners();
     } finally {
-      _busy = false;
+      if (sessionId == _sessionId) _busy = false;
     }
   }
 
-  void _sendRemoteVisionIfDue(CameraImage image) {
+  void _sendRemoteVisionIfDue(CameraImage image, {required int sessionId}) {
     if (!Platform.isAndroid || _visionBusy || image.planes.length != 1) return;
     final now = DateTime.now();
     if (_lastVisionRequest != null &&
@@ -156,6 +169,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
         width: image.width,
         height: image.height,
         rotationDegrees: _camera?.description.sensorOrientation ?? 0,
+        sessionId: sessionId,
       ),
     );
   }
@@ -165,6 +179,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     required int width,
     required int height,
     required int rotationDegrees,
+    required int sessionId,
   }) async {
     try {
       final jpegBytes = await Isolate.run(
@@ -177,11 +192,13 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
       );
       if (jpegBytes.length > 1_048_576) return;
       final result = await _vision.analyzeJpeg(jpegBytes);
-      if (result != null && !_stopped) _announce(result.spokenText);
+      if (result != null && !_stopped && sessionId == _sessionId) {
+        _announce(result.spokenText);
+      }
     } catch (_) {
       // Local ML Kit remains active when the backend is unavailable.
     } finally {
-      _visionBusy = false;
+      if (sessionId == _sessionId) _visionBusy = false;
     }
   }
 
@@ -217,8 +234,21 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> stop() async {
+    _pausedByLifecycle = false;
+    await _stopCamera(removeLifecycleObserver: true);
+    message = 'Pemandu kamera dihentikan.';
+    notifyListeners();
+  }
+
+  Future<void> _stopCamera({required bool removeLifecycleObserver}) async {
+    _sessionId += 1;
     _stopped = true;
-    WidgetsBinding.instance.removeObserver(this);
+    _busy = false;
+    _visionBusy = false;
+    if (removeLifecycleObserver && _observingLifecycle) {
+      WidgetsBinding.instance.removeObserver(this);
+      _observingLifecycle = false;
+    }
     _speechCooldown?.cancel();
     final camera = _camera;
     if (camera?.value.isStreamingImages ?? false) {
@@ -231,12 +261,25 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  Future<void> _resumeAfterLifecyclePause() async {
+    await _lifecyclePause;
+    if (_pausedByLifecycle) return;
+    await restart();
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (this.state == CameraGuideState.active &&
         (state == AppLifecycleState.paused ||
             state == AppLifecycleState.inactive)) {
-      unawaited(stop());
+      _pausedByLifecycle = true;
+      _lifecyclePause = _stopCamera(removeLifecycleObserver: false);
+      unawaited(_lifecyclePause);
+      return;
+    }
+    if (state == AppLifecycleState.resumed && _pausedByLifecycle) {
+      _pausedByLifecycle = false;
+      unawaited(_resumeAfterLifecyclePause());
     }
   }
 

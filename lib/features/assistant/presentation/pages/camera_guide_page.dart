@@ -147,11 +147,23 @@ class _CameraGuidePageState extends State<CameraGuidePage> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () => _controller.stop(),
-            icon: const Icon(Icons.stop_circle_outlined),
-            label: const Text('Hentikan Pemandu'),
+            onPressed: _controller.state == CameraGuideState.stopped
+                ? _controller.restart
+                : _controller.stop,
+            icon: Icon(
+              _controller.state == CameraGuideState.stopped
+                  ? Icons.play_circle_outline_rounded
+                  : Icons.stop_circle_outlined,
+            ),
+            label: Text(
+              _controller.state == CameraGuideState.stopped
+                  ? 'Mulai Pemandu'
+                  : 'Hentikan Pemandu',
+            ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.statusRed,
+              backgroundColor: _controller.state == CameraGuideState.stopped
+                  ? AppColors.primaryBlue
+                  : AppColors.statusRed,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
