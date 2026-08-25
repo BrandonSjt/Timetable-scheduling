@@ -40,6 +40,21 @@ configuration's additional arguments:
 
 Keep HTTP limited to local debug testing. Production builds should use an HTTPS
 API URL.
+
+## Demo release APK
+
+1. Deploy the backend with Neon using `timetable_backend/docs/DEPLOYMENT.md`.
+2. Confirm `GET https://<host>/health` returns OK.
+3. Build a release APK that points at the public HTTPS API:
+
+```powershell
+flutter build apk --release --dart-define=API_BASE_URL=https://<host>/api/v1
+```
+
+4. Install `build/app/outputs/flutter-apk/app-release.apk` on a physical Android
+   device. Free-tier cold starts may take ~15–30s; the app shows retry instead of
+   treating timeouts as empty data.
+
 # Optional accounts
 
 The app opens in guest mode. Registration and login are optional; guest users

@@ -2,9 +2,12 @@ import 'package:go_router/go_router.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/search_station/presentation/pages/search_station_page.dart';
 import '../../features/route_result/presentation/pages/route_result_page.dart';
+import '../../features/route_result/presentation/pages/route_map_preview_page.dart';
+import '../../features/route_result/domain/entities/route_plan.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
 import '../../features/assistant/presentation/pages/assistant_page.dart';
+import '../../features/assistant/presentation/pages/camera_guide_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
@@ -72,6 +75,10 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => NoTransitionPage(
         child: AssistantPage(alarmController: TravelAlarmScope.of(context)),
       ),
+    ),
+    GoRoute(
+      path: '/asisten/pemandu-kamera',
+      builder: (context, state) => const CameraGuidePage(),
     ),
 
     // Tautan lama tetap menuju tab Asisten.
@@ -170,6 +177,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/rute',
       builder: (context, state) => const RouteResultPage(),
+    ),
+    GoRoute(
+      path: '/rute/peta',
+      builder: (context, state) => RouteMapPreviewPage(
+        route: state.extra is RoutePlan ? state.extra as RoutePlan : null,
+      ),
     ),
 
     // Detail Keberangkatan

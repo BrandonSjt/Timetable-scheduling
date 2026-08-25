@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_timeouts.dart';
 import '../../domain/entities/route_plan.dart';
 import '../models/route_plan_model.dart';
 
@@ -32,7 +33,7 @@ class RouteRemoteDataSource {
               'preference': preference.apiValue,
             }),
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(ApiTimeouts.request);
       if (response.statusCode != 200) throw const RouteRequestException();
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       if (body['success'] != true || body['data'] is! Map<String, dynamic>) {

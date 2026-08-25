@@ -3,6 +3,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/schematic_map_painter.dart';
 
+const double kInitialMapScale = 1.05;
+
 /// Widget peta skematik jalur kereta yang bisa di-zoom, di-geser,
 /// dan klik stasiun untuk memilihnya.
 class MapView extends StatefulWidget {
@@ -11,6 +13,10 @@ class MapView extends StatefulWidget {
   final String? fromStation;
   final ValueChanged<String>? onStationSelected;
   final Set<String>? visibleLineIds;
+  final Set<String>? highlightedSegmentIds;
+  final String? nearestStationId;
+  final VoidCallback? onLocateUser;
+  final bool isLocating;
 
   const MapView({
     super.key,
@@ -19,6 +25,10 @@ class MapView extends StatefulWidget {
     this.fromStation,
     this.onStationSelected,
     this.visibleLineIds,
+    this.highlightedSegmentIds,
+    this.nearestStationId,
+    this.onLocateUser,
+    this.isLocating = false,
   });
 
   @override
@@ -124,8 +134,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     bool animate = true,
     double? scale,
   }) {
+    final query = stationName.toLowerCase();
     final station = stations.firstWhere(
-      (s) => s.name.toLowerCase() == stationName.toLowerCase(),
+      (s) =>
+          s.id.toLowerCase() == query ||
+          s.name.toLowerCase() == query ||
+          stationSelectionName(s).toLowerCase() == query,
       orElse: () => stations.first,
     );
 
@@ -229,7 +243,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               'Dukuh Atas LRT', // Default initial view position based on screenshot
               viewportSize,
               animate: false,
-              scale: 1.05,
+              scale: kInitialMapScale,
             );
             _hasInitialized = true;
           });
@@ -264,6 +278,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         selectedStation: widget.selectedStation,
                         fromStation: widget.fromStation,
                         visibleLineIds: widget.visibleLineIds,
+                        highlightedSegmentIds: widget.highlightedSegmentIds,
+                        nearestStation: widget.nearestStationId,
                       ),
                     ),
                   ),
@@ -280,6 +296,13 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   _ZoomButton(icon: Icons.zoom_in, onTap: () => _zoom(1.4)),
                   const SizedBox(height: 8),
                   _ZoomButton(icon: Icons.zoom_out, onTap: () => _zoom(0.7)),
+                  if (widget.onLocateUser != null) ...[
+                    const SizedBox(height: 8),
+                    _LocationButton(
+                      isLoading: widget.isLocating,
+                      onTap: widget.onLocateUser!,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -297,6 +320,57 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     );
   }
 }
+
+class _LocationButton extends StatelessWidget {
+  const _LocationButton({required this.isLoading, required this.onTap});
+
+  final bool isLoading;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Temukan lokasi saya',
+      child: GestureDetector(
+        key: const Key('locate-user-button'),
+        onTap: isLoading ? null : onTap,
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: isLoading ? AppColors.primaryBlueLight : AppColors.surface,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.primaryBlue.withValues(alpha: 0.35),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(11),
+                  child: CircularProgressIndicator(
+                    key: Key('locate-user-progress'),
+                    strokeWidth: 2.5,
+                  ),
+                )
+              : const Icon(
+                  Icons.my_location_rounded,
+                  color: AppColors.primaryBlue,
+                  size: 21,
+                ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Tombol zoom bulat dengan ikon magnifier glass
 class _ZoomButton extends StatelessWidget {
   final IconData icon;

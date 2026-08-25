@@ -161,4 +161,23 @@ void main() {
       ),
     );
   });
+
+  test('timeout exposes a retryable network error', () async {
+    final source = TicketRemoteDataSource(
+      client: MockClient((_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 30));
+        return http.Response('{}', 200);
+      }),
+      requestTimeout: const Duration(milliseconds: 5),
+    );
+
+    expect(
+      () => source.listTickets(contactEmail: 'guest@example.com'),
+      throwsA(
+        isA<TicketRemoteException>()
+            .having((error) => error.code, 'code', 'NETWORK_ERROR')
+            .having((error) => error.isNetwork, 'isNetwork', isTrue),
+      ),
+    );
+  });
 }

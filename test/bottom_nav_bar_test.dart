@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:timetable/core/theme/app_colors.dart';
 import 'package:timetable/l10n/app_localizations.dart';
 import 'package:timetable/shared/widgets/bottom_nav_bar.dart';
 
@@ -18,6 +19,24 @@ Widget _localized(Widget child) => MaterialApp(
 );
 
 void main() {
+  testWidgets('navbar has a clear two-pixel top border', (tester) async {
+    await tester.pumpWidget(_localized(const AppBottomNavBar(currentIndex: 0)));
+
+    final container = tester.widget<Container>(
+      find
+          .descendant(
+            of: find.byType(AppBottomNavBar),
+            matching: find.byType(Container),
+          )
+          .first,
+    );
+    final border = (container.decoration! as BoxDecoration).border! as Border;
+
+    expect(border.top.width, 2);
+    expect(border.top.color, AppColors.primaryPurple);
+    expect(border.bottom.width, 0);
+  });
+
   testWidgets('navbar is a flat five-item row with Home first', (tester) async {
     await tester.pumpWidget(_localized(const AppBottomNavBar(currentIndex: 0)));
     await tester.pumpAndSettle();

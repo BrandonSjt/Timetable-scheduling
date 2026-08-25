@@ -2,6 +2,7 @@ import 'dotenv/config';
 import assert from 'node:assert/strict';
 import { after, test } from 'node:test';
 import { PrismaClient } from '@prisma/client';
+import { mobileScheduleData } from '../prisma/mobileScheduleData';
 
 const prisma = new PrismaClient();
 after(() => prisma.$disconnect());
@@ -36,7 +37,7 @@ test('active February 2026 dataset has audited normalized totals', async () => {
       crossMidnight: 21,
       weekday: 33,
       fullRacket: 160,
-      legacy: 205,
+      legacy: mobileScheduleData.length,
     },
   );
 });

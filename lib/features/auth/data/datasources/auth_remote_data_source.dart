@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_timeouts.dart';
 import '../models/account_user_model.dart';
 import '../models/auth_session_model.dart';
 
@@ -26,7 +27,7 @@ class AuthRemoteDataSource {
     : _client = client ?? http.Client();
 
   final http.Client _client;
-  static const _timeout = Duration(seconds: 10);
+  static const _timeout = ApiTimeouts.request;
 
   Future<AuthSessionModel> register({
     required String name,

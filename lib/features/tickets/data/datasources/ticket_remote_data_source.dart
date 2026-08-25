@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_timeouts.dart';
 import '../../domain/entities/ticket.dart';
 import '../models/ticket_model.dart';
 
@@ -28,11 +29,14 @@ class TicketRemoteException implements Exception {
 }
 
 class TicketRemoteDataSource {
-  TicketRemoteDataSource({http.Client? client})
-    : _client = client ?? http.Client();
+  TicketRemoteDataSource({
+    http.Client? client,
+    Duration requestTimeout = ApiTimeouts.request,
+  }) : _client = client ?? http.Client(),
+       _timeout = requestTimeout;
 
   final http.Client _client;
-  static const _timeout = Duration(seconds: 10);
+  final Duration _timeout;
 
   Future<Ticket> orderTicket({
     required String origin,

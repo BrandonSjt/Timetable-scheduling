@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../timetable/domain/services/platform_display.dart';
 
 class DepartureDetailPage extends StatelessWidget {
   final String lineType;
@@ -142,8 +143,17 @@ class DepartureDetailPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              l10n.departurePlatform(platform),
+                              PlatformDisplay.label(platform),
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: badgeColor),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            PlatformDisplay.checkBoardHint,
+                            style: TextStyle(
+                              color: AppColors.textHint,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],

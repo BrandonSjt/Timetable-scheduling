@@ -145,9 +145,18 @@ class AuthRepositoryImpl implements AuthRepository, AccessTokenProvider {
     if (token == null) {
       throw const AuthRemoteException('UNAUTHORIZED', 'Please sign in again');
     }
-    final session = await _remote.refresh(token);
-    await _accept(session);
-    return session;
+    try {
+      final session = await _remote.refresh(token);
+      await _accept(session);
+      return session;
+    } on AuthRemoteException catch (error) {
+      if (error.isUnauthorized) {
+        _session = null;
+        _cachedUser = null;
+        await _store.clearSession();
+      }
+      rethrow;
+    }
   }
 
   Future<void> _accept(AuthSessionModel session) async {

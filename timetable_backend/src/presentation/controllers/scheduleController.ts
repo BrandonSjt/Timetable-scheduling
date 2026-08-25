@@ -6,6 +6,7 @@ import {
   publicCodeForLine,
   stationDisplayName,
 } from '../../domain/services/stationIdentity';
+import { resolvePlatformRule } from '../../domain/services/platformRuleService';
 
 const querySchema = z.object({
   stationId: z.string().uuid().optional(),
@@ -97,10 +98,17 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
       ]);
       res.json({
         success: true,
-        data: departures.map(({ service, departureMinute }) => {
+        data: await Promise.all(departures.map(async ({ service, departureMinute }) => {
           const first = service.stops[0];
           const last = service.stops.at(-1);
           const display = (value: typeof first | undefined) => value?.station.officialName ?? value?.station.name ?? '';
+          const destination = display(last);
+          const platformRule = await resolvePlatformRule(prisma, {
+            stationId: timetableStation.id,
+            lineSlug: service.lineSlug,
+            direction: service.direction,
+            destination,
+          });
           return {
             id: service.id,
             trainName: `KA ${service.trainNumber}`,
@@ -110,7 +118,7 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
             departureTime: formatMinute(departureMinute!),
             arrivalTime: formatMinute(last?.arrivalMinute ?? departureMinute!),
             dayOffset: Math.floor((departureMinute ?? 0) / 1440),
-            platform: '-',
+            platform: platformRule?.platform ?? '',
             trainType: 'KRL',
             isWeekend: isWeekend === 'true',
             calendarCode: service.calendar.code,
@@ -122,7 +130,7 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
               operationalCode: timetableStation.operationalCode,
             },
           };
-        }),
+        })),
         meta: { page, limit, total, datasetVersion: activeDataset.version },
       });
       return;

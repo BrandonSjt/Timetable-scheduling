@@ -77,6 +77,9 @@ class AppBottomNavBar extends StatelessWidget {
       padding: EdgeInsets.only(bottom: bottomPadding),
       decoration: BoxDecoration(
         color: AppColors.surface,
+        border: const Border(
+          top: BorderSide(color: AppColors.primaryPurple, width: 2),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),

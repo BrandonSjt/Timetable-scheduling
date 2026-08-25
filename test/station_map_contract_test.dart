@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:timetable/features/home/presentation/widgets/map_widgets.dart';
 import 'package:timetable/shared/widgets/schematic_map_painter.dart';
 
 Future<ByteData> _renderMapPixels() async {
@@ -90,6 +91,78 @@ void main() {
     expect(station('cawang_krl').position, const Offset(1555, 1575));
     expect(station('cikoko_bk').position, const Offset(1600, 1644));
     expect(station('cikoko_cb').position, const Offset(1600, 1656));
+  });
+
+  test('map geometry fingerprint remains unchanged', () {
+    expect(kInitialMapScale, 1.05);
+    final geometry = <String>[
+      '$kMapWidth|$kMapHeight',
+      for (final item in stations)
+        '${item.id}|${item.position.dx}|${item.position.dy}|${item.isWaypoint}',
+      for (final line in transitLines)
+        '${line.id}|${line.stationIds.join(',')}',
+      for (final connection in walkingConnections)
+        '${connection.fromStationId}|${connection.toStationId}|${connection.walkingMinutes}',
+      for (final pair in kMergedStationPairs.entries)
+        '${pair.key}|${pair.value}',
+    ].join(';');
+
+    var fingerprint = 0x811c9dc5;
+    for (final codeUnit in geometry.codeUnits) {
+      fingerprint ^= codeUnit;
+      fingerprint = (fingerprint * 0x01000193) & 0xffffffff;
+    }
+
+    expect(fingerprint, 721664269);
+  });
+
+  test('route lines, nodes, and station labels use readable visual sizes', () {
+    for (final line in transitLines) {
+      expect(
+        line.strokeWidth,
+        kKrlLineIds.contains(line.id) ? 8 : 7,
+        reason: '${line.id} has the wrong visual weight',
+      );
+    }
+
+    expect(stationNodeRadius(station('bogor')), 12);
+    expect(stationNodeRadius(station('bekasi')), 15);
+    expect(stationNodeRadius(station('jis')), 7);
+    expect(
+      stationNodeRadius(
+        const StationData(
+          id: 'uncoded_krl_transit',
+          name: 'Test',
+          position: Offset.zero,
+          isTransit: true,
+          lines: ['bogor'],
+        ),
+      ),
+      10,
+    );
+    expect(stationNodeRadius(station('bundaran_hi')), 12);
+    expect(stationNodeRadius(station('setiabudi')), 14);
+
+    expect(stationLabelFontSize(station('bogor')), 16);
+    expect(stationLabelFontSize(station('bekasi')), 16);
+    expect(kStationLabelFontWeight, FontWeight.w700);
+    expect(kHubStationNameFontSize, 14);
+    expect(kStationLabelOutlineWidth, 3.5);
+    expect(kRegularStationLabelOffset, 32);
+    expect(kTransitStationLabelOffset, 40);
+  });
+
+  test('reported station labels avoid nearby map components', () {
+    final painter = SchematicMapPainter();
+
+    expect(
+      painter.stationLabelPositionFor(station('lebak_bulus')),
+      LabelPos.top,
+    );
+    expect(
+      painter.stationLabelPositionFor(station('sudirman')),
+      LabelPos.right,
+    );
   });
 
   test('Cikoko to Cawang is a separate black walking overlay', () async {

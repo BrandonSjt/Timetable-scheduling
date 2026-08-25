@@ -44,6 +44,22 @@ class LineData {
   });
 }
 
+/// Stable key for one physical line segment between two station nodes.
+String mapRouteSegmentKey(String lineId, String firstNode, String secondNode) {
+  final nodes = [
+    firstNode.trim().toLowerCase(),
+    secondNode.trim().toLowerCase(),
+  ]..sort();
+  return '$lineId|${nodes[0]}|${nodes[1]}';
+}
+
+/// Node codes are line-specific. Waypoints do not have a public code, so
+/// their stable schematic ID is used to keep every physical edge distinct.
+String mapSegmentNodeIdentity(StationData station) {
+  final code = station.code.trim();
+  return code.isNotEmpty ? code : station.id;
+}
+
 /// Koneksi antarmoda yang ditempuh dengan berjalan kaki, bukan jalur rel.
 class WalkingConnectionData {
   final String fromStationId;
@@ -88,6 +104,22 @@ class LandmarkData {
 
 const double kMapWidth = 2950.0;
 const double kMapHeight = 3100.0;
+const double kStationLabelFontSize = 16.0;
+const FontWeight kStationLabelFontWeight = FontWeight.w700;
+const double kHubStationNameFontSize = 14.0;
+const double kStationLabelOutlineWidth = 3.5;
+const double kRegularStationLabelOffset = 32.0;
+const double kTransitStationLabelOffset = 40.0;
+
+const Set<String> kKrlLineIds = {
+  'bogor',
+  'bogor_nambo',
+  'cikarang_loop',
+  'cikarang_east',
+  'tangerang',
+  'tanjung_priok',
+  'rangkasbitung',
+};
 
 // Stasiun transit besar — ditampilkan sebagai pill besar dengan nama di tengah
 const Set<String> _majorTransitIds = {'duri', 'jakarta_kota', 'cawang_lrt'};
@@ -1360,6 +1392,7 @@ final List<LineData> transitLines = [
     id: 'bogor',
     name: 'KRL Lin Bogor',
     color: AppColors.lineBogor,
+    strokeWidth: 8,
     stationIds: [
       'jakarta_kota_bk',
       'wp_bogor_jayakarta',
@@ -1395,6 +1428,7 @@ final List<LineData> transitLines = [
     id: 'bogor_nambo',
     name: 'KRL Cabang Nambo',
     color: AppColors.lineBogor,
+    strokeWidth: 8,
     stationIds: [
       'citayam',
       'wp_nambo_split',
@@ -1409,6 +1443,7 @@ final List<LineData> transitLines = [
     id: 'cikarang_loop',
     name: 'KRL Cikarang Loop',
     color: AppColors.lineCikarang,
+    strokeWidth: 8,
     stationIds: [
       'jatinegara',
       'wp_cikarang_jatinegara',
@@ -1447,6 +1482,7 @@ final List<LineData> transitLines = [
     id: 'cikarang_east',
     name: 'KRL Cikarang Timur',
     color: AppColors.lineCikarang,
+    strokeWidth: 8,
     stationIds: [
       'jatinegara',
       'klender',
@@ -1466,6 +1502,7 @@ final List<LineData> transitLines = [
     id: 'tangerang',
     name: 'KRL Lin Tangerang',
     color: AppColors.lineTangerang,
+    strokeWidth: 8,
     stationIds: [
       'duri_t',
       'grogol',
@@ -1486,6 +1523,7 @@ final List<LineData> transitLines = [
     id: 'tanjung_priok',
     name: 'KRL Lin Tanjung Priok',
     color: AppColors.lineTanjungPriok,
+    strokeWidth: 8,
     stationIds: [
       'jakarta_kota_tp',
       'kampung_bandan_tp',
@@ -1500,6 +1538,7 @@ final List<LineData> transitLines = [
     id: 'rangkasbitung',
     name: 'KRL Lin Rangkasbitung',
     color: AppColors.lineRangkasbitung,
+    strokeWidth: 8,
     stationIds: [
       'tanah_abang_r',
       'wp_rangkas_1',
@@ -1530,6 +1569,7 @@ final List<LineData> transitLines = [
     id: 'mrt',
     name: 'MRT Jakarta',
     color: AppColors.lineMRT,
+    strokeWidth: 7,
     stationIds: [
       'bundaran_hi',
       'dukuh_atas',
@@ -1556,6 +1596,7 @@ final List<LineData> transitLines = [
     id: 'lrt_bekasi',
     name: 'LRT Jabodebek (Bekasi)',
     color: AppColors.lineLRTBekasi,
+    strokeWidth: 7,
     stationIds: [
       'dukuh_atas_lrt_bk',
       'wp_lrt_dukuh_bk',
@@ -1579,6 +1620,7 @@ final List<LineData> transitLines = [
     id: 'lrt_cibubur',
     name: 'LRT Jabodebek (Cibubur)',
     color: AppColors.lineLRTCibubur,
+    strokeWidth: 7,
     stationIds: [
       'dukuh_atas_lrt_cb',
       'wp_lrt_dukuh_cb',
@@ -1601,6 +1643,7 @@ final List<LineData> transitLines = [
     id: 'lrt_jakarta',
     name: 'LRT Jakarta',
     color: AppColors.lineLRTJakarta,
+    strokeWidth: 7,
     stationIds: [
       'pegangsaan_dua',
       'boulevard_utara',
@@ -1638,6 +1681,26 @@ Color _getStationColor(StationData station) {
   return AppColors.textSecondary;
 }
 
+bool _isKrlStation(StationData station) =>
+    station.lines.any(kKrlLineIds.contains) ||
+    transitLines.any(
+      (line) =>
+          kKrlLineIds.contains(line.id) && line.stationIds.contains(station.id),
+    );
+
+double stationNodeRadius(StationData station) {
+  if (!_isKrlStation(station)) {
+    return station.code.isNotEmpty
+        ? (station.isTransit ? 14 : 12)
+        : (station.isTransit ? 8 : 5.5);
+  }
+  return station.code.isNotEmpty
+      ? (station.isTransit ? 15 : 12)
+      : (station.isTransit ? 10 : 7);
+}
+
+double stationLabelFontSize(StationData _) => kStationLabelFontSize;
+
 // ════════════════════════════════════════════════════════════════════
 // SCHEMATIC MAP PAINTER
 // ════════════════════════════════════════════════════════════════════
@@ -1660,7 +1723,7 @@ TextPainter _buildMajorHubTextPainter(
     text: station.name,
     style: TextStyle(
       color: isFrom ? AppColors.primaryBlue : AppColors.textPrimary,
-      fontSize: 10,
+      fontSize: kHubStationNameFontSize,
       fontWeight: FontWeight.w800,
     ),
   );
@@ -1688,7 +1751,7 @@ TextPainter _buildMergedHubTextPainter(
     text: _mergedStationName(primary, secondary),
     style: const TextStyle(
       color: AppColors.textPrimary,
-      fontSize: 10,
+      fontSize: kHubStationNameFontSize,
       fontWeight: FontWeight.w800,
     ),
   ),
@@ -1716,12 +1779,16 @@ class SchematicMapPainter extends CustomPainter {
   final String? selectedStation;
   final String? fromStation;
   final Set<String>? visibleLineIds;
+  final Set<String>? highlightedSegmentIds;
+  final String? nearestStation;
 
   SchematicMapPainter({
     this.showColors = false,
     this.selectedStation,
     this.fromStation,
     this.visibleLineIds,
+    this.highlightedSegmentIds,
+    this.nearestStation,
   });
 
   @override
@@ -1735,10 +1802,48 @@ class SchematicMapPainter extends CustomPainter {
     _drawLandmarks(canvas);
     // 4. Draw station nodes (dots, code badges)
     _drawStations(canvas);
-    // 5. Draw station labels
+    // 5. Draw the nearest-station marker as a separate overlay
+    _drawNearestStationMarker(canvas);
+    // 6. Draw station labels
     _drawAllLabels(canvas);
-    // 6. Draw line route identity badges
+    // 7. Draw line route identity badges
     _drawLineBadges(canvas);
+  }
+
+  void _drawNearestStationMarker(Canvas canvas) {
+    if (nearestStation == null) return;
+    final station = _findStation(nearestStation!);
+    if (station == null) return;
+
+    var center = station.position;
+    final pairedId =
+        kMergedStationPairs[station.id] ??
+        kMergedStationPairs.entries
+            .where((entry) => entry.value == station.id)
+            .map((entry) => entry.key)
+            .firstOrNull;
+    final paired = pairedId == null ? null : _findStation(pairedId);
+    if (paired != null) {
+      center = Offset(
+        (center.dx + paired.position.dx) / 2,
+        (center.dy + paired.position.dy) / 2,
+      );
+    }
+
+    canvas.drawCircle(
+      center,
+      23,
+      Paint()..color = const Color(0xFF1976D2).withValues(alpha: 0.16),
+    );
+    canvas.drawCircle(
+      center,
+      19,
+      Paint()
+        ..color = const Color(0xFF1976D2)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4,
+    );
+    canvas.drawCircle(center, 4, Paint()..color = const Color(0xFF1976D2));
   }
 
   // ── DRAW LINES ──────────────────────────────────────────────────
@@ -1747,8 +1852,11 @@ class SchematicMapPainter extends CustomPainter {
     for (final line in transitLines) {
       final bool isVisible =
           visibleLineIds == null || visibleLineIds!.contains(line.id);
+      final segmentMode = highlightedSegmentIds != null;
       final paint = Paint()
-        ..color = isVisible
+        ..color = segmentMode
+            ? const Color(0xFFCDD1DB)
+            : isVisible
             ? (showColors ? line.color : line.color.withValues(alpha: 0.85))
             : line.color.withValues(alpha: 0.08)
         ..strokeWidth = line.strokeWidth
@@ -1756,12 +1864,35 @@ class SchematicMapPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
 
-      final points = <Offset>[];
+      final lineStations = <StationData>[];
       for (final stationId in line.stationIds) {
         final station = _findStation(stationId);
-        if (station != null) points.add(station.position);
+        if (station != null) lineStations.add(station);
       }
+      final points = lineStations.map((station) => station.position).toList();
       _drawRoundedPath(canvas, points, paint);
+
+      if (highlightedSegmentIds == null) continue;
+      final highlightPaint = Paint()
+        ..color = showColors ? line.color : line.color.withValues(alpha: 0.95)
+        ..strokeWidth = line.strokeWidth + 2
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+      for (var index = 0; index < lineStations.length - 1; index++) {
+        final from = lineStations[index];
+        final to = lineStations[index + 1];
+        if (!highlightedSegmentIds!.contains(
+          mapRouteSegmentKey(
+            line.id,
+            mapSegmentNodeIdentity(from),
+            mapSegmentNodeIdentity(to),
+          ),
+        )) {
+          continue;
+        }
+        _drawRoundedPath(canvas, [from.position, to.position], highlightPaint);
+      }
     }
   }
 
@@ -1971,6 +2102,38 @@ class SchematicMapPainter extends CustomPainter {
     }
   }
 
+  void _drawSelectionHalo(
+    Canvas canvas,
+    Offset center, {
+    required bool isSelected,
+    required bool isFrom,
+    required double radius,
+  }) {
+    if (!isSelected && !isFrom) return;
+    final color = isSelected ? AppColors.primaryPurple : AppColors.primaryBlue;
+    canvas.drawCircle(
+      center,
+      radius + 7,
+      Paint()..color = color.withValues(alpha: 0.16),
+    );
+    canvas.drawCircle(
+      center,
+      radius + 3,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
+    canvas.drawCircle(
+      center,
+      radius + 5,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5,
+    );
+  }
+
   /// Gambar node gabungan:
   /// Rounded rect pill dengan nama stasiun di tengah, badge secondary kiri/bawah & primary kanan/atas
   void _drawMergedNode(
@@ -1997,6 +2160,14 @@ class SchematicMapPainter extends CustomPainter {
     final nameTp = _buildMergedHubTextPainter(primaryStation, secondaryStation);
     final hubRect = mergedStationHubRect(primaryStation, secondaryStation);
     final rrect = RRect.fromRectAndRadius(hubRect, const Radius.circular(12));
+
+    _drawSelectionHalo(
+      canvas,
+      center,
+      isSelected: isSelected,
+      isFrom: isFrom,
+      radius: 24,
+    );
 
     // White fill
     canvas.drawRRect(rrect, Paint()..color = Colors.white);
@@ -2184,13 +2355,13 @@ class SchematicMapPainter extends CustomPainter {
     bool isSelected = false,
     bool isFrom = false,
   }) {
-    // Highlight glow
-    if (isFrom) {
-      final glow = Paint()
-        ..color = AppColors.primaryBlue.withValues(alpha: 0.25)
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(station.position, 30, glow);
-    }
+    _drawSelectionHalo(
+      canvas,
+      station.position,
+      isSelected: isSelected,
+      isFrom: isFrom,
+      radius: 30,
+    );
 
     final nameTp = _buildMajorHubTextPainter(station, isFrom: isFrom);
     final hubRect = Rect.fromCenter(
@@ -2233,28 +2404,19 @@ class SchematicMapPainter extends CustomPainter {
     bool isSelected = false,
     bool isFrom = false,
   }) {
-    // Highlight glow for "from" station
-    if (isFrom) {
-      canvas.drawCircle(
-        station.position,
-        18,
-        Paint()..color = AppColors.primaryBlue.withValues(alpha: 0.25),
-      );
-      canvas.drawCircle(
-        station.position,
-        18,
-        Paint()
-          ..color = AppColors.primaryBlue
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.0,
-      );
-    }
+    _drawSelectionHalo(
+      canvas,
+      station.position,
+      isSelected: isSelected,
+      isFrom: isFrom,
+      radius: 13,
+    );
 
     // Jika stasiun punya kode, gambar sebagai lingkaran berwarna dengan kode di dalam
     if (station.code.isNotEmpty) {
       final color = _getStationColor(station);
-      final double radius = station.isTransit ? 12.0 : 10.0;
-      final double effectiveR = isSelected || isFrom ? 13.0 : radius;
+      final radius = stationNodeRadius(station);
+      final effectiveR = isSelected || isFrom ? max(radius, 13.0) : radius;
 
       // Lingkaran putih (latar)
       canvas.drawCircle(
@@ -2343,8 +2505,8 @@ class SchematicMapPainter extends CustomPainter {
       }
     } else {
       // Stasiun tanpa kode — gambar dot biasa
-      final double radius = station.isTransit ? 8 : 5.5;
-      final double effectiveR = isSelected || isFrom ? 10 : radius;
+      final radius = stationNodeRadius(station);
+      final effectiveR = isSelected || isFrom ? max(radius, 10.0) : radius;
 
       canvas.drawCircle(
         station.position,
@@ -2438,7 +2600,7 @@ class SchematicMapPainter extends CustomPainter {
           break;
       }
     } else {
-      final pos = _getLabelPos(station);
+      final pos = stationLabelPositionFor(station);
       final offset = station.isTransit ? 14.0 : 10.0;
       switch (pos) {
         case LabelPos.right:
@@ -2502,7 +2664,7 @@ class SchematicMapPainter extends CustomPainter {
       if (_majorTransitIds.contains(station.id)) {
         occupied.add(_majorHubRect(station).inflate(7));
       } else {
-        final radius = station.isTransit ? 11.0 : 8.0;
+        final radius = stationNodeRadius(station) + 4;
         occupied.add(Rect.fromCircle(center: station.position, radius: radius));
       }
       if (station.code.isNotEmpty) {
@@ -2534,13 +2696,14 @@ class SchematicMapPainter extends CustomPainter {
   }
 
   void _drawLabel(Canvas canvas, StationData station, {List<Rect>? occupied}) {
+    final fontSize = stationLabelFontSize(station);
     final isSelected =
         selectedStation == station.id || selectedStation == station.name;
-    final isFrom = fromStation == station.id || fromStation == station.name;
-    final bool isBold = station.isTransit || isSelected || isFrom;
-    final double fontSize = station.isTransit ? 10 : 9;
+    final labelColor = isSelected
+        ? AppColors.primaryPurple
+        : AppColors.textPrimary;
 
-    final preferredPos = _getLabelPos(station);
+    final preferredPos = stationLabelPositionFor(station);
 
     // ── Rotated label (diagonal, seperti di PDF) ──
     if (preferredPos == LabelPos.topRotated) {
@@ -2550,10 +2713,10 @@ class SchematicMapPainter extends CustomPainter {
         text: station.name,
         style: TextStyle(
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
           foreground: Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.5
+            ..strokeWidth = kStationLabelOutlineWidth
             ..color = Colors.white.withValues(alpha: 0.9),
         ),
       );
@@ -2565,9 +2728,9 @@ class SchematicMapPainter extends CustomPainter {
       final textSpan = TextSpan(
         text: station.name,
         style: TextStyle(
-          color: AppColors.textPrimary,
+          color: labelColor,
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
         ),
       );
       final textTP = TextPainter(
@@ -2575,7 +2738,9 @@ class SchematicMapPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
 
-      final offset = station.isTransit ? 22.0 : 18.0;
+      final offset = station.isTransit
+          ? kTransitStationLabelOffset
+          : kRegularStationLabelOffset;
       // Pivot point = tepat di atas node, lebih jauh agar tidak numpuk line
       final pivotX = station.position.dx;
       final pivotY = station.position.dy - offset;
@@ -2598,10 +2763,10 @@ class SchematicMapPainter extends CustomPainter {
         text: station.name,
         style: TextStyle(
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
           foreground: Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.5
+            ..strokeWidth = kStationLabelOutlineWidth
             ..color = Colors.white.withValues(alpha: 0.9),
         ),
       );
@@ -2613,9 +2778,9 @@ class SchematicMapPainter extends CustomPainter {
       final textSpan = TextSpan(
         text: station.name,
         style: TextStyle(
-          color: AppColors.textPrimary,
+          color: labelColor,
           fontSize: fontSize,
-          fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+          fontWeight: kStationLabelFontWeight,
         ),
       );
       final textTP = TextPainter(
@@ -2623,7 +2788,9 @@ class SchematicMapPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
 
-      final offset = station.isTransit ? 22.0 : 18.0;
+      final offset = station.isTransit
+          ? kTransitStationLabelOffset
+          : kRegularStationLabelOffset;
       // Pivot point = tepat di bawah node
       final pivotX = station.position.dx;
       final pivotY = station.position.dy + offset;
@@ -2643,10 +2810,10 @@ class SchematicMapPainter extends CustomPainter {
       text: station.name,
       style: TextStyle(
         fontSize: fontSize,
-        fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+        fontWeight: kStationLabelFontWeight,
         foreground: Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.5
+          ..strokeWidth = kStationLabelOutlineWidth
           ..color = Colors.white.withValues(alpha: 0.9),
       ),
     );
@@ -2658,9 +2825,9 @@ class SchematicMapPainter extends CustomPainter {
     final textSpan = TextSpan(
       text: station.name,
       style: TextStyle(
-        color: AppColors.textPrimary,
+        color: labelColor,
         fontSize: fontSize,
-        fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+        fontWeight: kStationLabelFontWeight,
       ),
     );
     final textPainter = TextPainter(
@@ -2668,7 +2835,9 @@ class SchematicMapPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     )..layout();
 
-    final labelOffset = station.isTransit ? 22.0 : 18.0;
+    final labelOffset = station.isTransit
+        ? kTransitStationLabelOffset
+        : kRegularStationLabelOffset;
 
     Rect rectFor(LabelPos pos) {
       double labelX, labelY;
@@ -2733,7 +2902,8 @@ class SchematicMapPainter extends CustomPainter {
 
   // ── LABEL POSITIONING ────────────────────────────────────────────
 
-  LabelPos _getLabelPos(StationData station) {
+  @visibleForTesting
+  LabelPos stationLabelPositionFor(StationData station) {
     final id = station.id;
 
     // ── Specific overrides ──
@@ -2761,7 +2931,7 @@ class SchematicMapPainter extends CustomPainter {
       'cikarang': LabelPos.topRotated,
       // Cikarang horizontal band (y=700) → bottom
       'tanah_abang': LabelPos.left,
-      'karet': LabelPos.bottom, 'sudirman': LabelPos.top,
+      'karet': LabelPos.bottom, 'sudirman': LabelPos.right,
       // Tanjung Priok → topRotated
       'ancol': LabelPos.topRotated, 'jis': LabelPos.topRotated,
       'tanjung_priok': LabelPos.top,
@@ -2811,7 +2981,7 @@ class SchematicMapPainter extends CustomPainter {
       'senayan': LabelPos.left, 'asean': LabelPos.left,
       'blok_m': LabelPos.left, 'blok_a': LabelPos.left,
       'haji_nawi': LabelPos.left, 'cipete_raya': LabelPos.left,
-      'fatmawati': LabelPos.left, 'lebak_bulus': LabelPos.left,
+      'fatmawati': LabelPos.top, 'lebak_bulus': LabelPos.top,
       'setiabudi': LabelPos.left, 'dukuh_atas': LabelPos.left,
     };
 
@@ -2862,6 +3032,20 @@ class SchematicMapPainter extends CustomPainter {
         final lineId = _badgeToLineId(badge.code);
         if (lineId != null &&
             !visibleLineIds!.any((id) => lineId.contains(id))) {
+          continue;
+        }
+      }
+      // Preview perjalanan hanya menampilkan badge line yang punya segmen
+      // aktif. Badge line lain tidak boleh membuat pengguna mengira line itu
+      // ikut dilewati.
+      if (highlightedSegmentIds != null) {
+        final lineId = _badgeToLineId(badge.code);
+        if (lineId == null ||
+            !lineId.any(
+              (id) => highlightedSegmentIds!.any(
+                (segment) => segment.startsWith('$id|'),
+              ),
+            )) {
           continue;
         }
       }
@@ -2940,7 +3124,9 @@ class SchematicMapPainter extends CustomPainter {
     return oldDelegate.showColors != showColors ||
         oldDelegate.selectedStation != selectedStation ||
         oldDelegate.fromStation != fromStation ||
-        oldDelegate.visibleLineIds != visibleLineIds;
+        oldDelegate.visibleLineIds != visibleLineIds ||
+        oldDelegate.highlightedSegmentIds != highlightedSegmentIds ||
+        oldDelegate.nearestStation != nearestStation;
   }
 }
 

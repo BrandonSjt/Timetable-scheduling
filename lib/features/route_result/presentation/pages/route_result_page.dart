@@ -59,33 +59,56 @@ class _RouteResultPageState extends State<RouteResultPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: AppColors.background,
-    body: SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: ListenableBuilder(
-              listenable: _controller,
-              builder: (context, _) => switch (_controller.state) {
-                RouteViewState.initial || RouteViewState.loading =>
-                  const Center(child: CircularProgressIndicator()),
-                RouteViewState.error => _RouteError(
-                  message: _controller.errorMessage!,
-                  onRetry: _controller.retry,
-                ),
-                RouteViewState.success => _RouteContent(
-                  controller: _controller,
-                  route: _controller.route!,
-                ),
-              },
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListenableBuilder(
+                listenable: _controller,
+                builder: (context, _) => switch (_controller.state) {
+                  RouteViewState.initial || RouteViewState.loading =>
+                    const Center(child: CircularProgressIndicator()),
+                  RouteViewState.error => _RouteError(
+                    message: _controller.errorMessage!,
+                    onRetry: _controller.retry,
+                  ),
+                  RouteViewState.success => _RouteContent(
+                    controller: _controller,
+                    route: _controller.route!,
+                  ),
+                },
+              ),
             ),
-          ),
-          const AppBottomNavBar(currentIndex: 0),
-        ],
+            const AppBottomNavBar(currentIndex: 0),
+          ],
+        ),
       ),
-    ),
-  );
+      floatingActionButton: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final route = _controller.route;
+          final canPreview =
+              _controller.state == RouteViewState.success &&
+              route != null &&
+              route.lineSlugs.isNotEmpty;
+          if (!canPreview) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 80),
+            child: FloatingActionButton.extended(
+              key: const Key('journey-map-preview-button'),
+              onPressed: () => context.push('/rute/peta', extra: route),
+              icon: const Icon(Icons.map_rounded),
+              label: const Text('Lihat Line di Peta'),
+            ),
+          );
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
 }
 
 class _RouteError extends StatelessWidget {
@@ -115,6 +138,12 @@ class _RouteError extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Jika baru membuka server gratis, tunggu cold start lalu coba lagi.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(

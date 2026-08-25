@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_timeouts.dart';
 import '../models/station_model.dart';
 
 class StationRemoteDataSource {
@@ -11,7 +12,7 @@ class StationRemoteDataSource {
   Future<List<StationModel>> getStations() async {
     final response = await _client
         .get(Uri.parse('${ApiConfig.baseUrl}/stations?limit=200'))
-        .timeout(const Duration(seconds: 10));
+        .timeout(ApiTimeouts.request);
     if (response.statusCode != 200) {
       throw Exception('Gagal memuat stasiun (${response.statusCode})');
     }

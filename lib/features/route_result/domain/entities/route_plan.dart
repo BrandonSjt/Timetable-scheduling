@@ -125,4 +125,15 @@ class RoutePlan {
   final List<RouteStation> stationSequence;
   final String exitGateA;
   final String exitGateB;
+
+  Set<String> get lineSlugs =>
+      stationSequence.map((station) => station.line.slug).toSet();
+
+  List<RouteLine> get journeyLines {
+    final seen = <String>{};
+    return [
+      for (final station in stationSequence)
+        if (seen.add(station.line.slug)) station.line,
+    ];
+  }
 }

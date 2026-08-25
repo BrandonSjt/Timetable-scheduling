@@ -7,6 +7,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../travel_alarm/presentation/controllers/travel_alarm_controller.dart';
 import '../controllers/assistant_controller.dart';
 import '../controllers/assistant_conversation_controller.dart';
+import '../../data/repositories/assistant_chat_repository_impl.dart';
 import '../widgets/assistant_composer.dart';
 import '../widgets/assistant_conversation_timeline.dart';
 import '../widgets/assistant_quick_actions.dart';
@@ -50,7 +51,10 @@ class _AssistantPageState extends State<AssistantPage>
     _ownsConversationController = widget.conversationController == null;
     _conversationController =
         widget.conversationController ??
-        AssistantConversationController(alarmController: _alarmController);
+        AssistantConversationController(
+          alarmController: _alarmController,
+          chatRepository: AssistantChatRepositoryImpl(),
+        );
     _lastConsumedExchangeId = _controller.completedExchangeId;
     _lastConversationItemCount = _conversationController.items.length;
     WidgetsBinding.instance.addObserver(this);
@@ -267,6 +271,11 @@ class _AssistantPageState extends State<AssistantPage>
                           icon: Icons.support_agent_rounded,
                           onTap: () => context.go('/pusat-bantuan'),
                         ),
+                        AssistantQuickAction(
+                          label: 'Pemandu Kamera',
+                          icon: Icons.camera_alt_rounded,
+                          onTap: () => context.push('/asisten/pemandu-kamera'),
+                        ),
                       ],
                     ),
                   ],
@@ -397,9 +406,7 @@ class _AssistantPageState extends State<AssistantPage>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    enabled
-                        ? l10n.wakeWordActiveText
-                        : l10n.wakeWordPageOnly,
+                    enabled ? l10n.wakeWordActiveText : l10n.wakeWordPageOnly,
                     style: TextStyle(
                       color: enabled
                           ? AppColors.textPrimary
