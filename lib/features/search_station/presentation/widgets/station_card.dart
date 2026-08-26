@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Widget card stasiun dengan ikon dot, nama, jalur, dan info tambahan.
+/// Widget card stasiun dengan ikon dot, nama, dan informasi jalur.
 class StationCard extends StatelessWidget {
   final String name;
+  final String code;
   final String lineInfo;
-  final String statusText;
-  final Color statusColor;
   final VoidCallback? onTap;
 
   const StationCard({
     super.key,
     required this.name,
+    this.code = '',
     required this.lineInfo,
-    required this.statusText,
-    this.statusColor = AppColors.primaryBlue,
     this.onTap,
   });
 
@@ -30,69 +28,56 @@ class StationCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.cardBorder),
         ),
-      child: Row(
-        children: [
-          // ── Dot icon ──
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.cardBorder, width: 2),
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.circle,
-                size: 10,
-                color: AppColors.textSecondary,
+        child: Row(
+          children: [
+            // ── Dot icon ──
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.cardBorder, width: 2),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.circle,
+                  size: 10,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 14),
+            const SizedBox(width: 14),
 
-          // ── Nama & jalur ──
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+            // ── Nama & jalur ──
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    code.isEmpty ? name : '$name  ·  $code',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  lineInfo,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
+                  const SizedBox(height: 2),
+                  Text(
+                    lineInfo,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // ── Status / info ──
-          Flexible(
-            child: Text(
-              statusText,
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontSize: 13,
-                color: statusColor,
-                fontWeight: FontWeight.w500,
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 /// Filter chip untuk filter layanan: Semua, LRT, KRL, Aksesibel

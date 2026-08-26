@@ -5,11 +5,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../widgets/help_flow_widgets.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
-enum _ReportType {
-  schedule,
-  route,
-  station;
-}
+enum _ReportType { schedule, route, station }
 
 extension _ReportTypeL10n on _ReportType {
   String label(AppLocalizations l10n) {
@@ -90,7 +86,9 @@ class _ReportIncorrectInfoPageState extends State<ReportIncorrectInfoPage> {
 
   void _selectType(String label, AppLocalizations l10n) {
     setState(() {
-      _type = _ReportType.values.firstWhere((type) => type.label(l10n) == label);
+      _type = _ReportType.values.firstWhere(
+        (type) => type.label(l10n) == label,
+      );
     });
   }
 
@@ -106,7 +104,7 @@ class _ReportIncorrectInfoPageState extends State<ReportIncorrectInfoPage> {
         HelpIntroCard(
           icon: Icons.add_rounded,
           accentColor: AppColors.accentOrange,
-          iconBackground: const Color(0xFFFFF1E8),
+          iconBackground: AppColors.accentOrangeLight,
           title: l10n.reportWrongInfo,
           status: l10n.reportTypePrefix(_type.label(l10n)),
           description: l10n.reportFieldsDesc,
@@ -120,20 +118,27 @@ class _ReportIncorrectInfoPageState extends State<ReportIncorrectInfoPage> {
           onSelected: (label) => _selectType(label, l10n),
           columns: 3,
           accentColor: AppColors.accentOrange,
-          selectedBackground: const Color(0xFFFFF1E8),
+          selectedBackground: AppColors.accentOrangeLight,
         ),
         const SizedBox(height: 22),
-        HelpFieldCard(label: _type.firstLabel(l10n), value: _type.firstValue(l10n)),
+        HelpFieldCard(
+          label: _type.firstLabel(l10n),
+          value: _type.firstValue(l10n),
+        ),
         const SizedBox(height: 14),
-        HelpFieldCard(label: _type.secondLabel(l10n), value: _type.secondValue(l10n)),
+        HelpFieldCard(
+          label: _type.secondLabel(l10n),
+          value: _type.secondValue(l10n),
+        ),
         const SizedBox(height: 14),
-        HelpFieldCard(label: l10n.reportDescLabel, value: _type.description(l10n)),
+        HelpFieldCard(
+          label: l10n.reportDescLabel,
+          value: _type.description(l10n),
+        ),
         const SizedBox(height: 22),
         OutlinedButton.icon(
-          onPressed: () => showHelpMessage(
-            context,
-            l10n.reportAttachScreenshotMsg,
-          ),
+          onPressed: () =>
+              showHelpMessage(context, l10n.reportAttachScreenshotMsg),
           icon: const Icon(Icons.add_rounded),
           label: Text(l10n.reportAttachScreenshot),
           style: OutlinedButton.styleFrom(

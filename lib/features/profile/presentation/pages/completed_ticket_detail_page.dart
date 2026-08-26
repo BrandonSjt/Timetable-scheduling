@@ -13,9 +13,7 @@ class CompletedTicketDetailPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(l10n.completedTicketReceiptReady)),
-      );
+      ..showSnackBar(SnackBar(content: Text(l10n.completedTicketReceiptReady)));
   }
 
   @override
@@ -59,8 +57,10 @@ class CompletedTicketDetailPage extends StatelessWidget {
                 label: Text(l10n.completedTicketReport),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.accentOrange,
-                  side: const BorderSide(color: Color(0xFFFED7AA)),
-                  backgroundColor: const Color(0xFFFFF7ED),
+                  side: BorderSide(
+                    color: AppColors.pinkAccent.withValues(alpha: 0.45),
+                  ),
+                  backgroundColor: AppColors.accentOrangeLight,
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -191,10 +191,16 @@ class _JourneySummaryCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _TimeInformation(label: l10n.completedTicketDepart, value: '15:18 WIB'),
+                child: _TimeInformation(
+                  label: l10n.completedTicketDepart,
+                  value: '15:18 WIB',
+                ),
               ),
               Expanded(
-                child: _TimeInformation(label: l10n.completedTicketArrive, value: '16:02 WIB'),
+                child: _TimeInformation(
+                  label: l10n.completedTicketArrive,
+                  value: '16:02 WIB',
+                ),
               ),
             ],
           ),
@@ -271,7 +277,10 @@ class _JourneyInformationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: _LabelValue(label: l10n.ticketStationOrigin, value: 'Dukuh Atas'),
+                child: _LabelValue(
+                  label: l10n.ticketStationOrigin,
+                  value: 'Dukuh Atas',
+                ),
               ),
               const SizedBox(width: 18),
               Expanded(

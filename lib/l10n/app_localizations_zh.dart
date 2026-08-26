@@ -99,6 +99,111 @@ class AppLocalizationsZh extends AppLocalizations {
   String get profileContactOfficer => '联系官员并报告错误';
 
   @override
+  String get authSignInTitle => '登录';
+
+  @override
+  String get authSignInSubtitle => '账户为可选项。登录后可同步个人资料和车票记录。';
+
+  @override
+  String get authRegisterTitle => '创建账户';
+
+  @override
+  String get authRegisterSubtitle => '注册不会影响访客查看时刻表、查询路线和购票。';
+
+  @override
+  String get authName => '姓名';
+
+  @override
+  String get authEmail => '电子邮箱';
+
+  @override
+  String get authPhoneOptional => '手机号码（可选）';
+
+  @override
+  String get authPassword => '密码';
+
+  @override
+  String get authPasswordConfirmation => '确认密码';
+
+  @override
+  String get authEmailInvalid => '请输入有效的电子邮箱地址。';
+
+  @override
+  String get authNameRequired => '姓名至少需要 2 个字符。';
+
+  @override
+  String get authPasswordMin => '密码至少需要 8 个字符。';
+
+  @override
+  String get authPasswordMismatch => '两次输入的密码不一致。';
+
+  @override
+  String get authShowPassword => '显示密码';
+
+  @override
+  String get authHidePassword => '隐藏密码';
+
+  @override
+  String get authSubmitLogin => '登录';
+
+  @override
+  String get authSubmitRegister => '注册';
+
+  @override
+  String get authCreateAccount => '还没有账户？立即注册';
+
+  @override
+  String get authBackToLogin => '已有账户？登录';
+
+  @override
+  String get authGuestStillAvailable => '无需账户，您仍可查看时刻表、查询路线并以访客身份购票。';
+
+  @override
+  String get authInvalidCredentials => '电子邮箱或密码不正确。';
+
+  @override
+  String get authEmailUsed => '此电子邮箱已注册。';
+
+  @override
+  String get authNetworkError => '无法连接服务器。请检查网络后重试。';
+
+  @override
+  String get authGenericError => '无法处理请求，请重试。';
+
+  @override
+  String get profileSignedIn => '账户已启用';
+
+  @override
+  String get profileOfflineSession => '账户已保存 · 当前离线';
+
+  @override
+  String get profileOfflineHint => '恢复连接后即可使用部分更改。';
+
+  @override
+  String get profileEdit => '编辑个人资料';
+
+  @override
+  String get profileLogout => '退出登录';
+
+  @override
+  String get profileLogoutConfirm => '要在此设备上退出吗？访客功能仍可使用。';
+
+  @override
+  String get profileCancel => '取消';
+
+  @override
+  String get profileAccountTicketHistory => '账户车票记录';
+
+  @override
+  String get profileSyncedAccount => '已与此账户同步';
+
+  @override
+  String get editProfileTitle => '编辑个人资料';
+
+  @override
+  String get saveChanges => '保存更改';
+
+  @override
   String get navHome => '首页';
 
   @override
@@ -403,6 +508,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get stationNotFound => '找不到车站';
+
+  @override
+  String get stationVoiceGuide => '语音导览';
+
+  @override
+  String get stationVoiceGuideStop => '停止语音导览';
+
+  @override
+  String get stationVoiceGuideError => '语音导览暂不可用，请重试。';
 
   @override
   String get withoutLogin => '没有登录';
@@ -1860,6 +1974,111 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get profileContactOfficer => '联系官员并报告错误';
 
   @override
+  String get authSignInTitle => '登录';
+
+  @override
+  String get authSignInSubtitle => '账户为可选项。登录后可同步个人资料和车票记录。';
+
+  @override
+  String get authRegisterTitle => '创建账户';
+
+  @override
+  String get authRegisterSubtitle => '注册不会影响访客查看时刻表、查询路线和购票。';
+
+  @override
+  String get authName => '姓名';
+
+  @override
+  String get authEmail => '电子邮箱';
+
+  @override
+  String get authPhoneOptional => '手机号码（可选）';
+
+  @override
+  String get authPassword => '密码';
+
+  @override
+  String get authPasswordConfirmation => '确认密码';
+
+  @override
+  String get authEmailInvalid => '请输入有效的电子邮箱地址。';
+
+  @override
+  String get authNameRequired => '姓名至少需要 2 个字符。';
+
+  @override
+  String get authPasswordMin => '密码至少需要 8 个字符。';
+
+  @override
+  String get authPasswordMismatch => '两次输入的密码不一致。';
+
+  @override
+  String get authShowPassword => '显示密码';
+
+  @override
+  String get authHidePassword => '隐藏密码';
+
+  @override
+  String get authSubmitLogin => '登录';
+
+  @override
+  String get authSubmitRegister => '注册';
+
+  @override
+  String get authCreateAccount => '还没有账户？立即注册';
+
+  @override
+  String get authBackToLogin => '已有账户？登录';
+
+  @override
+  String get authGuestStillAvailable => '无需账户，您仍可查看时刻表、查询路线并以访客身份购票。';
+
+  @override
+  String get authInvalidCredentials => '电子邮箱或密码不正确。';
+
+  @override
+  String get authEmailUsed => '此电子邮箱已注册。';
+
+  @override
+  String get authNetworkError => '无法连接服务器。请检查网络后重试。';
+
+  @override
+  String get authGenericError => '无法处理请求，请重试。';
+
+  @override
+  String get profileSignedIn => '账户已启用';
+
+  @override
+  String get profileOfflineSession => '账户已保存 · 当前离线';
+
+  @override
+  String get profileOfflineHint => '恢复连接后即可使用部分更改。';
+
+  @override
+  String get profileEdit => '编辑个人资料';
+
+  @override
+  String get profileLogout => '退出登录';
+
+  @override
+  String get profileLogoutConfirm => '要在此设备上退出吗？访客功能仍可使用。';
+
+  @override
+  String get profileCancel => '取消';
+
+  @override
+  String get profileAccountTicketHistory => '账户车票记录';
+
+  @override
+  String get profileSyncedAccount => '已与此账户同步';
+
+  @override
+  String get editProfileTitle => '编辑个人资料';
+
+  @override
+  String get saveChanges => '保存更改';
+
+  @override
   String get navHome => '首页';
 
   @override
@@ -2164,6 +2383,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get stationNotFound => '找不到车站';
+
+  @override
+  String get stationVoiceGuide => '语音导览';
+
+  @override
+  String get stationVoiceGuideStop => '停止语音导览';
+
+  @override
+  String get stationVoiceGuideError => '语音导览暂不可用，请重试。';
 
   @override
   String get withoutLogin => '没有登录';

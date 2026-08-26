@@ -150,20 +150,50 @@ _StationInfo _getDynamicStationInfo(String stationName) {
   if (_stationInfoMap.containsKey(stationName)) {
     return _stationInfoMap[stationName]!;
   }
-  
+
   final nameLower = stationName.toLowerCase();
-  
-  if (nameLower.contains('lrt') || nameLower.contains('rasuna') || nameLower.contains('kuningan') || nameLower.contains('pancoran') || nameLower.contains('cikoko') || nameLower.contains('ciliwung') || nameLower.contains('jatibening') || nameLower.contains('cikunir') || nameLower.contains('jatimulya') || nameLower.contains('harjamukti') || nameLower.contains('ciracas') || nameLower.contains('rambutan') || nameLower.contains('taman mini')) {
+
+  if (nameLower.contains('lrt') ||
+      nameLower.contains('rasuna') ||
+      nameLower.contains('kuningan') ||
+      nameLower.contains('pancoran') ||
+      nameLower.contains('cikoko') ||
+      nameLower.contains('ciliwung') ||
+      nameLower.contains('jatibening') ||
+      nameLower.contains('cikunir') ||
+      nameLower.contains('jatimulya') ||
+      nameLower.contains('harjamukti') ||
+      nameLower.contains('ciracas') ||
+      nameLower.contains('rambutan') ||
+      nameLower.contains('taman mini')) {
     return _StationInfo(
       name: stationName,
       departures: [
         _DepartureInfo('LRT', 'Dukuh Atas', '4 menit', '1', '15 menit'),
-        _DepartureInfo('LRT', nameLower.contains('cibubur') || nameLower.contains('harjamukti') ? 'Harjamukti' : 'Jati Mulya', '8 menit', '2', '25 menit'),
+        _DepartureInfo(
+          'LRT',
+          nameLower.contains('cibubur') || nameLower.contains('harjamukti')
+              ? 'Harjamukti'
+              : 'Jati Mulya',
+          '8 menit',
+          '2',
+          '25 menit',
+        ),
       ],
     );
   }
-  
-  if (nameLower.contains('mrt') || nameLower.contains('lebak') || nameLower.contains('fatmawati') || nameLower.contains('cipete') || nameLower.contains('haji nawi') || nameLower.contains('blok') || nameLower.contains('asean') || nameLower.contains('senayan') || nameLower.contains('istora') || nameLower.contains('bendungan') || nameLower.contains('hi')) {
+
+  if (nameLower.contains('mrt') ||
+      nameLower.contains('lebak') ||
+      nameLower.contains('fatmawati') ||
+      nameLower.contains('cipete') ||
+      nameLower.contains('haji nawi') ||
+      nameLower.contains('blok') ||
+      nameLower.contains('asean') ||
+      nameLower.contains('senayan') ||
+      nameLower.contains('istora') ||
+      nameLower.contains('bendungan') ||
+      nameLower.contains('hi')) {
     return _StationInfo(
       name: stationName,
       departures: [
@@ -172,8 +202,19 @@ _StationInfo _getDynamicStationInfo(String stationName) {
       ],
     );
   }
-  
-  if (nameLower.contains('rangkas') || nameLower.contains('palmerah') || nameLower.contains('kebayoran') || nameLower.contains('ranji') || nameLower.contains('jurangmangu') || nameLower.contains('sudimara') || nameLower.contains('buntu') || nameLower.contains('serpong') || nameLower.contains('cisauk') || nameLower.contains('parung') || nameLower.contains('tigaraksa') || nameLower.contains('maja')) {
+
+  if (nameLower.contains('rangkas') ||
+      nameLower.contains('palmerah') ||
+      nameLower.contains('kebayoran') ||
+      nameLower.contains('ranji') ||
+      nameLower.contains('jurangmangu') ||
+      nameLower.contains('sudimara') ||
+      nameLower.contains('buntu') ||
+      nameLower.contains('serpong') ||
+      nameLower.contains('cisauk') ||
+      nameLower.contains('parung') ||
+      nameLower.contains('tigaraksa') ||
+      nameLower.contains('maja')) {
     return _StationInfo(
       name: stationName,
       departures: [
@@ -182,8 +223,16 @@ _StationInfo _getDynamicStationInfo(String stationName) {
       ],
     );
   }
-  
-  if (nameLower.contains('tangerang') || nameLower.contains('grogol') || nameLower.contains('pesing') || nameLower.contains('taman kota') || nameLower.contains('bojong indah') || nameLower.contains('rawa buaya') || nameLower.contains('kalideres') || nameLower.contains('poris') || nameLower.contains('batu ceper')) {
+
+  if (nameLower.contains('tangerang') ||
+      nameLower.contains('grogol') ||
+      nameLower.contains('pesing') ||
+      nameLower.contains('taman kota') ||
+      nameLower.contains('bojong indah') ||
+      nameLower.contains('rawa buaya') ||
+      nameLower.contains('kalideres') ||
+      nameLower.contains('poris') ||
+      nameLower.contains('batu ceper')) {
     return _StationInfo(
       name: stationName,
       departures: [
@@ -192,8 +241,11 @@ _StationInfo _getDynamicStationInfo(String stationName) {
       ],
     );
   }
-  
-  if (nameLower.contains('priok') || nameLower.contains('ancol') || nameLower.contains('jis') || nameLower.contains('stadium')) {
+
+  if (nameLower.contains('priok') ||
+      nameLower.contains('ancol') ||
+      nameLower.contains('jis') ||
+      nameLower.contains('stadium')) {
     return _StationInfo(
       name: stationName,
       departures: [
@@ -202,8 +254,12 @@ _StationInfo _getDynamicStationInfo(String stationName) {
       ],
     );
   }
-  
-  if (nameLower.contains('velodrome') || nameLower.contains('pegangsaan') || nameLower.contains('boulevard') || nameLower.contains('pulomas') || nameLower.contains('equestrian')) {
+
+  if (nameLower.contains('velodrome') ||
+      nameLower.contains('pegangsaan') ||
+      nameLower.contains('boulevard') ||
+      nameLower.contains('pulomas') ||
+      nameLower.contains('equestrian')) {
     return _StationInfo(
       name: stationName,
       departures: [
@@ -213,7 +269,18 @@ _StationInfo _getDynamicStationInfo(String stationName) {
     );
   }
 
-  if (nameLower.contains('cikarang') || nameLower.contains('bekasi') || nameLower.contains('tambun') || nameLower.contains('cibitung') || nameLower.contains('klender') || nameLower.contains('buaran') || nameLower.contains('cakung') || nameLower.contains('kranji') || nameLower.contains('sentiong') || nameLower.contains('senen') || nameLower.contains('kemayoran') || nameLower.contains('rajawali')) {
+  if (nameLower.contains('cikarang') ||
+      nameLower.contains('bekasi') ||
+      nameLower.contains('tambun') ||
+      nameLower.contains('cibitung') ||
+      nameLower.contains('klender') ||
+      nameLower.contains('buaran') ||
+      nameLower.contains('cakung') ||
+      nameLower.contains('kranji') ||
+      nameLower.contains('sentiong') ||
+      nameLower.contains('senen') ||
+      nameLower.contains('kemayoran') ||
+      nameLower.contains('rajawali')) {
     return _StationInfo(
       name: stationName,
       departures: [
@@ -232,8 +299,6 @@ _StationInfo _getDynamicStationInfo(String stationName) {
   );
 }
 
-
-
 /// Halaman Beranda (Screen 3 di Figma)
 /// Menampilkan peta skematik berwarna, filter jalur, info stasiun terdekat,
 /// dan banner aksesibilitas. Stasiun di peta bisa diklik.
@@ -246,13 +311,23 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? _selectedStation;
+  String? _selectedStationId;
   String? _fromStation;
-  final DraggableScrollableController _sheetController = DraggableScrollableController();
+  String? _fromStationId;
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
 
   final Set<String> _visibleLineIds = {
-    'bogor', 'bogor_nambo', 'cikarang_loop', 'cikarang_east', 'tanjung_priok', 'tangerang', 'rangkasbitung',
+    'bogor',
+    'bogor_nambo',
+    'cikarang_loop',
+    'cikarang_east',
+    'tanjung_priok',
+    'tangerang',
+    'rangkasbitung',
     'mrt',
-    'lrt_bekasi', 'lrt_cibubur',
+    'lrt_bekasi',
+    'lrt_cibubur',
     'lrt_jakarta',
   };
 
@@ -260,11 +335,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildFilterOption(String label, List<String> lineIds, Color color) {
     final isAllSelected = lineIds.every((id) => _visibleLineIds.contains(id));
-    
+
     return Theme(
-      data: ThemeData(
-        unselectedWidgetColor: AppColors.textHint,
-      ),
+      data: ThemeData(unselectedWidgetColor: AppColors.textHint),
       child: CheckboxListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         title: Row(
@@ -317,70 +390,119 @@ class _HomePageState extends State<HomePage> {
           children: [
             // Filter Area/Kota (Region Selector)
             ExpansionTile(
-              leading: const Icon(Icons.location_city_rounded, color: AppColors.primaryBlue),
-              title: Text(l10n.filterArea, style: const TextStyle(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.location_city_rounded,
+                color: AppColors.primaryBlue,
+              ),
+              title: Text(
+                l10n.filterArea,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
               initiallyExpanded: true,
               shape: const Border(),
               children: [
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
-                  title: Text(l10n.areaJabodetabek, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  trailing: const Icon(Icons.check, color: AppColors.primaryBlue, size: 20),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: Text(
+                    l10n.areaJabodetabek,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  trailing: const Icon(
+                    Icons.check,
+                    color: AppColors.primaryBlue,
+                    size: 20,
+                  ),
                   onTap: () {
                     Navigator.pop(context); // Close drawer
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
-                  title: const Text('Jakarta Pusat', style: TextStyle(color: AppColors.textHint)),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text(
+                    'Jakarta Pusat',
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                    );
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
-                  title: const Text('Jakarta Selatan', style: TextStyle(color: AppColors.textHint)),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text(
+                    'Jakarta Selatan',
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                    );
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
-                  title: const Text('Jakarta Barat', style: TextStyle(color: AppColors.textHint)),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text(
+                    'Jakarta Barat',
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                    );
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
-                  title: const Text('Jakarta Timur', style: TextStyle(color: AppColors.textHint)),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text(
+                    'Jakarta Timur',
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                    );
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
-                  title: const Text('Jakarta Utara', style: TextStyle(color: AppColors.textHint)),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text(
+                    'Jakarta Utara',
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                    );
                   },
                 ),
                 ListTile(
-                  contentPadding: const EdgeInsetsDirectional.only(start: 72, end: 16),
-                  title: const Text('Bodetabek (Penyangga)', style: TextStyle(color: AppColors.textHint)),
+                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                  title: const Text(
+                    'Bodetabek (Penyangga)',
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.filterAreaComingSoon)));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                    );
                   },
                 ),
               ],
             ),
-            
+
             const Divider(color: AppColors.cardBorder),
-            
+
             // Filter Jalur (Line Filter)
             ExpansionTile(
-              leading: const Icon(Icons.train_rounded, color: AppColors.primaryBlue),
-              title: Text(l10n.filterLine, style: const TextStyle(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.train_rounded,
+                color: AppColors.primaryBlue,
+              ),
+              title: Text(
+                l10n.filterLine,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
               initiallyExpanded: true,
               shape: const Border(),
               children: [
@@ -388,15 +510,34 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(l10n.homeLineKRL, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      l10n.homeLineKRL,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
-                _buildFilterOption(l10n.homeFilterBogor, ['bogor', 'bogor_nambo'], AppColors.lineBogor),
-                _buildFilterOption(l10n.homeFilterCikarang, ['cikarang_loop', 'cikarang_east'], AppColors.lineCikarang),
-                _buildFilterOption(l10n.homeFilterRangkas, ['rangkasbitung'], AppColors.lineRangkasbitung),
-                _buildFilterOption(l10n.homeFilterTangerang, ['tangerang'], AppColors.lineTangerang),
-                _buildFilterOption(l10n.homeFilterPriok, ['tanjung_priok'], AppColors.lineTanjungPriok),
+                _buildFilterOption(l10n.homeFilterBogor, [
+                  'bogor',
+                  'bogor_nambo',
+                ], AppColors.lineBogor),
+                _buildFilterOption(l10n.homeFilterCikarang, [
+                  'cikarang_loop',
+                  'cikarang_east',
+                ], AppColors.lineCikarang),
+                _buildFilterOption(l10n.homeFilterRangkas, [
+                  'rangkasbitung',
+                ], AppColors.lineRangkasbitung),
+                _buildFilterOption(l10n.homeFilterTangerang, [
+                  'tangerang',
+                ], AppColors.lineTangerang),
+                _buildFilterOption(l10n.homeFilterPriok, [
+                  'tanjung_priok',
+                ], AppColors.lineTanjungPriok),
 
                 const Divider(color: AppColors.cardBorder, height: 16),
 
@@ -404,11 +545,20 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(l10n.homeLineMRTJ, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      l10n.homeLineMRTJ,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
-                _buildFilterOption(l10n.homeFilterMRTNorthSouth, ['mrt'], AppColors.lineMRT),
+                _buildFilterOption(l10n.homeFilterMRTNorthSouth, [
+                  'mrt',
+                ], AppColors.lineMRT),
 
                 const Divider(color: AppColors.cardBorder, height: 16),
 
@@ -416,12 +566,23 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(l10n.homeLineLRTJabo, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      l10n.homeLineLRTJabo,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
-                _buildFilterOption(l10n.homeFilterLRTBekasi, ['lrt_bekasi'], AppColors.lineLRTBekasi),
-                _buildFilterOption(l10n.homeFilterLRTCibubur, ['lrt_cibubur'], AppColors.lineLRTCibubur),
+                _buildFilterOption(l10n.homeFilterLRTBekasi, [
+                  'lrt_bekasi',
+                ], AppColors.lineLRTBekasi),
+                _buildFilterOption(l10n.homeFilterLRTCibubur, [
+                  'lrt_cibubur',
+                ], AppColors.lineLRTCibubur),
 
                 const Divider(color: AppColors.cardBorder, height: 16),
 
@@ -429,11 +590,20 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                   child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(l10n.homeLineLRTJakarta, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      l10n.homeLineLRTJakarta,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
-                _buildFilterOption(l10n.homeFilterLRTPegangsaan, ['lrt_jakarta'], AppColors.lineLRTJakarta),
+                _buildFilterOption(l10n.homeFilterLRTPegangsaan, [
+                  'lrt_jakarta',
+                ], AppColors.lineLRTJakarta),
 
                 const SizedBox(height: 16),
               ],
@@ -447,10 +617,18 @@ class _HomePageState extends State<HomePage> {
   void _onStationSelected(String stationName) {
     setState(() {
       _selectedStation = stationName;
+      _selectedStationId = null;
     });
-    // Update URL query parameter to keep everything in sync
-    final fromQuery = _fromStation != null ? '&from=$_fromStation' : '';
-    context.go('/?selected=$stationName$fromQuery');
+    context.go(
+      Uri(
+        path: '/',
+        queryParameters: {
+          'selected': stationName,
+          'from': ?_fromStation,
+          'fromId': ?_fromStationId,
+        },
+      ).toString(),
+    );
   }
 
   @override
@@ -458,7 +636,9 @@ class _HomePageState extends State<HomePage> {
     final l10n = AppLocalizations.of(context)!;
     final uri = GoRouterState.of(context).uri;
     final selectedParam = uri.queryParameters['selected'];
+    final selectedIdParam = uri.queryParameters['selectedId'];
     final fromParam = uri.queryParameters['from'];
+    final fromIdParam = uri.queryParameters['fromId'];
 
     // Jika parameter URL dibersihkan, sinkronkan state lokal ke null agar pop-up tertutup
     if (selectedParam == null && _selectedStation != null) {
@@ -466,23 +646,37 @@ class _HomePageState extends State<HomePage> {
         if (mounted) {
           setState(() {
             _selectedStation = null;
+            _selectedStationId = null;
           });
         }
       });
     }
 
     // Sync state if returned from search with fromParam
-    if (fromParam != null && _fromStation != fromParam) {
+    if (fromParam != null &&
+        (_fromStation != fromParam || _fromStationId != fromIdParam)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _fromStation = fromParam);
+        if (mounted) {
+          setState(() {
+            _fromStation = fromParam;
+            _fromStationId = fromIdParam;
+          });
+        }
+      });
+    }
+
+    if (selectedParam != null && _selectedStationId != selectedIdParam) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _selectedStationId = selectedIdParam);
       });
     }
 
     final currentStation = selectedParam ?? _selectedStation;
+    final currentStationId = selectedIdParam ?? _selectedStationId;
 
     final info = currentStation != null
         ? (_stationInfoMap[currentStation] ??
-            _getDynamicStationInfo(currentStation))
+              _getDynamicStationInfo(currentStation))
         : null;
 
     return PopScope(
@@ -492,410 +686,489 @@ class _HomePageState extends State<HomePage> {
         if (currentStation != null) {
           setState(() {
             _selectedStation = null;
+            _selectedStationId = null;
           });
-          final fromQuery = _fromStation != null ? '?from=$_fromStation' : '';
-          context.go('/$fromQuery');
+          context.go(
+            Uri(
+              path: '/',
+              queryParameters: {
+                'from': ?_fromStation,
+                'fromId': ?_fromStationId,
+              },
+            ).toString(),
+          );
         }
       },
       child: Scaffold(
-      key: _scaffoldKey,
-      endDrawer: _buildEndDrawer(context),
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // ── Header fixed: Search Bar + Filter Chips ──
-            const SizedBox(height: 16),
+        key: _scaffoldKey,
+        endDrawer: _buildEndDrawer(context),
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // ── Header fixed: Search Bar + Filter Chips ──
+              const SizedBox(height: 16),
 
-            // ── Top Banner (Dari) ──
-            if (_fromStation != null)
+              // ── Top Banner (Dari) ──
+              if (_fromStation != null)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.startFrom(_fromStation!),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryBlue,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _fromStation = null;
+                            _fromStationId = null;
+                          });
+                          context.go('/');
+                        },
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        l10n.startFrom(_fromStation!),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryBlue,
+                      child: GestureDetector(
+                        onTap: () {
+                          context.go(
+                            Uri(
+                              path: '/cari-stasiun',
+                              queryParameters: {
+                                'from': ?_fromStation,
+                                'fromId': ?_fromStationId,
+                              },
+                            ).toString(),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.search_rounded,
+                                color: AppColors.textHint,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  l10n.searchStationHint,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.textHint,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+                    const SizedBox(width: 12),
                     GestureDetector(
                       onTap: () {
-                        setState(() => _fromStation = null);
-                        context.go('/');
-                      },
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        final fromQuery = _fromStation != null
-                            ? '?from=$_fromStation'
-                            : '';
-                        context.go('/cari-stasiun$fromQuery');
+                        _scaffoldKey.currentState?.openEndDrawer();
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.cardBorder),
                         ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.search_rounded, color: AppColors.textHint),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                l10n.searchStationHint,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: AppColors.textHint,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: const Icon(
+                          Icons.menu_rounded,
+                          color: AppColors.primaryBlue,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () {
-                      _scaffoldKey.currentState?.openEndDrawer();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.cardBorder),
-                      ),
-                      child: const Icon(
-                        Icons.menu_rounded,
-                        color: AppColors.primaryBlue,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 8),
 
-            // ── Peta Skematik (di luar ScrollView agar gesture tidak konflik) ──
-            Expanded(
-              child: Stack(
-                children: [
-                  // Peta mengisi seluruh area tengah
-                  Positioned.fill(
-                    child: MapView(
-                      showColors: true,
-                      selectedStation: currentStation,
-                      fromStation: _fromStation,
-                      visibleLineIds: _visibleLineIds,
-                      onStationSelected: _onStationSelected,
+              // ── Peta Skematik (di luar ScrollView agar gesture tidak konflik) ──
+              Expanded(
+                child: Stack(
+                  children: [
+                    // Peta mengisi seluruh area tengah
+                    Positioned.fill(
+                      child: MapView(
+                        showColors: true,
+                        selectedStation: currentStation,
+                        fromStation: _fromStation,
+                        visibleLineIds: _visibleLineIds,
+                        onStationSelected: _onStationSelected,
+                      ),
                     ),
-                  ),
 
-                  // ── Panel Info Stasiun (DraggableSheet: tampilkan header saja, drag ke atas untuk detail) ──
-                  if (info != null)
-                    DraggableScrollableSheet(
-                      controller: _sheetController,
-                      initialChildSize: 0.23,
-                      minChildSize: 0.18,
-                      maxChildSize: 1.0,
-                      snap: true,
-                      snapSizes: const [0.23, 0.55, 1.0],
-                      builder: (context, scrollController) {
-                        final topInset = MediaQuery.of(context).padding.top;
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(24),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.12),
-                                blurRadius: 16,
-                                offset: const Offset(0, -4),
+                    // ── Panel Info Stasiun (DraggableSheet: tampilkan header saja, drag ke atas untuk detail) ──
+                    if (info != null)
+                      DraggableScrollableSheet(
+                        controller: _sheetController,
+                        initialChildSize: 0.23,
+                        minChildSize: 0.18,
+                        maxChildSize: 1.0,
+                        snap: true,
+                        snapSizes: const [0.23, 0.55, 1.0],
+                        builder: (context, scrollController) {
+                          final topInset = MediaQuery.of(context).padding.top;
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(24),
                               ),
-                            ],
-                          ),
-                          child: SingleChildScrollView(
-                            controller: scrollController,
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(16, topInset > 0 ? topInset + 6 : 10, 16, 32),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Drag handle & collapse bar
-                                  GestureDetector(
-                                    onTap: () {
-                                      _sheetController.animateTo(
-                                        0.23,
-                                        duration: const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            width: 42,
-                                            height: 5,
-                                            margin: const EdgeInsets.only(bottom: 6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey.shade400,
-                                              borderRadius: BorderRadius.circular(3),
-                                            ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.12),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, -4),
+                                ),
+                              ],
+                            ),
+                            child: SingleChildScrollView(
+                              controller: scrollController,
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  16,
+                                  topInset > 0 ? topInset + 6 : 10,
+                                  16,
+                                  32,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Drag handle & collapse bar
+                                    GestureDetector(
+                                      onTap: () {
+                                        _sheetController.animateTo(
+                                          0.23,
+                                          duration: const Duration(
+                                            milliseconds: 300,
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primaryBlueLight,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: Text(
-                                          l10n.selectedStation,
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.primaryBlue,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _selectedStation = null;
-                                          });
-                                          context.go('/');
-                                        },
-                                        icon: const Icon(
-                                          Icons.close_rounded,
-                                          color: AppColors.textSecondary,
-                                          size: 20,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Flexible(
-                                        child: Row(
+                                          curve: Curves.easeInOut,
+                                        );
+                                      },
+                                      child: Center(
+                                        child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Container(
-                                              padding: const EdgeInsets.all(6),
+                                              width: 42,
+                                              height: 5,
+                                              margin: const EdgeInsets.only(
+                                                bottom: 6,
+                                              ),
                                               decoration: BoxDecoration(
-                                                color: AppColors.primaryBlue
-                                                    .withValues(alpha: 0.1),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(
-                                                Icons.swap_vert_rounded,
-                                                color: AppColors.primaryBlue,
-                                                size: 22,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Flexible(
-                                              child: Text(
-                                                info.name,
-                                                style: const TextStyle(
-                                                  fontSize: 22,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: AppColors.textPrimary,
-                                                ),
+                                                color: Colors.grey.shade400,
+                                                borderRadius:
+                                                    BorderRadius.circular(3),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      Row(
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _fromStation = currentStation;
-                                                _selectedStation = null;
-                                              });
-                                              context.go('/?from=$currentStation');
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: AppColors.surface,
-                                              foregroundColor:
-                                                  AppColors.primaryBlue,
-                                              side: const BorderSide(
-                                                color: AppColors.primaryBlue,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                                vertical: 10,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              l10n.from,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryBlueLight,
+                                            borderRadius: BorderRadius.circular(
+                                              6,
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              if (_fromStation != null) {
-                                                context.go(
-                                                  '/rute?from=$_fromStation&to=$currentStation',
-                                                );
-                                              } else {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      l10n.selectFromFirst,
-                                                    ),
+                                          child: Text(
+                                            l10n.selectedStation,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.primaryBlue,
+                                            ),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedStation = null;
+                                              _selectedStationId = null;
+                                            });
+                                            context.go(
+                                              Uri(
+                                                path: '/',
+                                                queryParameters: {
+                                                  'from': ?_fromStation,
+                                                  'fromId': ?_fromStationId,
+                                                },
+                                              ).toString(),
+                                            );
+                                          },
+                                          icon: const Icon(
+                                            Icons.close_rounded,
+                                            color: AppColors.textSecondary,
+                                            size: 20,
+                                          ),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(
+                                                  6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.primaryBlue
+                                                      .withValues(alpha: 0.1),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.swap_vert_rounded,
+                                                  color: AppColors.primaryBlue,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Flexible(
+                                                child: Text(
+                                                  info.name,
+                                                  style: const TextStyle(
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.w700,
+                                                    color:
+                                                        AppColors.textPrimary,
                                                   ),
-                                                );
-                                              }
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  AppColors.primaryBlue,
-                                              foregroundColor: Colors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
+                                                ),
                                               ),
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 24,
-                                                vertical: 10,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              l10n.to,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
+                                        ),
+                                        Row(
+                                          children: [
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _fromStation = currentStation;
+                                                  _fromStationId =
+                                                      currentStationId;
+                                                  _selectedStation = null;
+                                                  _selectedStationId = null;
+                                                });
+                                                context.go(
+                                                  Uri(
+                                                    path: '/',
+                                                    queryParameters: {
+                                                      'from': currentStation,
+                                                      'fromId':
+                                                          ?currentStationId,
+                                                    },
+                                                  ).toString(),
+                                                );
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    AppColors.surface,
+                                                foregroundColor:
+                                                    AppColors.primaryBlue,
+                                                side: const BorderSide(
+                                                  color: AppColors.primaryBlue,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 10,
+                                                    ),
+                                              ),
+                                              child: Text(
+                                                l10n.from,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                if (_fromStation != null) {
+                                                  context.go(
+                                                    Uri(
+                                                      path: '/rute',
+                                                      queryParameters: {
+                                                        'from':
+                                                            _fromStationId ??
+                                                            _fromStation!,
+                                                        'to':
+                                                            currentStationId ??
+                                                            currentStation,
+                                                      },
+                                                    ).toString(),
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        l10n.selectFromFirst,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    AppColors.primaryBlue,
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 24,
+                                                      vertical: 10,
+                                                    ),
+                                              ),
+                                              child: Text(
+                                                l10n.to,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
 
-                                  const Divider(color: AppColors.cardBorder),
-                                  const SizedBox(height: 12),
+                                    const Divider(color: AppColors.cardBorder),
+                                    const SizedBox(height: 12),
 
-                                  _NextTrainBoard(
-                                    stationName: info.name,
-                                    departures: info.departures,
-                                    onDepartureTap: (dep) {
-                                      final uri = Uri(
-                                        path: '/departure-detail',
-                                        queryParameters: {
-                                          'lineType': dep.lineType,
-                                          'destination': dep.destination,
-                                          'duration': dep.duration,
-                                          'platform': dep.platform,
-                                        },
-                                      );
-                                      context.push(uri.toString());
-                                    },
-                                  ),
+                                    _NextTrainBoard(
+                                      stationName: info.name,
+                                      departures: info.departures,
+                                      onDepartureTap: (dep) {
+                                        final uri = Uri(
+                                          path: '/departure-detail',
+                                          queryParameters: {
+                                            'lineType': dep.lineType,
+                                            'destination': dep.destination,
+                                            'duration': dep.duration,
+                                            'platform': dep.platform,
+                                          },
+                                        );
+                                        context.push(uri.toString());
+                                      },
+                                    ),
 
-                                  const SizedBox(height: 16),
-                                  const Divider(color: AppColors.cardBorder),
-                                  const SizedBox(height: 12),
+                                    const SizedBox(height: 16),
+                                    const Divider(color: AppColors.cardBorder),
+                                    const SizedBox(height: 12),
 
-                                  // ── Fasilitas Stasiun ──
-                                  _StationFacilitiesSection(stationName: info.name),
+                                    // ── Fasilitas Stasiun ──
+                                    _StationFacilitiesSection(
+                                      stationName: info.name,
+                                    ),
 
-                                  const SizedBox(height: 16),
-                                  const Divider(color: AppColors.cardBorder),
-                                  const SizedBox(height: 12),
+                                    const SizedBox(height: 16),
+                                    const Divider(color: AppColors.cardBorder),
+                                    const SizedBox(height: 12),
 
-                                  // ── Informasi Stasiun ──
-                                  _StationInfoSection(stationName: info.name),
+                                    // ── Informasi Stasiun ──
+                                    _StationInfoSection(stationName: info.name),
 
-                                  const SizedBox(height: 16),
-                                  const Divider(color: AppColors.cardBorder),
-                                  const SizedBox(height: 12),
+                                    const SizedBox(height: 16),
+                                    const Divider(color: AppColors.cardBorder),
+                                    const SizedBox(height: 12),
 
-                                  // ── Panduan Pintu Keluar ──
-                                  _StationExitGateSection(stationName: info.name),
+                                    // ── Panduan Pintu Keluar ──
+                                    _StationExitGateSection(
+                                      stationName: info.name,
+                                    ),
 
-                                  const SizedBox(height: 16),
-                                  const Divider(color: AppColors.cardBorder),
-                                  const SizedBox(height: 12),
+                                    const SizedBox(height: 16),
+                                    const Divider(color: AppColors.cardBorder),
+                                    const SizedBox(height: 12),
 
-                                  // ── Customer Service & Bantuan ──
-                                  _StationCustomerServiceSection(stationName: info.name),
-                                  const SizedBox(height: 24),
-                                ],
+                                    // ── Customer Service & Bantuan ──
+                                    _StationCustomerServiceSection(
+                                      stationName: info.name,
+                                    ),
+                                    const SizedBox(height: 24),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                ],
+                          );
+                        },
+                      ),
+                  ],
+                ),
               ),
-            ),
 
-            // ── Bottom Navigation Bar ──
-            const AppBottomNavBar(currentIndex: 0),
-          ],
+              // ── Bottom Navigation Bar ──
+              const AppBottomNavBar(currentIndex: 0),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
 }
+
 class _NextTrainBoard extends StatefulWidget {
   final String stationName;
   final List<_DepartureInfo> departures;
@@ -947,7 +1220,9 @@ class _NextTrainBoardState extends State<_NextTrainBoard> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  AppLocalizations.of(context)!.homeNextTrainFrom(widget.stationName),
+                  AppLocalizations.of(
+                    context,
+                  )!.homeNextTrainFrom(widget.stationName),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -981,7 +1256,9 @@ class _NextTrainBoardState extends State<_NextTrainBoard> {
                   child: Text(
                     _isExpanded
                         ? AppLocalizations.of(context)!.homeClose
-                        : AppLocalizations.of(context)!.homeShowAll(widget.departures.length),
+                        : AppLocalizations.of(
+                            context,
+                          )!.homeShowAll(widget.departures.length),
                     style: const TextStyle(
                       color: AppColors.primaryBlue,
                       fontSize: 12,
@@ -1067,7 +1344,9 @@ class _NextTrainRow extends StatelessWidget {
                       const SizedBox(height: 3),
                       if (departure.travelDuration.isNotEmpty) ...[
                         Text(
-                          AppLocalizations.of(context)!.homeTravelDuration(departure.travelDuration),
+                          AppLocalizations.of(
+                            context,
+                          )!.homeTravelDuration(departure.travelDuration),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -1082,7 +1361,9 @@ class _NextTrainRow extends StatelessWidget {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(
-                            AppLocalizations.of(context)!.homePlatform(departure.platform),
+                            AppLocalizations.of(
+                              context,
+                            )!.homePlatform(departure.platform),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -1090,7 +1371,9 @@ class _NextTrainRow extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            AppLocalizations.of(context)!.homeDestination(departure.destination),
+                            AppLocalizations.of(
+                              context,
+                            )!.homeDestination(departure.destination),
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppColors.textHint,
@@ -1107,8 +1390,10 @@ class _NextTrainRow extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.homeArrivingIn(departure.duration),
-                      textAlign: TextAlign.end,
+                      AppLocalizations.of(
+                        context,
+                      )!.homeArrivingIn(departure.duration),
+                      textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -1145,14 +1430,46 @@ class _StationFacilitiesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final facilities = [
-      {'icon': Icons.accessible_rounded, 'label': 'Lift Aksesibel', 'color': AppColors.primaryBlue},
-      {'icon': Icons.escalator_rounded, 'label': 'Eskalator', 'color': AppColors.statusGreen},
-      {'icon': Icons.mosque_rounded, 'label': 'Musholla', 'color': Colors.amber.shade800},
-      {'icon': Icons.wc_rounded, 'label': 'Toilet Difabel', 'color': Colors.teal.shade700},
-      {'icon': Icons.power_rounded, 'label': 'Charger', 'color': Colors.orange.shade800},
-      {'icon': Icons.store_rounded, 'label': 'Minimarket', 'color': Colors.indigo.shade700},
-      {'icon': Icons.child_friendly_rounded, 'label': 'Menyusui', 'color': Colors.pink.shade600},
-      {'icon': Icons.local_atm_rounded, 'label': 'ATM Center', 'color': Colors.blue.shade800},
+      {
+        'icon': Icons.accessible_rounded,
+        'label': 'Lift Aksesibel',
+        'color': AppColors.primaryBlue,
+      },
+      {
+        'icon': Icons.escalator_rounded,
+        'label': 'Eskalator',
+        'color': AppColors.statusGreen,
+      },
+      {
+        'icon': Icons.mosque_rounded,
+        'label': 'Musholla',
+        'color': Colors.amber.shade800,
+      },
+      {
+        'icon': Icons.wc_rounded,
+        'label': 'Toilet Difabel',
+        'color': Colors.teal.shade700,
+      },
+      {
+        'icon': Icons.power_rounded,
+        'label': 'Charger',
+        'color': Colors.orange.shade800,
+      },
+      {
+        'icon': Icons.store_rounded,
+        'label': 'Minimarket',
+        'color': Colors.indigo.shade700,
+      },
+      {
+        'icon': Icons.child_friendly_rounded,
+        'label': 'Menyusui',
+        'color': Colors.pink.shade600,
+      },
+      {
+        'icon': Icons.local_atm_rounded,
+        'label': 'ATM Center',
+        'color': Colors.blue.shade800,
+      },
     ];
 
     return Column(
@@ -1160,11 +1477,17 @@ class _StationFacilitiesSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.stars_rounded, color: AppColors.primaryBlue, size: 20),
+            const Icon(
+              Icons.stars_rounded,
+              color: AppColors.primaryBlue,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.homeStationFacilities(stationName),
+                AppLocalizations.of(
+                  context,
+                )!.homeStationFacilities(stationName),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1233,11 +1556,17 @@ class _StationInfoSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.info_outline_rounded, color: AppColors.primaryBlue, size: 20),
+            const Icon(
+              Icons.info_outline_rounded,
+              color: AppColors.primaryBlue,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.homeStationInformation(stationName),
+                AppLocalizations.of(
+                  context,
+                )!.homeStationInformation(stationName),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1334,7 +1663,11 @@ class _StationExitGateSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.meeting_room_outlined, color: AppColors.primaryBlue, size: 20),
+            const Icon(
+              Icons.meeting_room_outlined,
+              color: AppColors.primaryBlue,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -1415,7 +1748,11 @@ class _StationExitGateSection extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.directions_bus_filled_outlined, size: 12, color: AppColors.textSecondary),
+                    const Icon(
+                      Icons.directions_bus_filled_outlined,
+                      size: 12,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
@@ -1449,7 +1786,11 @@ class _StationCustomerServiceSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.support_agent_rounded, color: AppColors.primaryBlue, size: 20),
+            const Icon(
+              Icons.support_agent_rounded,
+              color: AppColors.primaryBlue,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -1469,7 +1810,9 @@ class _StationCustomerServiceSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.primaryBlueLight.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: AppColors.primaryBlue.withValues(alpha: 0.2),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1482,7 +1825,11 @@ class _StationCustomerServiceSection extends StatelessWidget {
                       color: AppColors.primaryBlue,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.headset_mic_rounded, color: Colors.white, size: 22),
+                    child: const Icon(
+                      Icons.headset_mic_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1490,7 +1837,9 @@ class _StationCustomerServiceSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.homeCSStation(stationName),
+                          AppLocalizations.of(
+                            context,
+                          )!.homeCSStation(stationName),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -1527,17 +1876,29 @@ class _StationCustomerServiceSection extends StatelessWidget {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.homeCallCSSnackbar(stationName)),
+                            content: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.homeCallCSSnackbar(stationName),
+                            ),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
                       },
                       icon: const Icon(Icons.phone_rounded, size: 16),
-                      label: Text(AppLocalizations.of(context)!.homeCallCSBtn, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      label: Text(
+                        AppLocalizations.of(context)!.homeCallCSBtn,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
@@ -1548,18 +1909,30 @@ class _StationCustomerServiceSection extends StatelessWidget {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.homeAskHelpSnackbar(stationName)),
+                            content: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.homeAskHelpSnackbar(stationName),
+                            ),
                             backgroundColor: AppColors.statusGreen,
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
                       },
                       icon: const Icon(Icons.accessible_rounded, size: 16),
-                      label: Text(AppLocalizations.of(context)!.homeAskHelpBtn, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      label: Text(
+                        AppLocalizations.of(context)!.homeAskHelpBtn,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primaryBlue,
                         side: const BorderSide(color: AppColors.primaryBlue),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),

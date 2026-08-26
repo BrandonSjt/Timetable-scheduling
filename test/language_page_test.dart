@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:timetable/core/localization/app_locale.dart';
 import 'package:timetable/core/localization/locale_controller.dart';
@@ -8,6 +9,10 @@ import 'package:timetable/main.dart';
 import 'helpers/fake_locale_storage.dart';
 
 void main() {
+  setUp(() {
+    FlutterSecureStorage.setMockInitialValues({});
+  });
+
   testWidgets('injected locale controls MaterialApp', (tester) async {
     final controller = LocaleController(initialLocale: AppLocale.arabic);
     addTearDown(controller.dispose);
@@ -116,7 +121,9 @@ void main() {
       expect(Directionality.of(homeContext), TextDirection.ltr);
       expect(
         tester.getCenter(find.byIcon(Icons.calendar_month_outlined)).dx,
-        lessThan(tester.getCenter(find.byIcon(Icons.person_outline_rounded)).dx),
+        lessThan(
+          tester.getCenter(find.byIcon(Icons.person_outline_rounded)).dx,
+        ),
       );
       expect(tester.takeException(), isNull);
     },

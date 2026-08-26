@@ -5,12 +5,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../widgets/help_flow_widgets.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
-enum _PaymentIssue {
-  deductedBalance,
-  missingTicket,
-  refund,
-  paymentMethod;
-}
+enum _PaymentIssue { deductedBalance, missingTicket, refund, paymentMethod }
 
 extension _PaymentIssueL10n on _PaymentIssue {
   String label(AppLocalizations l10n) {
@@ -80,7 +75,9 @@ class _PaymentIssuePageState extends State<PaymentIssuePage> {
 
   void _selectIssue(String label, AppLocalizations l10n) {
     setState(() {
-      _issue = _PaymentIssue.values.firstWhere((issue) => issue.label(l10n) == label);
+      _issue = _PaymentIssue.values.firstWhere(
+        (issue) => issue.label(l10n) == label,
+      );
     });
   }
 
@@ -96,7 +93,7 @@ class _PaymentIssuePageState extends State<PaymentIssuePage> {
     return switch (_issue) {
       _PaymentIssue.missingTicket => const Color(0xFFE8F8F0),
       _PaymentIssue.paymentMethod => const Color(0xFFFEECEC),
-      _ => const Color(0xFFFFF1E8),
+      _ => AppColors.accentOrangeLight,
     };
   }
 
@@ -112,7 +109,7 @@ class _PaymentIssuePageState extends State<PaymentIssuePage> {
         HelpIntroCard(
           icon: Icons.add_rounded,
           accentColor: AppColors.primaryBlue,
-          iconBackground: const Color(0xFFEAF2FF),
+          iconBackground: AppColors.primaryBlueLight,
           title: l10n.payIssueTitle,
           status: l10n.payActiveIssue(_issue.label(l10n)),
           description: l10n.payIssueDescription,
@@ -142,12 +139,14 @@ class _PaymentIssuePageState extends State<PaymentIssuePage> {
         HelpSectionHeading(title: l10n.paySelectIssue),
         const SizedBox(height: 16),
         HelpChoiceGrid(
-          options: _PaymentIssue.values.map((issue) => issue.label(l10n)).toList(),
+          options: _PaymentIssue.values
+              .map((issue) => issue.label(l10n))
+              .toList(),
           selected: _issue.label(l10n),
           onSelected: (label) => _selectIssue(label, l10n),
           columns: 2,
           accentColor: AppColors.primaryBlue,
-          selectedBackground: const Color(0xFFEAF2FF),
+          selectedBackground: AppColors.primaryBlueLight,
         ),
         const SizedBox(height: 28),
         HelpFieldCard(label: l10n.payQuickAdvice, value: _issue.advice(l10n)),

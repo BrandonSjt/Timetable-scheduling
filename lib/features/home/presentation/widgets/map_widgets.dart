@@ -3,6 +3,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/schematic_map_painter.dart';
 
+const double kInitialMapScale = 1.05;
+
 /// Widget peta skematik jalur kereta yang bisa di-zoom, di-geser,
 /// dan klik stasiun untuk memilihnya.
 class MapView extends StatefulWidget {
@@ -11,6 +13,10 @@ class MapView extends StatefulWidget {
   final String? fromStation;
   final ValueChanged<String>? onStationSelected;
   final Set<String>? visibleLineIds;
+  final Set<String>? highlightedSegmentIds;
+  final String? nearestStationId;
+  final VoidCallback? onLocateUser;
+  final bool isLocating;
 
   const MapView({
     super.key,
@@ -19,6 +25,10 @@ class MapView extends StatefulWidget {
     this.fromStation,
     this.onStationSelected,
     this.visibleLineIds,
+    this.highlightedSegmentIds,
+    this.nearestStationId,
+    this.onLocateUser,
+    this.isLocating = false,
   });
 
   @override
@@ -108,7 +118,10 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       if (station.isWaypoint) continue;
       final d = (canvasPos - station.position).distance;
       if (d < 25) {
-        widget.onStationSelected?.call(station.name);
+        final selectionName = stationSelectionName(station);
+        if (selectionName.isNotEmpty) {
+          widget.onStationSelected?.call(selectionName);
+        }
         return;
       }
     }
@@ -121,8 +134,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     bool animate = true,
     double? scale,
   }) {
+    final query = stationName.toLowerCase();
     final station = stations.firstWhere(
-      (s) => s.name.toLowerCase() == stationName.toLowerCase(),
+      (s) =>
+          s.id.toLowerCase() == query ||
+          s.name.toLowerCase() == query ||
+          stationSelectionName(s).toLowerCase() == query,
       orElse: () => stations.first,
     );
 
@@ -137,7 +154,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         (viewportSize.width / 2) - (targetX * targetScale);
     // Geser titik tengah ke atas (- 160) agar stasiun tidak tertutup bottom sheet
     // Jika tidak ada station yang di-select secara eksplisit (seperti saat initial load),
-    // kita tidak perlu menggeser ke atas sejauh itu, tapi karena fungsi ini 
+    // kita tidak perlu menggeser ke atas sejauh itu, tapi karena fungsi ini
     // juga dipakai saat memilih stasiun, biarkan logic-nya. Untuk initial load,
     // kita kurangi pergeserannya.
     final double yOffset = (scale != null && scale < 1.5) ? 0 : 160;
@@ -226,7 +243,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
               'Dukuh Atas LRT', // Default initial view position based on screenshot
               viewportSize,
               animate: false,
-              scale: 1.05,
+              scale: kInitialMapScale,
             );
             _hasInitialized = true;
           });
@@ -245,7 +262,12 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   minScale: 0.15,
                   maxScale: 4.0,
                   constrained: false,
-                  boundaryMargin: const EdgeInsets.only(left: 350, top: 150, right: 150, bottom: 150),
+                  boundaryMargin: const EdgeInsets.only(
+                    left: 350,
+                    top: 150,
+                    right: 150,
+                    bottom: 150,
+                  ),
                   child: SizedBox(
                     width: kMapWidth,
                     height: kMapHeight,
@@ -256,6 +278,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         selectedStation: widget.selectedStation,
                         fromStation: widget.fromStation,
                         visibleLineIds: widget.visibleLineIds,
+                        highlightedSegmentIds: widget.highlightedSegmentIds,
+                        nearestStation: widget.nearestStationId,
                       ),
                     ),
                   ),
@@ -272,6 +296,13 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                   _ZoomButton(icon: Icons.zoom_in, onTap: () => _zoom(1.4)),
                   const SizedBox(height: 8),
                   _ZoomButton(icon: Icons.zoom_out, onTap: () => _zoom(0.7)),
+                  if (widget.onLocateUser != null) ...[
+                    const SizedBox(height: 8),
+                    _LocationButton(
+                      isLoading: widget.isLocating,
+                      onTap: widget.onLocateUser!,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -289,6 +320,57 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
     );
   }
 }
+
+class _LocationButton extends StatelessWidget {
+  const _LocationButton({required this.isLoading, required this.onTap});
+
+  final bool isLoading;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Temukan lokasi saya',
+      child: GestureDetector(
+        key: const Key('locate-user-button'),
+        onTap: isLoading ? null : onTap,
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: isLoading ? AppColors.primaryBlueLight : AppColors.surface,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.primaryBlue.withValues(alpha: 0.35),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(11),
+                  child: CircularProgressIndicator(
+                    key: Key('locate-user-progress'),
+                    strokeWidth: 2.5,
+                  ),
+                )
+              : const Icon(
+                  Icons.my_location_rounded,
+                  color: AppColors.primaryBlue,
+                  size: 21,
+                ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Tombol zoom bulat dengan ikon magnifier glass
 class _ZoomButton extends StatelessWidget {
   final IconData icon;
@@ -405,10 +487,22 @@ class StationActionBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionFrom, onTap: () {}),
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionVia, onTap: () {}),
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionTo, onTap: () {}),
-          _ActionButton(label: AppLocalizations.of(context)!.mapActionInfo, onTap: () {}),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionFrom,
+            onTap: () {},
+          ),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionVia,
+            onTap: () {},
+          ),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionTo,
+            onTap: () {},
+          ),
+          _ActionButton(
+            label: AppLocalizations.of(context)!.mapActionInfo,
+            onTap: () {},
+          ),
         ],
       ),
     );
@@ -513,12 +607,11 @@ class _MapLegendToggleState extends State<_MapLegendToggle>
     _slideAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(-1.0, 0.0),
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _fadeAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -627,15 +720,51 @@ class _MapLegend extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _LegendItem(code: "B", label: AppLocalizations.of(context)!.mapLegendBogor, color: AppColors.lineBogor),
-          _LegendItem(code: "C", label: AppLocalizations.of(context)!.mapLegendCikarang, color: AppColors.lineCikarang),
-          _LegendItem(code: "R", label: AppLocalizations.of(context)!.mapLegendRangkasbitung, color: AppColors.lineRangkasbitung),
-          _LegendItem(code: "T", label: AppLocalizations.of(context)!.mapLegendTangerang, color: AppColors.lineTangerang),
-          _LegendItem(code: "TP", label: AppLocalizations.of(context)!.mapLegendTanjungPriok, color: AppColors.lineTanjungPriok),
-          _LegendItem(code: "M", label: AppLocalizations.of(context)!.mapLegendMrt, color: AppColors.lineMRT),
-          _LegendItem(code: "BK", label: AppLocalizations.of(context)!.mapLegendLrtBekasi, color: AppColors.lineLRTBekasi),
-          _LegendItem(code: "CB", label: AppLocalizations.of(context)!.mapLegendLrtCibubur, color: AppColors.lineLRTCibubur),
-          _LegendItem(code: "S", label: AppLocalizations.of(context)!.mapLegendLrtJakarta, color: AppColors.lineLRTJakarta),
+          _LegendItem(
+            code: "B",
+            label: AppLocalizations.of(context)!.mapLegendBogor,
+            color: AppColors.lineBogor,
+          ),
+          _LegendItem(
+            code: "C",
+            label: AppLocalizations.of(context)!.mapLegendCikarang,
+            color: AppColors.lineCikarang,
+          ),
+          _LegendItem(
+            code: "R",
+            label: AppLocalizations.of(context)!.mapLegendRangkasbitung,
+            color: AppColors.lineRangkasbitung,
+          ),
+          _LegendItem(
+            code: "T",
+            label: AppLocalizations.of(context)!.mapLegendTangerang,
+            color: AppColors.lineTangerang,
+          ),
+          _LegendItem(
+            code: "TP",
+            label: AppLocalizations.of(context)!.mapLegendTanjungPriok,
+            color: AppColors.lineTanjungPriok,
+          ),
+          _LegendItem(
+            code: "M",
+            label: AppLocalizations.of(context)!.mapLegendMrt,
+            color: AppColors.lineMRT,
+          ),
+          _LegendItem(
+            code: "BK",
+            label: AppLocalizations.of(context)!.mapLegendLrtBekasi,
+            color: AppColors.lineLRTBekasi,
+          ),
+          _LegendItem(
+            code: "CB",
+            label: AppLocalizations.of(context)!.mapLegendLrtCibubur,
+            color: AppColors.lineLRTCibubur,
+          ),
+          _LegendItem(
+            code: "S",
+            label: AppLocalizations.of(context)!.mapLegendLrtJakarta,
+            color: AppColors.lineLRTJakarta,
+          ),
         ],
       ),
     );

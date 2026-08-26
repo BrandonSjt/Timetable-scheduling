@@ -2,9 +2,12 @@ import 'package:go_router/go_router.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/search_station/presentation/pages/search_station_page.dart';
 import '../../features/route_result/presentation/pages/route_result_page.dart';
+import '../../features/route_result/presentation/pages/route_map_preview_page.dart';
+import '../../features/route_result/domain/entities/route_plan.dart';
 import '../../features/timetable/presentation/pages/timetable_page.dart';
 import '../../features/tickets/presentation/pages/tickets_page.dart';
 import '../../features/assistant/presentation/pages/assistant_page.dart';
+import '../../features/assistant/presentation/pages/camera_guide_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
@@ -20,6 +23,8 @@ import '../../features/profile/presentation/pages/active_ticket_detail_page.dart
 import '../../features/profile/presentation/pages/completed_ticket_detail_page.dart';
 import '../../features/home/presentation/pages/departure_detail_page.dart';
 import '../../features/travel_alarm/presentation/widgets/travel_alarm_scope.dart';
+import '../../features/auth/presentation/pages/auth_page.dart';
+import '../../features/auth/presentation/pages/edit_profile_page.dart';
 
 /// Konfigurasi routing utama aplikasi menggunakan GoRouter.
 /// Semua rute halaman didefinisikan di sini.
@@ -71,6 +76,10 @@ final GoRouter appRouter = GoRouter(
         child: AssistantPage(alarmController: TravelAlarmScope.of(context)),
       ),
     ),
+    GoRoute(
+      path: '/asisten/pemandu-kamera',
+      builder: (context, state) => const CameraGuidePage(),
+    ),
 
     // Tautan lama tetap menuju tab Asisten.
     GoRoute(path: '/promo', redirect: (context, state) => '/asisten'),
@@ -80,6 +89,15 @@ final GoRouter appRouter = GoRouter(
       path: '/akun',
       pageBuilder: (context, state) =>
           const NoTransitionPage(child: ProfilePage()),
+    ),
+    GoRoute(path: '/masuk', builder: (context, state) => const AuthPage()),
+    GoRoute(
+      path: '/daftar',
+      builder: (context, state) => const AuthPage(register: true),
+    ),
+    GoRoute(
+      path: '/profil-saya',
+      builder: (context, state) => const EditProfilePage(),
     ),
 
     // Pengaturan Aksesibilitas
@@ -159,6 +177,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/rute',
       builder: (context, state) => const RouteResultPage(),
+    ),
+    GoRoute(
+      path: '/rute/peta',
+      builder: (context, state) => RouteMapPreviewPage(
+        route: state.extra is RoutePlan ? state.extra as RoutePlan : null,
+      ),
     ),
 
     // Detail Keberangkatan

@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Shell visual bersama untuk seluruh halaman detail dari menu Akun.
 ///
-/// Shell ini mempertahankan header indigo, permukaan atas membulat, tombol
+/// Shell ini mempertahankan header berwarna merek, permukaan atas membulat, tombol
 /// kembali, dan tidak menampilkan navigasi bawah.
 class ProfileDetailScaffold extends StatelessWidget {
-  static const Color headerColor = Color(0xFF4F46E5);
-  static const Color pageBackground = Color(0xFFF1F5F9);
+  static const Color headerColor = AppColors.deepPurple;
+  static const Color pageBackground = AppColors.background;
 
   final String title;
   final String subtitle;
@@ -55,7 +56,9 @@ class ProfileDetailScaffold extends StatelessWidget {
           children: [
             Container(
               width: double.infinity,
-              color: headerColor,
+              decoration: const BoxDecoration(
+                gradient: AppColors.primaryGradient,
+              ),
               child: SafeArea(
                 bottom: false,
                 child: Padding(

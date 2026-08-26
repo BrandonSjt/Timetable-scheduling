@@ -104,6 +104,118 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileContactOfficer => 'الاتصال بالمسؤول والإبلاغ عن الأخطاء';
 
   @override
+  String get authSignInTitle => 'تسجيل الدخول';
+
+  @override
+  String get authSignInSubtitle =>
+      'الحساب اختياري. سجّل الدخول لمزامنة ملفك الشخصي وسجل التذاكر.';
+
+  @override
+  String get authRegisterTitle => 'إنشاء حساب';
+
+  @override
+  String get authRegisterSubtitle =>
+      'يمكنك التسجيل مع بقاء الوصول كضيف إلى الجداول والمسارات وشراء التذاكر.';
+
+  @override
+  String get authName => 'الاسم الكامل';
+
+  @override
+  String get authEmail => 'البريد الإلكتروني';
+
+  @override
+  String get authPhoneOptional => 'رقم الهاتف (اختياري)';
+
+  @override
+  String get authPassword => 'كلمة المرور';
+
+  @override
+  String get authPasswordConfirmation => 'تأكيد كلمة المرور';
+
+  @override
+  String get authEmailInvalid => 'أدخل عنوان بريد إلكتروني صالحًا.';
+
+  @override
+  String get authNameRequired => 'يجب أن يحتوي الاسم على حرفين على الأقل.';
+
+  @override
+  String get authPasswordMin =>
+      'يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل.';
+
+  @override
+  String get authPasswordMismatch => 'تأكيد كلمة المرور غير متطابق.';
+
+  @override
+  String get authShowPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get authHidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get authSubmitLogin => 'تسجيل الدخول';
+
+  @override
+  String get authSubmitRegister => 'التسجيل';
+
+  @override
+  String get authCreateAccount => 'ليس لديك حساب؟ سجّل الآن';
+
+  @override
+  String get authBackToLogin => 'لديك حساب بالفعل؟ سجّل الدخول';
+
+  @override
+  String get authGuestStillAvailable =>
+      'من دون حساب، يمكنك عرض الجداول والبحث عن المسارات وشراء التذاكر كضيف.';
+
+  @override
+  String get authInvalidCredentials =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+
+  @override
+  String get authEmailUsed => 'هذا البريد الإلكتروني مسجل بالفعل.';
+
+  @override
+  String get authNetworkError =>
+      'تعذر الاتصال بالخادم. تحقق من اتصالك وحاول مرة أخرى.';
+
+  @override
+  String get authGenericError => 'تعذرت معالجة الطلب. حاول مرة أخرى.';
+
+  @override
+  String get profileSignedIn => 'الحساب نشط';
+
+  @override
+  String get profileOfflineSession => 'تم حفظ الحساب · غير متصل حاليًا';
+
+  @override
+  String get profileOfflineHint => 'ستتوفر بعض التغييرات عند عودة الاتصال.';
+
+  @override
+  String get profileEdit => 'تعديل الملف الشخصي';
+
+  @override
+  String get profileLogout => 'تسجيل الخروج';
+
+  @override
+  String get profileLogoutConfirm =>
+      'هل تريد تسجيل الخروج من هذا الجهاز؟ ستظل ميزات الضيف متاحة.';
+
+  @override
+  String get profileCancel => 'إلغاء';
+
+  @override
+  String get profileAccountTicketHistory => 'سجل تذاكر الحساب';
+
+  @override
+  String get profileSyncedAccount => 'تمت المزامنة مع هذا الحساب';
+
+  @override
+  String get editProfileTitle => 'تعديل الملف الشخصي';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
   String get navHome => 'الرئيسية';
 
   @override
@@ -411,6 +523,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get stationNotFound => 'لم يتم العثور على المحطة';
+
+  @override
+  String get stationVoiceGuide => 'الدليل الصوتي';
+
+  @override
+  String get stationVoiceGuideStop => 'إيقاف الدليل الصوتي';
+
+  @override
+  String get stationVoiceGuideError => 'الدليل الصوتي غير متاح. حاول مرة أخرى.';
 
   @override
   String get withoutLogin => 'لا تسجيل الدخول';

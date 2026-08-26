@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/profile_detail_scaffold.dart';
+import '../../../auth/presentation/widgets/auth_scope.dart';
 
 /// Halaman pengaturan aksesibilitas yang dibuka dari menu Akun.
 class AccessibilityPage extends StatefulWidget {
@@ -15,18 +16,29 @@ class AccessibilityPage extends StatefulWidget {
 class _AccessibilityPageState extends State<AccessibilityPage> {
   bool _largeText = false;
   bool _readRoute = true;
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _readRoute = AuthScope.of(context).user?.accessibilityEnabled ?? true;
+    _initialized = true;
+  }
+
+  Future<void> _setReadRoute(bool value) async {
+    setState(() => _readRoute = value);
+    final auth = AuthScope.of(context, listen: false);
+    if (auth.isAuthenticated) {
+      await auth.updateProfile(accessibilityEnabled: value);
+    }
+  }
 
   void _readPreview() {
     final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.a11yReadingPreview,
-          ),
-        ),
-      );
+      ..showSnackBar(SnackBar(content: Text(l10n.a11yReadingPreview)));
   }
 
   @override
@@ -66,7 +78,7 @@ class _AccessibilityPageState extends State<AccessibilityPage> {
           title: l10n.a11yReadRoute,
           subtitle: l10n.a11yReadRouteDesc,
           value: _readRoute,
-          onChanged: (value) => setState(() => _readRoute = value),
+          onChanged: _setReadRoute,
         ),
         const SizedBox(height: 42),
         _buildRoutePreview(l10n),

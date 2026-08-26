@@ -4,6 +4,7 @@ import '../../../../core/localization/app_locale.dart';
 import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../auth/presentation/widgets/auth_scope.dart';
 import '../models/app_locale_presentation.dart';
 import '../widgets/profile_detail_scaffold.dart';
 
@@ -17,7 +18,14 @@ class LanguagePage extends StatefulWidget {
 
 class _LanguagePageState extends State<LanguagePage> {
   Future<void> _applyLanguage(AppLocale newLocale) async {
-    final saved = await LocaleScope.of(context).select(newLocale);
+    final localeController = LocaleScope.of(context);
+    final auth = AuthScope.of(context, listen: false);
+    final saved = await localeController.select(newLocale);
+
+    if (auth.isAuthenticated) {
+      await auth.updateProfile(language: newLocale.storageTag);
+    }
+
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
@@ -137,7 +145,10 @@ class _LanguagePageState extends State<LanguagePage> {
           child: Text(
             l10n.languageAppliedNote,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+            ),
           ),
         ),
       ],

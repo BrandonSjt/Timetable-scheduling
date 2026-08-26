@@ -6,7 +6,15 @@ class GetTimetable {
 
   final TimetableRepository repository;
 
-  List<TrainSchedule> call() {
-    return repository.getSchedules();
+  Future<List<TrainSchedule>> call({
+    String? station,
+    String? trainType,
+    bool? isWeekend,
+  }) {
+    return repository.getSchedules(
+      station: station,
+      trainType: trainType,
+      isWeekend: isWeekend,
+    );
   }
 }
