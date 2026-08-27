@@ -35,9 +35,17 @@ Implementasi menghapus entri menu, import router, definisi rute `/aksesibilitas`
 
 ## Dummy Data Chat Petugas
 
-Setiap `SupportChatTopic` menyediakan satu sumber data contoh. Halaman pemilihan chat dan halaman percakapan membaca sumber yang sama agar isi `Data yang dikirim` selalu sama dengan pesan data yang diterima petugas.
+Setiap `SupportChatTopic` menyediakan dua jenis informasi. Halaman pemilihan chat menampilkan ringkasan jenis data yang akan dikirim tanpa nilainya. Halaman percakapan memakai sumber data contoh terpisah yang berisi nilai dummy konkret.
 
-Data contoh mengikuti topik:
+Ringkasan pada `Data yang dikirim` hanya menyebutkan field:
+
+- Tiket: mode akun, ID tiket, dan rute terakhir.
+- Jadwal: rute terakhir, stasiun asal-tujuan, dan waktu perjalanan.
+- Pembayaran: status transaksi terakhir, kode tiket, dan waktu pembayaran.
+
+Ringkasan tidak menampilkan kode, rute, tanggal, nominal, atau status dummy.
+
+Data contoh yang hanya muncul di percakapan mengikuti topik:
 
 - Tiket: kode tiket, rute, tanggal perjalanan, dan status tiket.
 - Jadwal: stasiun keberangkatan, tujuan, nomor kereta, waktu keberangkatan, dan peron.
@@ -49,7 +57,7 @@ Saat percakapan dibuka, timeline menampilkan urutan berikut:
 
 1. Pesan awal pengguna sesuai topik.
 2. Sapaan petugas sesuai topik.
-3. Pesan petugas berjudul `Data yang diterima` yang memuat data contoh persis seperti bagian `Data yang dikirim`.
+3. Pesan petugas berjudul `Data yang diterima` yang memuat nilai dummy konkret untuk field yang diringkas pada halaman sebelumnya.
 
 Pengguna tetap dapat mengetik pesan lanjutan. Balasan dummy berbasis kata kunci yang sudah ada tetap berfungsi.
 
@@ -60,15 +68,15 @@ Pengguna tetap dapat mengetik pesan lanjutan. Balasan dummy berbasis kata kunci 
 - Router membaca parameter aktivasi suara dan membuat `CameraGuidePage` dengan konfigurasi yang sesuai.
 - `CameraGuidePage` mengatur pengumuman awal satu kali setelah controller aktif.
 - `CameraGuideController` menyediakan operasi pengucapan yang dapat diuji tanpa menduplikasi logika TTS.
-- `SupportChatTopic` menjadi sumber tunggal data contoh per topik.
-- `HelpChatPage` menampilkan data contoh pada bagian `Data yang dikirim`.
+- `SupportChatTopic` menyediakan ringkasan field dan nilai dummy percakapan melalui API terpisah.
+- `HelpChatPage` menampilkan ringkasan field pada bagian `Data yang dikirim`.
 - `SupportChatConversationPage` menambahkan data tersebut ke pesan awal petugas.
 
 ## Pengujian
 
 Widget test memverifikasi bahwa halaman Akun tidak lagi menampilkan Aksesibilitas; kartu Pemandu Tunanetra berada di bawah kartu utama; switch awalnya nonaktif; aktivasi mengarah ke Pemandu Kamera dengan mode suara otomatis; dan switch kembali nonaktif setelah pengguna kembali. Test controller atau widget kamera memverifikasi bahwa pengumuman awal hanya terjadi setelah kamera aktif dan hanya sekali.
 
-Test chat memverifikasi data contoh untuk tiket, jadwal, dan pembayaran. Setiap test membandingkan teks pada `Data yang dikirim` dengan pesan data awal dalam percakapan. Test yang sudah ada harus tetap lulus.
+Test chat memverifikasi bahwa halaman pemilihan topik hanya menyebutkan jenis data dan tidak menampilkan nilai dummy. Test percakapan memverifikasi nilai dummy tiket, jadwal, dan pembayaran. Test yang sudah ada harus tetap lulus.
 
 Setelah perubahan, jalankan formatter, `flutter analyze`, test terarah, dan seluruh test suite. Terakhir, mulai emulator Pixel 9 dan jalankan aplikasi agar pengguna dapat meninjau hasilnya.
 
@@ -78,7 +86,7 @@ Setelah perubahan, jalankan formatter, `flutter analyze`, test terarah, dan selu
 - Menu Pemandu Tunanetra membuka Pemandu Kamera.
 - Pemandu Tunanetra berada dalam kartu sendiri di bawah Help Center dan memakai switch aktivasi sesaat.
 - Kamera mulai otomatis dan suara awal berbunyi setelah kamera siap saat dibuka dari Akun.
-- Bagian `Data yang dikirim` berisi dummy data sesuai topik.
-- Percakapan langsung menampilkan dummy data yang sama sebagai pesan petugas.
+- Bagian `Data yang dikirim` hanya menyebutkan jenis data sesuai topik.
+- Percakapan langsung menampilkan nilai dummy konkret sebagai pesan petugas.
 - Analisis dan pengujian lulus.
 - Aplikasi berjalan pada emulator Android Pixel 9.
