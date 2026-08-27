@@ -1693,6 +1693,12 @@ abstract class AppLocalizations {
   /// **'Data yang dikirim'**
   String get chatSharedData;
 
+  /// No description provided for @chatReceivedData.
+  ///
+  /// In id, this message translates to:
+  /// **'Data yang diterima:\n{data}'**
+  String chatReceivedData(String data);
+
   /// No description provided for @issueLateEtaTitle.
   ///
   /// In id, this message translates to:
@@ -1972,7 +1978,7 @@ abstract class AppLocalizations {
   /// No description provided for @topicTicketShared.
   ///
   /// In id, this message translates to:
-  /// **'Mode tamu, ID tiket, dan rute terakhir'**
+  /// **'Kode tiket: TKT-20260827-001\nRute: Manggarai – Tanah Abang\nTanggal perjalanan: 27 Agustus 2026\nStatus: Aktif'**
   String get topicTicketShared;
 
   /// No description provided for @topicTicketAction.
@@ -2026,7 +2032,7 @@ abstract class AppLocalizations {
   /// No description provided for @topicScheduleShared.
   ///
   /// In id, this message translates to:
-  /// **'Rute terakhir, stasiun asal-tujuan, dan waktu perjalanan'**
+  /// **'Stasiun asal: Manggarai\nTujuan: Jakarta Kota\nNomor kereta: KA 1184\nKeberangkatan: 10.25 WIB\nPeron: 3'**
   String get topicScheduleShared;
 
   /// No description provided for @topicScheduleAction.
@@ -2080,7 +2086,7 @@ abstract class AppLocalizations {
   /// No description provided for @topicPaymentShared.
   ///
   /// In id, this message translates to:
-  /// **'Status transaksi terakhir, kode tiket, dan waktu pembayaran'**
+  /// **'ID transaksi: TRX-20260827-001\nMetode: QRIS\nNominal: Rp7.800\nWaktu: 27 Agustus 2026, 10.20 WIB\nStatus: Berhasil'**
   String get topicPaymentShared;
 
   /// No description provided for @topicPaymentAction.

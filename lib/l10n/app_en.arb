@@ -396,6 +396,7 @@
   "chatSelectTopic": "Select topic",
   "chatInitialMessage": "Initial message",
   "chatSharedData": "Shared data",
+  "chatReceivedData": "Data received:\n{data}",
 
   "issueLateEtaTitle": "Late ETA",
   "issueLateEtaLabel": "Late ETA",
@@ -454,7 +455,7 @@
   "topicTicketAvailability": "Ticket staff available",
   "topicTicketWait": "Usually replies in 2 minutes",
   "topicTicketOpening": "I need help with a ticket",
-  "topicTicketShared": "Guest mode, ticket ID, and last route",
+  "topicTicketShared": "Ticket code: TKT-20260827-001\nRoute: Manggarai – Tanah Abang\nTravel date: August 27, 2026\nStatus: Active",
   "topicTicketAction": "Start ticket chat",
   "topicTicketGreeting": "Hello, I'm Rani from ticket service. I received your ticket data. What do you want to check?",
 
@@ -464,7 +465,7 @@
   "topicScheduleAvailability": "Schedule staff available",
   "topicScheduleWait": "Usually replies in 3 minutes",
   "topicScheduleOpening": "I need help with schedule or ETA",
-  "topicScheduleShared": "Last route, origin-destination, and travel time",
+  "topicScheduleShared": "Origin station: Manggarai\nDestination: Jakarta Kota\nTrain number: KA 1184\nDeparture: 10:25 WIB\nPlatform: 3",
   "topicScheduleAction": "Start schedule chat",
   "topicScheduleGreeting": "Hello, I'm Dimas from schedule service. I saw your route. Which schedule or ETA do you want to check?",
 
@@ -474,7 +475,7 @@
   "topicPaymentAvailability": "Payment staff available",
   "topicPaymentWait": "Usually replies in 4 minutes",
   "topicPaymentOpening": "I need help with ticket payment",
-  "topicPaymentShared": "Last transaction status, ticket code, and time",
+  "topicPaymentShared": "Transaction ID: TRX-20260827-001\nMethod: QRIS\nAmount: Rp7,800\nTime: August 27, 2026, 10:20 WIB\nStatus: Successful",
   "topicPaymentAction": "Start payment chat",
   "topicPaymentGreeting": "Hello, I'm Sari from payment service. I received your transaction status. What's the problem?",
 

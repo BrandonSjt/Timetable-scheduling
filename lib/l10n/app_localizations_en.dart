@@ -881,6 +881,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatSharedData => 'Shared data';
 
   @override
+  String chatReceivedData(String data) {
+    return 'Data received:\n$data';
+  }
+
+  @override
   String get issueLateEtaTitle => 'Late ETA';
 
   @override
@@ -1028,7 +1033,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get topicTicketOpening => 'I need help with a ticket';
 
   @override
-  String get topicTicketShared => 'Guest mode, ticket ID, and last route';
+  String get topicTicketShared =>
+      'Ticket code: TKT-20260827-001\nRoute: Manggarai – Tanah Abang\nTravel date: August 27, 2026\nStatus: Active';
 
   @override
   String get topicTicketAction => 'Start ticket chat';
@@ -1057,7 +1063,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get topicScheduleShared =>
-      'Last route, origin-destination, and travel time';
+      'Origin station: Manggarai\nDestination: Jakarta Kota\nTrain number: KA 1184\nDeparture: 10:25 WIB\nPlatform: 3';
 
   @override
   String get topicScheduleAction => 'Start schedule chat';
@@ -1086,7 +1092,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get topicPaymentShared =>
-      'Last transaction status, ticket code, and time';
+      'Transaction ID: TRX-20260827-001\nMethod: QRIS\nAmount: Rp7,800\nTime: August 27, 2026, 10:20 WIB\nStatus: Successful';
 
   @override
   String get topicPaymentAction => 'Start payment chat';
