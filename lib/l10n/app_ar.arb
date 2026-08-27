@@ -84,6 +84,7 @@
   "profileLargeText": "نص كبير وطرق القراءة",
   "profileBlindGuide": "دليل المكفوفين",
   "profileBlindGuideDescription": "افتح الكاميرا مع إرشادات صوتية تلقائية",
+  "cameraGuideActiveAnnouncement": "دليل الكاميرا نشط. وجّه الكاميرا إلى الأمام.",
   "profileHelpCenter": "مركز المساعدة",
   "profileContactOfficer": "الاتصال بالمسؤول والإبلاغ عن الأخطاء",
   "allStations": "جميع المحطات",

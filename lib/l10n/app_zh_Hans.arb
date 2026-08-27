@@ -91,6 +91,7 @@
   "profileLargeText": "大文本和阅读路线",
   "profileBlindGuide": "盲人向导",
   "profileBlindGuideDescription": "打开摄像头并自动启用语音引导",
+  "cameraGuideActiveAnnouncement": "摄像头向导已启用。请将摄像头朝向前方。",
   "profileHelpCenter": "帮助中心",
   "profileContactOfficer": "联系官员并报告错误",
   "allStations": "所有车站",

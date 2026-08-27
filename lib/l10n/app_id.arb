@@ -31,6 +31,7 @@
   "profileLargeText": "Teks besar dan bacakan rute",
   "profileBlindGuide": "Pemandu Tunanetra",
   "profileBlindGuideDescription": "Buka kamera dengan panduan suara otomatis",
+  "cameraGuideActiveAnnouncement": "Pemandu kamera aktif. Arahkan kamera ke depan.",
   "profileHelpCenter": "Pusat Bantuan",
   "profileContactOfficer": "Kontak petugas dan laporan info salah",
   "authSignInTitle": "Masuk ke akun",

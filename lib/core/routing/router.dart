@@ -77,7 +77,9 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/asisten/pemandu-kamera',
-      builder: (context, state) => const CameraGuidePage(),
+      builder: (context, state) => CameraGuidePage(
+        autoAnnounce: state.uri.queryParameters['autoVoice'] == 'true',
+      ),
     ),
 
     // Tautan lama tetap menuju tab Asisten.

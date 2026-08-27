@@ -54,6 +54,7 @@
   "profileLargeText": "Large text and read routes",
   "profileBlindGuide": "Blind Guide",
   "profileBlindGuideDescription": "Open the camera with automatic voice guidance",
+  "cameraGuideActiveAnnouncement": "Camera guide active. Point the camera forward.",
   "profileHelpCenter": "Help Center",
   "profileContactOfficer": "Contact officer and report errors",
   "authSignInTitle": "Sign in",

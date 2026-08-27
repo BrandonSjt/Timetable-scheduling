@@ -105,6 +105,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'افتح الكاميرا مع إرشادات صوتية تلقائية';
 
   @override
+  String get cameraGuideActiveAnnouncement =>
+      'دليل الكاميرا نشط. وجّه الكاميرا إلى الأمام.';
+
+  @override
   String get profileHelpCenter => 'مركز المساعدة';
 
   @override

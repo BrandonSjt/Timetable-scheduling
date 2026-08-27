@@ -3,8 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:timetable/features/assistant/presentation/controllers/camera_guide_controller.dart';
 import 'package:timetable/features/assistant/presentation/pages/camera_guide_page.dart';
 
+import 'helpers/localized_test_app.dart';
+
 class _TrackingCameraGuideController extends CameraGuideController {
   int restartCalls = 0;
+  int announceCalls = 0;
 
   @override
   Future<void> start() async {}
@@ -12,6 +15,16 @@ class _TrackingCameraGuideController extends CameraGuideController {
   @override
   Future<void> restart() async {
     restartCalls += 1;
+  }
+
+  @override
+  Future<void> announceGuideActive(String message) async {
+    announceCalls += 1;
+  }
+
+  void activate() {
+    state = CameraGuideState.active;
+    notifyListeners();
   }
 }
 
@@ -59,5 +72,39 @@ void main() {
     await tester.pump();
 
     expect(controller.restartCalls, 1);
+  });
+
+  testWidgets('auto voice announces once when the camera becomes active', (
+    tester,
+  ) async {
+    final controller = _TrackingCameraGuideController();
+
+    await tester.pumpWidget(
+      localizedTestApp(
+        home: CameraGuidePage(controller: controller, autoAnnounce: true),
+      ),
+    );
+
+    controller.activate();
+    await tester.pump();
+    controller.activate();
+    await tester.pump();
+
+    expect(controller.announceCalls, 1);
+  });
+
+  testWidgets('default camera access does not force a startup announcement', (
+    tester,
+  ) async {
+    final controller = _TrackingCameraGuideController();
+
+    await tester.pumpWidget(
+      localizedTestApp(home: CameraGuidePage(controller: controller)),
+    );
+
+    controller.activate();
+    await tester.pump();
+
+    expect(controller.announceCalls, 0);
   });
 }

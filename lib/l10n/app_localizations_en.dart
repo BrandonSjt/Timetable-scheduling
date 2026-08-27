@@ -105,6 +105,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Open the camera with automatic voice guidance';
 
   @override
+  String get cameraGuideActiveAnnouncement =>
+      'Camera guide active. Point the camera forward.';
+
+  @override
   String get profileHelpCenter => 'Help Center';
 
   @override

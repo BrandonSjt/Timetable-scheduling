@@ -233,6 +233,10 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     _speechCooldown = Timer(const Duration(seconds: 4), () {});
   }
 
+  Future<void> announceGuideActive(String value) async {
+    _announce(value);
+  }
+
   Future<void> stop() async {
     _pausedByLifecycle = false;
     await _stopCamera(removeLifecycleObserver: true);

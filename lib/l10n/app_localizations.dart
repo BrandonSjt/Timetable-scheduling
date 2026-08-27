@@ -283,6 +283,12 @@ abstract class AppLocalizations {
   /// **'Buka kamera dengan panduan suara otomatis'**
   String get profileBlindGuideDescription;
 
+  /// No description provided for @cameraGuideActiveAnnouncement.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemandu kamera aktif. Arahkan kamera ke depan.'**
+  String get cameraGuideActiveAnnouncement;
+
   /// No description provided for @profileHelpCenter.
   ///
   /// In id, this message translates to:

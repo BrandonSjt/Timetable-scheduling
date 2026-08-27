@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../controllers/camera_guide_controller.dart';
 
 class CameraGuidePage extends StatefulWidget {
-  const CameraGuidePage({super.key, this.controller});
+  const CameraGuidePage({super.key, this.controller, this.autoAnnounce = false});
 
   final CameraGuideController? controller;
+  final bool autoAnnounce;
 
   @override
   State<CameraGuidePage> createState() => _CameraGuidePageState();
@@ -16,6 +20,7 @@ class CameraGuidePage extends StatefulWidget {
 class _CameraGuidePageState extends State<CameraGuidePage> {
   late final CameraGuideController _controller;
   late final bool _ownsController;
+  bool _didAutoAnnounce = false;
 
   @override
   void initState() {
@@ -27,7 +32,18 @@ class _CameraGuidePageState extends State<CameraGuidePage> {
   }
 
   void _refresh() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    if (widget.autoAnnounce &&
+        !_didAutoAnnounce &&
+        _controller.state == CameraGuideState.active) {
+      _didAutoAnnounce = true;
+      unawaited(
+        _controller.announceGuideActive(
+          AppLocalizations.of(context)!.cameraGuideActiveAnnouncement,
+        ),
+      );
+    }
+    setState(() {});
   }
 
   @override

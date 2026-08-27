@@ -107,6 +107,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Buka kamera dengan panduan suara otomatis';
 
   @override
+  String get cameraGuideActiveAnnouncement =>
+      'Pemandu kamera aktif. Arahkan kamera ke depan.';
+
+  @override
   String get profileHelpCenter => 'Pusat Bantuan';
 
   @override
