@@ -144,9 +144,13 @@ void main() {
     expect(find.text('Peron 1'), findsOneWidget);
   });
 
-  testWidgets('Account links the blind guide to auto-voice camera mode', (
+  testWidgets('Blind Guide switch opens auto-voice camera mode and resets', (
     WidgetTester tester,
   ) async {
+    tester.view.physicalSize = const Size(430, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
     appRouter.go('/akun');
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
@@ -157,12 +161,25 @@ void main() {
       scrollable: find.byType(Scrollable),
     );
     expect(find.text('Aksesibilitas'), findsNothing);
+    final guideSwitch = find.byKey(const ValueKey('blind-guide-switch'));
+    expect(tester.widget<Switch>(guideSwitch).value, isFalse);
 
-    await tester.tap(find.text('Pemandu Tunanetra'));
+    await tester.scrollUntilVisible(
+      guideSwitch,
+      180,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(guideSwitch);
 
     final uri = appRouter.routeInformationProvider.value.uri;
     expect(uri.path, '/asisten/pemandu-kamera');
     expect(uri.queryParameters['autoVoice'], 'true');
+
+    await tester.pump();
+    appRouter.pop();
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Switch>(guideSwitch).value, isFalse);
   });
 
   testWidgets('Account opens filterable ticket history without bottom nav', (

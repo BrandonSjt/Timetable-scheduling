@@ -41,6 +41,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
   int _sessionId = 0;
   bool _observingLifecycle = false;
   bool _pausedByLifecycle = false;
+  bool _disposed = false;
   Future<void>? _lifecyclePause;
 
   CameraGuideState state = CameraGuideState.loading;
@@ -87,13 +88,13 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
           ? CameraGuideState.permissionDenied
           : CameraGuideState.error;
       message = error.description ?? 'Kamera tidak dapat digunakan.';
-      notifyListeners();
+      _notifyIfMounted();
     } catch (_) {
       await _camera?.dispose();
       _camera = null;
       state = CameraGuideState.error;
       message = 'Kamera tidak dapat digunakan.';
-      notifyListeners();
+      _notifyIfMounted();
     }
   }
 
@@ -101,7 +102,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     await stop();
     state = CameraGuideState.loading;
     message = 'Menyiapkan kamera…';
-    notifyListeners();
+    _notifyIfMounted();
     await start();
   }
 
@@ -116,7 +117,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     await _camera!.startImageStream(_processImage);
     state = CameraGuideState.active;
     message = 'Arahkan kamera ke depan. Pemandu aktif.';
-    notifyListeners();
+    _notifyIfMounted();
   }
 
   Future<void> _processImage(CameraImage image) async {
@@ -146,7 +147,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
       if (_stopped || sessionId != _sessionId) return;
       state = CameraGuideState.offline;
       message = 'Deteksi lokal terbatas; koneksi AI tidak tersedia.';
-      notifyListeners();
+      _notifyIfMounted();
     } finally {
       if (sessionId == _sessionId) _busy = false;
     }
@@ -226,7 +227,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
 
   void _announce(String value) {
     message = value;
-    notifyListeners();
+    _notifyIfMounted();
     if (_speechCooldown?.isActive ?? false) return;
     _tts.setLanguage('id-ID');
     _tts.speak(value);
@@ -241,7 +242,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     _pausedByLifecycle = false;
     await _stopCamera(removeLifecycleObserver: true);
     message = 'Pemandu kamera dihentikan.';
-    notifyListeners();
+    _notifyIfMounted();
   }
 
   Future<void> _stopCamera({required bool removeLifecycleObserver}) async {
@@ -262,7 +263,11 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     await camera?.dispose();
     _camera = null;
     state = CameraGuideState.stopped;
-    notifyListeners();
+    _notifyIfMounted();
+  }
+
+  void _notifyIfMounted() {
+    if (!_disposed) notifyListeners();
   }
 
   Future<void> _resumeAfterLifecyclePause() async {
@@ -289,6 +294,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _disposed = true;
     unawaited(stop());
     _tts.stop();
     _vision.close();
