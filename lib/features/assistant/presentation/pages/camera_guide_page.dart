@@ -8,7 +8,11 @@ import '../../../../l10n/app_localizations.dart';
 import '../controllers/camera_guide_controller.dart';
 
 class CameraGuidePage extends StatefulWidget {
-  const CameraGuidePage({super.key, this.controller, this.autoAnnounce = false});
+  const CameraGuidePage({
+    super.key,
+    this.controller,
+    this.autoAnnounce = false,
+  });
 
   final CameraGuideController? controller;
   final bool autoAnnounce;

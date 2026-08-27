@@ -65,9 +65,7 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(
-        localizedTestApp(
-          home: SupportChatConversationPage(topic: entry.key),
-        ),
+        localizedTestApp(home: SupportChatConversationPage(topic: entry.key)),
       );
 
       expect(find.text('Data yang diterima:\n${entry.value}'), findsOneWidget);

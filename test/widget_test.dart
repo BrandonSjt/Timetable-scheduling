@@ -358,7 +358,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Chat Pembayaran'), findsOneWidget);
-      expect(find.text('Petugas pembayaran'), findsWidgets);
+      expect(
+        find.text('Petugas pembayaran', skipOffstage: false),
+        findsWidgets,
+      );
       expect(
         find.text('Saya butuh bantuan terkait pembayaran tiket'),
         findsOneWidget,

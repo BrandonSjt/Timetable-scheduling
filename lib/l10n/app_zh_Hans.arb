@@ -513,6 +513,13 @@
   "chatInitialMessage": "初始消息",
   "chatSharedData": "共享数据",
   "chatReceivedData": "已收到的数据：\n{data}",
+  "@chatReceivedData": {
+    "placeholders": {
+      "data": {
+        "type": "String"
+      }
+    }
+  },
   "issueLateEtaTitle": "已晚 ETA",
   "issueLateEtaLabel": "已晚 ETA",
   "issueLateEtaActive": "ETA 迟到了",

@@ -269,6 +269,13 @@
   "chatInitialMessage": "الرسالة الأولية",
   "chatSharedData": "البيانات المشتركة",
   "chatReceivedData": "البيانات المستلمة:\n{data}",
+  "@chatReceivedData": {
+    "placeholders": {
+      "data": {
+        "type": "String"
+      }
+    }
+  },
   "issueLateEtaTitle": "أواخر ETA",
   "issueLateEtaLabel": "أواخر ETA",
   "issueLateEtaActive": "ETA متأخر",

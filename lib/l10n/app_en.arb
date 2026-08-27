@@ -400,6 +400,13 @@
   "chatInitialMessage": "Initial message",
   "chatSharedData": "Shared data",
   "chatReceivedData": "Data received:\n{data}",
+  "@chatReceivedData": {
+    "placeholders": {
+      "data": {
+        "type": "String"
+      }
+    }
+  },
 
   "issueLateEtaTitle": "Late ETA",
   "issueLateEtaLabel": "Late ETA",
