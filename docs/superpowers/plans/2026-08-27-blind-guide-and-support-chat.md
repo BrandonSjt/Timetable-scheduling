@@ -400,3 +400,72 @@ git commit -m "feat: separate blind guide activation card"
 ```
 
 Send `r` to the active Flutter run session. If that session ended, run the app again on `emulator-5554` with `--dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1`.
+
+### Task 6: Keep concrete dummy values inside the conversation
+
+This revision supersedes Task 1's requirement that `Data yang dikirim` and `Data yang diterima` use the same concrete string. The setup page now lists field categories only; concrete values remain in chat.
+
+**Files:**
+- Modify: `test/support_chat_pages_test.dart`
+- Modify: `lib/features/profile/presentation/models/support_chat_topic.dart`
+- Modify: `lib/features/profile/presentation/pages/support_chat_conversation_page.dart`
+- Modify and regenerate: `lib/l10n/app_*.arb` and `lib/l10n/app_localizations*.dart`
+
+**Interfaces:**
+- Keeps: `SupportChatTopic.sharedData(AppLocalizations l10n)` for generic field descriptions.
+- Produces: `SupportChatTopic.sampleData(AppLocalizations l10n)` for concrete dummy values.
+
+- [ ] **Step 1: Change tests to require generic setup text and concrete chat text**
+
+Expect `HelpChatPage` to show the original summaries:
+
+```dart
+const summaries = <SupportChatTopic, String>{
+  SupportChatTopic.ticket: 'Mode tamu, ID tiket, dan rute terakhir',
+  SupportChatTopic.schedule: 'Rute terakhir, stasiun asal-tujuan, dan waktu perjalanan',
+  SupportChatTopic.payment: 'Status transaksi terakhir, kode tiket, dan waktu pembayaran',
+};
+```
+
+For each topic, also expect its concrete sample to be absent from `HelpChatPage` and present in `SupportChatConversationPage` under `Data yang diterima`.
+
+- [ ] **Step 2: Run the support chat tests and confirm failure**
+
+Run: `flutter test test/support_chat_pages_test.dart`
+
+Expected: FAIL because `sharedData` currently contains concrete values.
+
+- [ ] **Step 3: Restore generic shared-data strings and add sample-data strings**
+
+Restore `topicTicketShared`, `topicScheduleShared`, and `topicPaymentShared` in every language. Add localized `topicTicketSampleData`, `topicScheduleSampleData`, and `topicPaymentSampleData` keys containing the concrete values currently stored in the shared-data keys.
+
+- [ ] **Step 4: Expose sample data per topic**
+
+Add this extension method:
+
+```dart
+String sampleData(AppLocalizations l10n) {
+  return switch (this) {
+    SupportChatTopic.ticket => l10n.topicTicketSampleData,
+    SupportChatTopic.schedule => l10n.topicScheduleSampleData,
+    SupportChatTopic.payment => l10n.topicPaymentSampleData,
+  };
+}
+```
+
+- [ ] **Step 5: Use sample data only in the conversation**
+
+Change `_initialMessages` to call `widget.topic.sampleData(l10n)` when building `chatReceivedData`. Leave `HelpChatPage` on `sharedData`.
+
+- [ ] **Step 6: Generate, test, analyze, and commit**
+
+Run `flutter gen-l10n`, `dart format` on changed Dart files, `flutter test test/support_chat_pages_test.dart`, `flutter analyze`, and `flutter test`. Commit with:
+
+```powershell
+git add lib/features/profile/presentation/models/support_chat_topic.dart lib/features/profile/presentation/pages/support_chat_conversation_page.dart lib/l10n test/support_chat_pages_test.dart
+git commit -m "fix: keep support sample values inside chat"
+```
+
+- [ ] **Step 7: Hot restart Pixel 9 and verify**
+
+Send `R` to the active Flutter run session, open Account → Help Center → Chat petugas, and verify setup summaries contain no concrete values while conversations do.
