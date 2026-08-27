@@ -64,7 +64,7 @@ void main() {
       ..state = CameraGuideState.stopped;
 
     await tester.pumpWidget(
-      MaterialApp(home: CameraGuidePage(controller: controller)),
+      localizedTestApp(home: CameraGuidePage(controller: controller)),
     );
 
     expect(find.text('Mulai Pemandu'), findsOneWidget);
@@ -73,6 +73,47 @@ void main() {
 
     expect(controller.restartCalls, 1);
   });
+
+  for (final localeAndLabels in const <(Locale, List<String>)>[
+    (
+      Locale('en'),
+      <String>[
+        'Camera Guide',
+        'Stopped',
+        'Detection can be wrong. Use a cane, companion, or ask staff for help.',
+        'Start Guide',
+      ],
+    ),
+    (
+      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+      <String>['相机向导', '已停止', '检测结果可能有误。请使用手杖、由他人陪同或向工作人员求助。', '启动向导'],
+    ),
+    (
+      Locale('ar'),
+      <String>[
+        'دليل الكاميرا',
+        'متوقف',
+        'قد يكون الاكتشاف غير دقيق. استخدم عصًا أو مرافقًا أو اطلب مساعدة الموظفين.',
+        'بدء الدليل',
+      ],
+    ),
+  ]) {
+    testWidgets('camera guide follows ${localeAndLabels.$1}', (tester) async {
+      final controller = _TrackingCameraGuideController()
+        ..state = CameraGuideState.stopped;
+
+      await tester.pumpWidget(
+        localizedTestApp(
+          locale: localeAndLabels.$1,
+          home: CameraGuidePage(controller: controller),
+        ),
+      );
+
+      for (final label in localeAndLabels.$2) {
+        expect(find.text(label), findsOneWidget);
+      }
+    });
+  }
 
   testWidgets('auto voice announces once when the camera becomes active', (
     tester,

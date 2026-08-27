@@ -9,6 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 
 import '../../data/datasources/vision_guide_remote_data_source.dart';
+import '../models/camera_guide_copy.dart';
 import '../utils/nv21_jpeg_encoder.dart';
 
 enum CameraGuideState {
@@ -25,9 +26,11 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     CameraController? camera,
     FlutterTts? tts,
     VisionGuideRemoteDataSource? vision,
+    CameraGuideCopy? copy,
   }) : _camera = camera,
        _tts = tts ?? FlutterTts(),
-       _vision = vision ?? VisionGuideRemoteDataSource();
+       _vision = vision ?? VisionGuideRemoteDataSource(),
+       _copy = copy ?? CameraGuideCopy.indonesian();
 
   CameraController? _camera;
   final FlutterTts _tts;
@@ -45,8 +48,27 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
   Future<void>? _lifecyclePause;
 
   CameraGuideState state = CameraGuideState.loading;
-  String message = 'Menyiapkan kamera…';
+  CameraGuideCopy _copy;
+  String message = '';
   CameraController? get camera => _camera;
+  CameraGuideCopy get copy => _copy;
+
+  void configure(CameraGuideCopy value) {
+    final previous = _copy;
+    _copy = value;
+    if (message.isEmpty || message == previous.loading) {
+      message = value.loading;
+    } else if (message == previous.active) {
+      message = value.active;
+    } else if (message == previous.unavailable) {
+      message = value.unavailable;
+    } else if (message == previous.offline) {
+      message = value.offline;
+    } else if (message == previous.stopped) {
+      message = value.stopped;
+    }
+    _notifyIfMounted();
+  }
 
   Future<void> start() async {
     _sessionId += 1;
@@ -64,7 +86,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
-        throw CameraException('NoCamera', 'Kamera tidak ditemukan.');
+        throw CameraException('NoCamera', copy.unavailable);
       }
       _camera = CameraController(
         cameras.firstWhere(
@@ -87,13 +109,13 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
               error.code == 'CameraAccessRestricted'
           ? CameraGuideState.permissionDenied
           : CameraGuideState.error;
-      message = error.description ?? 'Kamera tidak dapat digunakan.';
+      message = copy.unavailable;
       _notifyIfMounted();
     } catch (_) {
       await _camera?.dispose();
       _camera = null;
       state = CameraGuideState.error;
-      message = 'Kamera tidak dapat digunakan.';
+      message = copy.unavailable;
       _notifyIfMounted();
     }
   }
@@ -101,7 +123,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> restart() async {
     await stop();
     state = CameraGuideState.loading;
-    message = 'Menyiapkan kamera…';
+    message = copy.loading;
     _notifyIfMounted();
     await start();
   }
@@ -116,7 +138,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     );
     await _camera!.startImageStream(_processImage);
     state = CameraGuideState.active;
-    message = 'Arahkan kamera ke depan. Pemandu aktif.';
+    message = copy.active;
     _notifyIfMounted();
   }
 
@@ -131,7 +153,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
       final objects = await _detector!.processImage(input);
       if (_stopped || sessionId != _sessionId) return;
       if (objects.isEmpty) {
-        _announce('Belum ada objek jelas di depan.');
+        _announce(copy.noClearObject);
         return;
       }
       final labels = objects
@@ -140,13 +162,13 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
           .take(2)
           .toList(growable: false);
       final description = labels.isEmpty
-          ? '${objects.length} objek terdeteksi di depan.'
-          : '${labels.join(' dan ')} terdeteksi di depan.';
+          ? copy.objectCount(objects.length)
+          : copy.labelsDetected(labels);
       _announce(description);
     } catch (_) {
       if (_stopped || sessionId != _sessionId) return;
       state = CameraGuideState.offline;
-      message = 'Deteksi lokal terbatas; koneksi AI tidak tersedia.';
+      message = copy.offline;
       _notifyIfMounted();
     } finally {
       if (sessionId == _sessionId) _busy = false;
@@ -192,7 +214,10 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
         ),
       );
       if (jpegBytes.length > 1_048_576) return;
-      final result = await _vision.analyzeJpeg(jpegBytes);
+      final result = await _vision.analyzeJpeg(
+        jpegBytes,
+        languageTag: copy.languageTag,
+      );
       if (result != null && !_stopped && sessionId == _sessionId) {
         _announce(result.spokenText);
       }
@@ -229,7 +254,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
     message = value;
     _notifyIfMounted();
     if (_speechCooldown?.isActive ?? false) return;
-    _tts.setLanguage('id-ID');
+    _tts.setLanguage(copy.languageTag);
     _tts.speak(value);
     _speechCooldown = Timer(const Duration(seconds: 4), () {});
   }
@@ -241,7 +266,7 @@ class CameraGuideController extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> stop() async {
     _pausedByLifecycle = false;
     await _stopCamera(removeLifecycleObserver: true);
-    message = 'Pemandu kamera dihentikan.';
+    message = copy.stopped;
     _notifyIfMounted();
   }
 
