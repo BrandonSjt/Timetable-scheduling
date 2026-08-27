@@ -17,7 +17,11 @@ Perubahan ini mengganti menu Aksesibilitas di halaman Akun dengan akses langsung
 
 ## Navigasi Pemandu Tunanetra
 
-Halaman Akun menampilkan menu `Pemandu Tunanetra` dengan ikon tunanetra dan keterangan singkat bahwa kamera serta panduan suara akan aktif otomatis. Ketukan pada menu membuka Pemandu Kamera yang sudah dipakai oleh halaman Asisten.
+Halaman Akun menampilkan riwayat tiket, bahasa, dan Help Center dalam kartu menu utama. Kartu khusus `Pemandu Tunanetra` berada di bawah kartu menu utama dengan jarak yang jelas, sehingga fitur ini tidak menyatu dengan daftar menu umum.
+
+Kartu Pemandu Tunanetra menampilkan ikon tunanetra, judul, keterangan bahwa kamera serta panduan suara akan aktif otomatis, dan switch tanpa chevron. Switch memakai status lokal dan selalu nonaktif ketika halaman Akun pertama kali tampil. Seluruh baris kartu menjadi target ketuk yang dapat diakses.
+
+Menyalakan switch atau mengetuk kartu mengubah switch menjadi aktif lalu langsung membuka Pemandu Kamera yang sudah dipakai halaman Asisten. Ketika pengguna kembali ke halaman Akun, switch kembali nonaktif. Switch berfungsi sebagai kontrol aktivasi sesaat, bukan preferensi yang disimpan.
 
 Navigasi dari halaman Akun membawa parameter khusus, misalnya `autoVoice=true`. Router meneruskan nilai tersebut kepada `CameraGuidePage`. Akses Pemandu Kamera dari halaman Asisten tetap memakai perilaku yang ada, sehingga perubahan ini hanya memperluas jalur dari Akun.
 
@@ -52,6 +56,7 @@ Pengguna tetap dapat mengetik pesan lanjutan. Balasan dummy berbasis kata kunci 
 ## Struktur Kode
 
 - `ProfilePage` mengatur label, ikon, deskripsi, dan deep-link menu baru.
+- Widget kartu Pemandu Tunanetra mengatur switch lokal, target ketuk, dan reset setelah navigasi selesai.
 - Router membaca parameter aktivasi suara dan membuat `CameraGuidePage` dengan konfigurasi yang sesuai.
 - `CameraGuidePage` mengatur pengumuman awal satu kali setelah controller aktif.
 - `CameraGuideController` menyediakan operasi pengucapan yang dapat diuji tanpa menduplikasi logika TTS.
@@ -61,7 +66,7 @@ Pengguna tetap dapat mengetik pesan lanjutan. Balasan dummy berbasis kata kunci 
 
 ## Pengujian
 
-Widget test memverifikasi bahwa halaman Akun tidak lagi menampilkan Aksesibilitas, menampilkan Pemandu Tunanetra, dan mengarah ke Pemandu Kamera dengan mode suara otomatis. Test controller atau widget kamera memverifikasi bahwa pengumuman awal hanya terjadi setelah kamera aktif dan hanya sekali.
+Widget test memverifikasi bahwa halaman Akun tidak lagi menampilkan Aksesibilitas; kartu Pemandu Tunanetra berada di bawah kartu utama; switch awalnya nonaktif; aktivasi mengarah ke Pemandu Kamera dengan mode suara otomatis; dan switch kembali nonaktif setelah pengguna kembali. Test controller atau widget kamera memverifikasi bahwa pengumuman awal hanya terjadi setelah kamera aktif dan hanya sekali.
 
 Test chat memverifikasi data contoh untuk tiket, jadwal, dan pembayaran. Setiap test membandingkan teks pada `Data yang dikirim` dengan pesan data awal dalam percakapan. Test yang sudah ada harus tetap lulus.
 
@@ -71,6 +76,7 @@ Setelah perubahan, jalankan formatter, `flutter analyze`, test terarah, dan selu
 
 - Halaman Akun tidak menampilkan atau membuka pengaturan Aksesibilitas lama.
 - Menu Pemandu Tunanetra membuka Pemandu Kamera.
+- Pemandu Tunanetra berada dalam kartu sendiri di bawah Help Center dan memakai switch aktivasi sesaat.
 - Kamera mulai otomatis dan suara awal berbunyi setelah kamera siap saat dibuka dari Akun.
 - Bagian `Data yang dikirim` berisi dummy data sesuai topik.
 - Percakapan langsung menampilkan dummy data yang sama sebagai pesan petugas.
