@@ -1042,7 +1042,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get topicTicketOpening => 'أحتاج إلى مساعدة بشأن التذكرة';
 
   @override
-  String get topicTicketShared =>
+  String get topicTicketShared => 'وضع الضيف ومعرف التذكرة والمسار الأخير';
+
+  @override
+  String get topicTicketSampleData =>
       'رمز التذكرة: TKT-20260827-001\nالمسار: Manggarai – Tanah Abang\nتاريخ الرحلة: 27 أغسطس 2026\nالحالة: نشطة';
 
   @override
@@ -1071,7 +1074,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get topicScheduleOpening => 'أحتاج إلى مساعدة في الجدول الزمني أو ETA';
 
   @override
-  String get topicScheduleShared =>
+  String get topicScheduleShared => 'المسار الأخير ووجهة الأصل ووقت السفر';
+
+  @override
+  String get topicScheduleSampleData =>
       'محطة الانطلاق: Manggarai\nالوجهة: Jakarta Kota\nرقم القطار: KA 1184\nالمغادرة: 10:25 WIB\nالرصيف: 3';
 
   @override
@@ -1100,7 +1106,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get topicPaymentOpening => 'أحتاج إلى مساعدة في دفع التذاكر';
 
   @override
-  String get topicPaymentShared =>
+  String get topicPaymentShared => 'حالة المعاملة الأخيرة ورمز التذكرة والوقت';
+
+  @override
+  String get topicPaymentSampleData =>
       'معرف المعاملة: TRX-20260827-001\nالطريقة: QRIS\nالمبلغ: Rp7.800\nالوقت: 27 أغسطس 2026، 10:20 WIB\nالحالة: ناجحة';
 
   @override

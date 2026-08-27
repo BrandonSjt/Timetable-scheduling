@@ -26,12 +26,20 @@ const _samples = <SupportChatTopic, String>{
       'Status: Berhasil',
 };
 
+const _summaries = <SupportChatTopic, String>{
+  SupportChatTopic.ticket: 'Mode tamu, ID tiket, dan rute terakhir',
+  SupportChatTopic.schedule:
+      'Rute terakhir, stasiun asal-tujuan, dan waktu perjalanan',
+  SupportChatTopic.payment:
+      'Status transaksi terakhir, kode tiket, dan waktu pembayaran',
+};
+
 void main() {
   setUp(() {
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
-  testWidgets('chat setup shows concrete sample data for every topic', (
+  testWidgets('chat setup shows data categories without concrete values', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(430, 1000);
@@ -40,7 +48,7 @@ void main() {
 
     await tester.pumpWidget(localizedTestApp(home: const HelpChatPage()));
 
-    for (final entry in _samples.entries) {
+    for (final entry in _summaries.entries) {
       final label = switch (entry.key) {
         SupportChatTopic.ticket => 'Tiket',
         SupportChatTopic.schedule => 'Jadwal',
@@ -53,6 +61,7 @@ void main() {
       }
 
       expect(find.text(entry.value), findsOneWidget);
+      expect(find.text(_samples[entry.key]!), findsNothing);
     }
   });
 

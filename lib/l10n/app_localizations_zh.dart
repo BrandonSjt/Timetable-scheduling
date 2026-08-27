@@ -1017,7 +1017,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get topicTicketOpening => '我需要机票方面的帮助';
 
   @override
-  String get topicTicketShared =>
+  String get topicTicketShared => '访客模式、票证 ID 和最后路线';
+
+  @override
+  String get topicTicketSampleData =>
       '车票代码：TKT-20260827-001\n路线：Manggarai – Tanah Abang\n出行日期：2026年8月27日\n状态：有效';
 
   @override
@@ -1045,7 +1048,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get topicScheduleOpening => '我需要日程安排或 ETA 方面的帮助';
 
   @override
-  String get topicScheduleShared =>
+  String get topicScheduleShared => '最后路线、出发地、目的地、行程时间';
+
+  @override
+  String get topicScheduleSampleData =>
       '出发站：Manggarai\n目的地：Jakarta Kota\n列车编号：KA 1184\n发车时间：10:25 WIB\n站台：3';
 
   @override
@@ -1074,7 +1080,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get topicPaymentOpening => '我需要门票付款方面的帮助';
 
   @override
-  String get topicPaymentShared =>
+  String get topicPaymentShared => '最后交易状态、票证代码和时间';
+
+  @override
+  String get topicPaymentSampleData =>
       '交易编号：TRX-20260827-001\n方式：QRIS\n金额：Rp7.800\n时间：2026年8月27日 10:20 WIB\n状态：成功';
 
   @override
@@ -2909,7 +2918,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get topicTicketOpening => '我需要机票方面的帮助';
 
   @override
-  String get topicTicketShared =>
+  String get topicTicketShared => '访客模式、票证 ID 和最后路线';
+
+  @override
+  String get topicTicketSampleData =>
       '车票代码：TKT-20260827-001\n路线：Manggarai – Tanah Abang\n出行日期：2026年8月27日\n状态：有效';
 
   @override
@@ -2937,7 +2949,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get topicScheduleOpening => '我需要日程安排或 ETA 方面的帮助';
 
   @override
-  String get topicScheduleShared =>
+  String get topicScheduleShared => '最后路线、出发地、目的地、行程时间';
+
+  @override
+  String get topicScheduleSampleData =>
       '出发站：Manggarai\n目的地：Jakarta Kota\n列车编号：KA 1184\n发车时间：10:25 WIB\n站台：3';
 
   @override
@@ -2966,7 +2981,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get topicPaymentOpening => '我需要门票付款方面的帮助';
 
   @override
-  String get topicPaymentShared =>
+  String get topicPaymentShared => '最后交易状态、票证代码和时间';
+
+  @override
+  String get topicPaymentSampleData =>
       '交易编号：TRX-20260827-001\n方式：QRIS\n金额：Rp7.800\n时间：2026年8月27日 10:20 WIB\n状态：成功';
 
   @override

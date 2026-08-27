@@ -463,7 +463,8 @@
   "topicTicketAvailability": "Petugas tiket tersedia",
   "topicTicketWait": "Biasanya membalas dalam 2 menit",
   "topicTicketOpening": "Saya butuh bantuan terkait tiket",
-  "topicTicketShared": "Kode tiket: TKT-20260827-001\nRute: Manggarai – Tanah Abang\nTanggal perjalanan: 27 Agustus 2026\nStatus: Aktif",
+  "topicTicketShared": "Mode tamu, ID tiket, dan rute terakhir",
+  "topicTicketSampleData": "Kode tiket: TKT-20260827-001\nRute: Manggarai – Tanah Abang\nTanggal perjalanan: 27 Agustus 2026\nStatus: Aktif",
   "topicTicketAction": "Mulai chat tiket",
   "topicTicketGreeting": "Halo, saya Rani dari layanan tiket. Data tiket dan rute terakhir Anda sudah saya terima. Apa kendala yang ingin diperiksa?",
 
@@ -473,7 +474,8 @@
   "topicScheduleAvailability": "Petugas jadwal tersedia",
   "topicScheduleWait": "Biasanya membalas dalam 3 menit",
   "topicScheduleOpening": "Saya butuh bantuan terkait jadwal atau ETA kereta",
-  "topicScheduleShared": "Stasiun asal: Manggarai\nTujuan: Jakarta Kota\nNomor kereta: KA 1184\nKeberangkatan: 10.25 WIB\nPeron: 3",
+  "topicScheduleShared": "Rute terakhir, stasiun asal-tujuan, dan waktu perjalanan",
+  "topicScheduleSampleData": "Stasiun asal: Manggarai\nTujuan: Jakarta Kota\nNomor kereta: KA 1184\nKeberangkatan: 10.25 WIB\nPeron: 3",
   "topicScheduleAction": "Mulai chat jadwal",
   "topicScheduleGreeting": "Halo, saya Dimas dari layanan jadwal. Rute terakhir Anda sudah terlihat. Jadwal atau ETA mana yang ingin diperiksa?",
 
@@ -483,7 +485,8 @@
   "topicPaymentAvailability": "Petugas pembayaran tersedia",
   "topicPaymentWait": "Biasanya membalas dalam 4 menit",
   "topicPaymentOpening": "Saya butuh bantuan terkait pembayaran tiket",
-  "topicPaymentShared": "ID transaksi: TRX-20260827-001\nMetode: QRIS\nNominal: Rp7.800\nWaktu: 27 Agustus 2026, 10.20 WIB\nStatus: Berhasil",
+  "topicPaymentShared": "Status transaksi terakhir, kode tiket, dan waktu pembayaran",
+  "topicPaymentSampleData": "ID transaksi: TRX-20260827-001\nMetode: QRIS\nNominal: Rp7.800\nWaktu: 27 Agustus 2026, 10.20 WIB\nStatus: Berhasil",
   "topicPaymentAction": "Mulai chat pembayaran",
   "topicPaymentGreeting": "Halo, saya Sari dari layanan pembayaran. Status transaksi terakhir Anda sudah saya terima. Apa kendala pembayarannya?",
 

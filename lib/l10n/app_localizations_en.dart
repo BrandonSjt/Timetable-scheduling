@@ -1044,7 +1044,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get topicTicketOpening => 'I need help with a ticket';
 
   @override
-  String get topicTicketShared =>
+  String get topicTicketShared => 'Guest mode, ticket ID, and last route';
+
+  @override
+  String get topicTicketSampleData =>
       'Ticket code: TKT-20260827-001\nRoute: Manggarai – Tanah Abang\nTravel date: August 27, 2026\nStatus: Active';
 
   @override
@@ -1074,6 +1077,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get topicScheduleShared =>
+      'Last route, origin-destination, and travel time';
+
+  @override
+  String get topicScheduleSampleData =>
       'Origin station: Manggarai\nDestination: Jakarta Kota\nTrain number: KA 1184\nDeparture: 10:25 WIB\nPlatform: 3';
 
   @override
@@ -1103,6 +1110,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get topicPaymentShared =>
+      'Last transaction status, ticket code, and payment time';
+
+  @override
+  String get topicPaymentSampleData =>
       'Transaction ID: TRX-20260827-001\nMethod: QRIS\nAmount: Rp7,800\nTime: August 27, 2026, 10:20 WIB\nStatus: Successful';
 
   @override
