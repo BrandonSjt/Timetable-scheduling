@@ -317,3 +317,86 @@ Open Account, verify `Pemandu Tunanetra`, open it, grant camera permission if An
 - [ ] **Step 8: Commit verification corrections if any**
 
 Inspect `git diff --name-only`, stage only files from Tasks 1–3 that needed a verification correction, and commit them with `git commit -m "test: verify blind guide and support chat"`. Skip this commit when verification requires no correction.
+
+### Task 5: Separate Blind Guide activation card
+
+This revision supersedes Task 2's placement of Blind Guide inside the general Account menu. The existing route and automatic camera announcement remain unchanged.
+
+**Files:**
+- Modify: `lib/features/profile/presentation/pages/profile_page.dart`
+- Modify: `test/account_pages_test.dart`
+- Modify: `test/widget_test.dart`
+
+**Interfaces:**
+- Consumes: `/asisten/pemandu-kamera?autoVoice=true` from Task 2.
+- Produces: a widget keyed `blind-guide-card`, a switch keyed `blind-guide-switch`, and a momentary activation flow that resets after `context.push` completes.
+
+- [ ] **Step 1: Write failing layout and switch tests**
+
+In `account_pages_test.dart`, use a 430×1000 surface and verify the general card ends with Help Center, `blind-guide-card` is a separate Material surface below `account-menu-section`, and `blind-guide-switch` is off:
+
+```dart
+final menuBottom = tester.getBottomLeft(
+  find.byKey(const ValueKey('account-menu-section')),
+).dy;
+final guideTop = tester.getTopLeft(
+  find.byKey(const ValueKey('blind-guide-card')),
+).dy;
+expect(guideTop, greaterThan(menuBottom));
+expect(
+  tester.widget<Switch>(find.byKey(const ValueKey('blind-guide-switch'))).value,
+  isFalse,
+);
+```
+
+Update the router-backed Account test in `widget_test.dart`: activate the switch, verify the camera URL contains `autoVoice=true`, pop the route before rendering the camera page, pump, and verify the switch returns to false.
+
+- [ ] **Step 2: Run tests and confirm failure**
+
+Run: `flutter test test/account_pages_test.dart test/widget_test.dart --plain-name "Blind Guide"`
+
+Expected: FAIL because Blind Guide still belongs to `account-menu-section` and no keyed switch exists.
+
+- [ ] **Step 3: Remove Blind Guide from the general menu**
+
+Keep only ticket history, language, and Help Center in `_ProfileMenuSection.entries`. Remove its Blind Guide `_MenuEntry`.
+
+- [ ] **Step 4: Implement the momentary activation card**
+
+Add a private stateful `_BlindGuideCard`. Make its full Material/InkWell row a semantic switch and include the visual `Switch`:
+
+```dart
+Future<void> _activate() async {
+  if (_active) return;
+  setState(() => _active = true);
+  await context.push('/asisten/pemandu-kamera?autoVoice=true');
+  if (mounted) setState(() => _active = false);
+}
+```
+
+Use `ValueKey('blind-guide-card')` on the outer Material and `ValueKey('blind-guide-switch')` on the switch. Both tapping the row and changing the switch to true call `_activate`; changing it to false does nothing because navigation immediately owns the active state.
+
+- [ ] **Step 5: Preserve signed-in logout order**
+
+Render the general menu without logout, then `_BlindGuideCard`, then a separate logout-only `_ProfileMenuSection` when the user is signed in. Keep `ValueKey('account-logout')` on the logout row so existing account tests retain their contract.
+
+- [ ] **Step 6: Run focused tests**
+
+Run: `flutter test test/account_pages_test.dart test/widget_test.dart --plain-name "Blind Guide"`
+
+Expected: PASS for card placement, initial switch state, navigation, and reset.
+
+- [ ] **Step 7: Format, analyze, and run the full suite**
+
+Run `dart format lib/features/profile/presentation/pages/profile_page.dart test/account_pages_test.dart test/widget_test.dart`, then `flutter analyze`, then `flutter test`.
+
+Expected: analyzer reports no issues and all tests pass.
+
+- [ ] **Step 8: Commit and hot reload Pixel 9**
+
+```powershell
+git add lib/features/profile/presentation/pages/profile_page.dart test/account_pages_test.dart test/widget_test.dart
+git commit -m "feat: separate blind guide activation card"
+```
+
+Send `r` to the active Flutter run session. If that session ended, run the app again on `emulator-5554` with `--dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1`.
