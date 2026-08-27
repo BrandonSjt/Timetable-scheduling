@@ -100,6 +100,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get profileLargeText => 'Teks besar dan bacakan rute';
 
   @override
+  String get profileBlindGuide => 'Pemandu Tunanetra';
+
+  @override
+  String get profileBlindGuideDescription =>
+      'Buka kamera dengan panduan suara otomatis';
+
+  @override
   String get profileHelpCenter => 'Pusat Bantuan';
 
   @override

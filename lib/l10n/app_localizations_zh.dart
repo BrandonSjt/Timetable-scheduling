@@ -93,6 +93,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get profileLargeText => '大文本和阅读路线';
 
   @override
+  String get profileBlindGuide => '盲人向导';
+
+  @override
+  String get profileBlindGuideDescription => '打开摄像头并自动启用语音引导';
+
+  @override
   String get profileHelpCenter => '帮助中心';
 
   @override
@@ -1974,6 +1980,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get profileLargeText => '大文本和阅读路线';
+
+  @override
+  String get profileBlindGuide => '盲人向导';
+
+  @override
+  String get profileBlindGuideDescription => '打开摄像头并自动启用语音引导';
 
   @override
   String get profileHelpCenter => '帮助中心';

@@ -107,6 +107,8 @@ void main() {
     expect(find.byKey(const ValueKey('account-identity-card')), findsOneWidget);
     expect(find.byKey(const ValueKey('account-menu-section')), findsOneWidget);
     expect(find.byKey(const ValueKey('account-logout')), findsNothing);
+    expect(find.text('Pemandu Tunanetra'), findsOneWidget);
+    expect(find.text('Aksesibilitas'), findsNothing);
   });
 
   testWidgets('signed-in account exposes identity and existing actions', (

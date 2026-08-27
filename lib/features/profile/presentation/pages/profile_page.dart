@@ -56,10 +56,12 @@ class ProfilePage extends StatelessWidget {
                                 onTap: () => context.push('/bahasa'),
                               ),
                               _MenuEntry(
-                                icon: Icons.accessibility_new_rounded,
-                                title: l10n.profileAccessibility,
-                                subtitle: l10n.profileLargeText,
-                                onTap: () => context.push('/aksesibilitas'),
+                                icon: Icons.blind_rounded,
+                                title: l10n.profileBlindGuide,
+                                subtitle: l10n.profileBlindGuideDescription,
+                                onTap: () => context.push(
+                                  '/asisten/pemandu-kamera?autoVoice=true',
+                                ),
                               ),
                               _MenuEntry(
                                 icon: Icons.support_agent_rounded,

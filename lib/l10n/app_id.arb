@@ -29,6 +29,8 @@
   "profileSavedOnDevice": "Tersimpan di perangkat ini",
   "profileAccessibility": "Aksesibilitas",
   "profileLargeText": "Teks besar dan bacakan rute",
+  "profileBlindGuide": "Pemandu Tunanetra",
+  "profileBlindGuideDescription": "Buka kamera dengan panduan suara otomatis",
   "profileHelpCenter": "Pusat Bantuan",
   "profileContactOfficer": "Kontak petugas dan laporan info salah",
   "authSignInTitle": "Masuk ke akun",

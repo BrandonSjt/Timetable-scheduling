@@ -89,6 +89,8 @@
   "profileSavedOnDevice": "已保存在此设备上",
   "profileAccessibility": "无障碍",
   "profileLargeText": "大文本和阅读路线",
+  "profileBlindGuide": "盲人向导",
+  "profileBlindGuideDescription": "打开摄像头并自动启用语音引导",
   "profileHelpCenter": "帮助中心",
   "profileContactOfficer": "联系官员并报告错误",
   "allStations": "所有车站",

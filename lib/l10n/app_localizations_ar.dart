@@ -98,6 +98,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileLargeText => 'نص كبير وطرق القراءة';
 
   @override
+  String get profileBlindGuide => 'دليل المكفوفين';
+
+  @override
+  String get profileBlindGuideDescription =>
+      'افتح الكاميرا مع إرشادات صوتية تلقائية';
+
+  @override
   String get profileHelpCenter => 'مركز المساعدة';
 
   @override

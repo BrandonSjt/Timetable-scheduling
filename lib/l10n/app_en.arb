@@ -52,6 +52,8 @@
   "profileSavedOnDevice": "Saved on this device",
   "profileAccessibility": "Accessibility",
   "profileLargeText": "Large text and read routes",
+  "profileBlindGuide": "Blind Guide",
+  "profileBlindGuideDescription": "Open the camera with automatic voice guidance",
   "profileHelpCenter": "Help Center",
   "profileContactOfficer": "Contact officer and report errors",
   "authSignInTitle": "Sign in",

@@ -271,6 +271,18 @@ abstract class AppLocalizations {
   /// **'Teks besar dan bacakan rute'**
   String get profileLargeText;
 
+  /// No description provided for @profileBlindGuide.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemandu Tunanetra'**
+  String get profileBlindGuide;
+
+  /// No description provided for @profileBlindGuideDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka kamera dengan panduan suara otomatis'**
+  String get profileBlindGuideDescription;
+
   /// No description provided for @profileHelpCenter.
   ///
   /// In id, this message translates to:

@@ -9,7 +9,6 @@ import '../../features/tickets/presentation/pages/tickets_page.dart';
 import '../../features/assistant/presentation/pages/assistant_page.dart';
 import '../../features/assistant/presentation/pages/camera_guide_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/profile/presentation/pages/accessibility_page.dart';
 import '../../features/profile/presentation/pages/ticket_history_page.dart';
 import '../../features/profile/presentation/pages/language_page.dart';
 import '../../features/profile/presentation/pages/help_center_page.dart';
@@ -98,12 +97,6 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/profil-saya',
       builder: (context, state) => const EditProfilePage(),
-    ),
-
-    // Pengaturan Aksesibilitas
-    GoRoute(
-      path: '/aksesibilitas',
-      builder: (context, state) => const AccessibilityPage(),
     ),
 
     // Riwayat Tiket

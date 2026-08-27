@@ -82,6 +82,8 @@
   "profileSavedOnDevice": "تم الحفظ على هذا الجهاز",
   "profileAccessibility": "إمكانية الوصول",
   "profileLargeText": "نص كبير وطرق القراءة",
+  "profileBlindGuide": "دليل المكفوفين",
+  "profileBlindGuideDescription": "افتح الكاميرا مع إرشادات صوتية تلقائية",
   "profileHelpCenter": "مركز المساعدة",
   "profileContactOfficer": "الاتصال بالمسؤول والإبلاغ عن الأخطاء",
   "allStations": "جميع المحطات",

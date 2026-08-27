@@ -144,7 +144,7 @@ void main() {
     expect(find.text('Peron 1'), findsOneWidget);
   });
 
-  testWidgets('Account opens interactive accessibility settings', (
+  testWidgets('Account links the blind guide to auto-voice camera mode', (
     WidgetTester tester,
   ) async {
     appRouter.go('/akun');
@@ -152,48 +152,17 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
-      find.text('Aksesibilitas'),
+      find.text('Pemandu Tunanetra'),
       180,
       scrollable: find.byType(Scrollable),
     );
-    await tester.tap(find.text('Aksesibilitas'));
-    await tester.pumpAndSettle();
+    expect(find.text('Aksesibilitas'), findsNothing);
 
-    expect(find.text('Pengaturan tampilan'), findsOneWidget);
-    expect(find.text('Teks dan suara'), findsOneWidget);
-    expect(find.text('Kontras tinggi'), findsNothing);
-    expect(find.text('Kurangi animasi'), findsNothing);
-    expect(find.byType(Switch), findsNWidgets(2));
+    await tester.tap(find.text('Pemandu Tunanetra'));
 
-    var switches = tester.widgetList<Switch>(find.byType(Switch)).toList();
-    expect(switches.map((item) => item.value), [false, true]);
-
-    await tester.tap(find.text('Teks besar'));
-    await tester.pumpAndSettle();
-    switches = tester.widgetList<Switch>(find.byType(Switch)).toList();
-    expect(switches[0].value, isTrue);
-
-    await tester.scrollUntilVisible(
-      find.text('Baca'),
-      180,
-      scrollable: find.byType(Scrollable),
-    );
-    await tester.tap(find.text('Baca'));
-    await tester.pump();
-    expect(
-      find.text(
-        'Membacakan: Dukuh Atas ke Harjamukti, Peron 2, tiba 4 menit lagi.',
-      ),
-      findsOneWidget,
-    );
-    tester
-        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-        .clearSnackBars();
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byIcon(Icons.chevron_left_rounded));
-    await tester.pumpAndSettle();
-    expect(find.text('Mode tamu aktif'), findsOneWidget);
+    final uri = appRouter.routeInformationProvider.value.uri;
+    expect(uri.path, '/asisten/pemandu-kamera');
+    expect(uri.queryParameters['autoVoice'], 'true');
   });
 
   testWidgets('Account opens filterable ticket history without bottom nav', (

@@ -98,6 +98,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileLargeText => 'Large text and read routes';
 
   @override
+  String get profileBlindGuide => 'Blind Guide';
+
+  @override
+  String get profileBlindGuideDescription =>
+      'Open the camera with automatic voice guidance';
+
+  @override
   String get profileHelpCenter => 'Help Center';
 
   @override
