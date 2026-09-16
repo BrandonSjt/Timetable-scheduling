@@ -1,128 +1,41 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:timetable/features/assistant/presentation/controllers/assistant_controller.dart';
 
+import 'helpers/fake_assistant_speech.dart';
+
 void main() {
-  test('assistant starts ready and toggles wake-word mode', () {
-    final controller = AssistantController();
-
+  test('starts ready and unsupported wake word never activates', () {
+    final controller = AssistantController(
+      recognizer: FakeAssistantSpeechRecognizer(),
+      speechService: FakeAssistantPlayback(),
+    );
+    addTearDown(controller.dispose);
     expect(controller.state, AssistantInteractionState.ready);
-    expect(controller.wakeWordEnabled, isFalse);
-
     controller.toggleWakeWord(true);
-
-    expect(controller.wakeWordEnabled, isTrue);
-    controller.dispose();
+    expect(controller.wakeWordEnabled, isFalse);
   });
 
-  test('assistant completes the local trip-planning conversation', () async {
-    final states = <AssistantInteractionState>[];
+  test('recoverable error contains a code rather than a fake answer', () {
     final controller = AssistantController(
-      listeningDuration: const Duration(milliseconds: 1),
-      processingDuration: const Duration(milliseconds: 1),
-      speakingDuration: const Duration(milliseconds: 1),
+      recognizer: FakeAssistantSpeechRecognizer(),
+      speechService: FakeAssistantPlayback(),
     );
-    controller.addListener(() => states.add(controller.state));
-
-    controller.startConversation();
-
-    expect(controller.state, AssistantInteractionState.listening);
-    await Future<void>.delayed(const Duration(milliseconds: 20));
-    expect(
-      states,
-      containsAllInOrder([
-        AssistantInteractionState.listening,
-        AssistantInteractionState.processing,
-        AssistantInteractionState.speaking,
-        AssistantInteractionState.confirmation,
-      ]),
-    );
-    expect(controller.userTranscript, contains('Manggarai'));
-    expect(controller.assistantResponse, contains('Kereta tiba 5 menit lagi'));
-    expect(controller.completedExchangeId, 1);
-    controller.dispose();
-  });
-
-  test(
-    'repeating speech does not create a second completed exchange',
-    () async {
-      final controller = AssistantController(
-        listeningDuration: Duration.zero,
-        processingDuration: Duration.zero,
-        speakingDuration: Duration.zero,
-      );
-
-      controller.startConversation();
-      await Future<void>.delayed(Duration.zero);
-      await Future<void>.delayed(Duration.zero);
-      await Future<void>.delayed(Duration.zero);
-      expect(controller.completedExchangeId, 1);
-
-      controller.repeatResponse();
-      await Future<void>.delayed(Duration.zero);
-      expect(controller.completedExchangeId, 1);
-    },
-  );
-
-  test('cancelling conversation stops pending state changes', () async {
-    final controller = AssistantController(
-      listeningDuration: const Duration(milliseconds: 20),
-    );
-
-    controller.startConversation();
-    controller.cancelConversation();
-    await Future<void>.delayed(const Duration(milliseconds: 30));
-
-    expect(controller.state, AssistantInteractionState.ready);
-    expect(controller.userTranscript, isNull);
-    expect(controller.assistantResponse, isNull);
-    controller.dispose();
-  });
-
-  test('assistant repeats an existing response', () async {
-    final controller = AssistantController(
-      listeningDuration: const Duration(milliseconds: 1),
-      processingDuration: const Duration(milliseconds: 1),
-      speakingDuration: const Duration(milliseconds: 1),
-    );
-    controller.startConversation();
-    await Future<void>.delayed(const Duration(milliseconds: 20));
-
-    controller.repeatResponse();
-
-    expect(controller.state, AssistantInteractionState.speaking);
-    await Future<void>.delayed(const Duration(milliseconds: 10));
-    expect(controller.state, AssistantInteractionState.confirmation);
-    controller.dispose();
-  });
-
-  test(
-    'stopping speech keeps the response and requests confirmation',
-    () async {
-      final controller = AssistantController(
-        listeningDuration: const Duration(milliseconds: 1),
-        processingDuration: const Duration(milliseconds: 1),
-        speakingDuration: const Duration(milliseconds: 50),
-      );
-      controller.startConversation();
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-      expect(controller.state, AssistantInteractionState.speaking);
-
-      controller.stopSpeaking();
-      await Future<void>.delayed(const Duration(milliseconds: 60));
-
-      expect(controller.state, AssistantInteractionState.confirmation);
-      expect(controller.assistantResponse, isNotNull);
-      controller.dispose();
-    },
-  );
-
-  test('assistant exposes a recoverable error state', () {
-    final controller = AssistantController();
-
+    addTearDown(controller.dispose);
     controller.showError();
-
     expect(controller.state, AssistantInteractionState.error);
-    expect(controller.assistantResponse, 'Saya belum memahami tujuanmu.');
-    controller.dispose();
+    expect(controller.errorCode, 'VOICE_UNAVAILABLE');
+    expect(controller.assistantResponse, isNull);
+  });
+
+  test('duplicate start during recognition is ignored', () async {
+    final recognizer = FakeAssistantSpeechRecognizer();
+    final controller = AssistantController(
+      recognizer: recognizer,
+      speechService: FakeAssistantPlayback(),
+    );
+    addTearDown(controller.dispose);
+    await controller.startConversation();
+    await controller.startConversation();
+    expect(recognizer.listenCalls, 1);
   });
 }

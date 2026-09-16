@@ -11,7 +11,7 @@ class _Remote implements TimetableRemoteDataSource {
 
   @override
   Future<List<TrainSchedule>> getSchedules({
-    required String station,
+    String? station,
     String? trainType,
     bool? isWeekend,
   }) => handler();
@@ -25,30 +25,50 @@ class _EmptyLocal implements TimetableLocalDataSource {
 }
 
 void main() {
-  test('network failure with empty local fallback rethrows for retry UI', () async {
-    final repository = TimetableRepositoryImpl(
-      remoteDataSource: _Remote(
-        () async => throw Exception('cold start timeout'),
-      ),
-      localDataSource: const _EmptyLocal(),
-    );
+  test(
+    'network failure with empty local fallback rethrows for retry UI',
+    () async {
+      final repository = TimetableRepositoryImpl(
+        remoteDataSource: _Remote(
+          () async => throw Exception('cold start timeout'),
+        ),
+        localDataSource: const _EmptyLocal(),
+      );
 
-    await expectLater(
-      repository.getSchedules(station: 'Manggarai'),
-      throwsA(isA<Exception>()),
-    );
-  });
+      await expectLater(
+        repository.getSchedules(station: 'Manggarai'),
+        throwsA(isA<Exception>()),
+      );
+    },
+  );
 
-  test('network failure keeps local schedules when available', () async {
+  test(
+    'network failure never replaces official schedules with examples',
+    () async {
+      final repository = TimetableRepositoryImpl(
+        remoteDataSource: _Remote(
+          () async => throw Exception('cold start timeout'),
+        ),
+        localDataSource: const TimetableLocalDataSource(),
+      );
+
+      await expectLater(
+        repository.getSchedules(station: 'Manggarai'),
+        throwsException,
+      );
+    },
+  );
+
+  test('all stations loads the server rather than local examples', () async {
+    var requested = false;
     final repository = TimetableRepositoryImpl(
-      remoteDataSource: _Remote(
-        () async => throw Exception('cold start timeout'),
-      ),
+      remoteDataSource: _Remote(() async {
+        requested = true;
+        return [];
+      }),
       localDataSource: const TimetableLocalDataSource(),
     );
-
-    final schedules = await repository.getSchedules(station: 'Manggarai');
-    expect(schedules, isNotEmpty);
-    expect(schedules.every((item) => item.stationName == 'Manggarai'), isTrue);
+    expect(await repository.getSchedules(station: 'Semua Stasiun'), isEmpty);
+    expect(requested, isTrue);
   });
 }

@@ -6,9 +6,12 @@ import '../../../../core/config/api_config.dart';
 import '../../../../core/network/api_timeouts.dart';
 import '../../domain/repositories/assistant_chat_repository.dart';
 
+export '../../domain/repositories/assistant_chat_repository.dart'
+    show AssistantChatException;
+
 class AssistantChatRemoteDataSource {
   AssistantChatRemoteDataSource({http.Client? client})
-      : _client = client ?? http.Client();
+    : _client = client ?? http.Client();
 
   final http.Client _client;
 
@@ -55,10 +58,4 @@ class AssistantChatRemoteDataSource {
       routeTo: routeTo,
     );
   }
-}
-
-class AssistantChatException implements Exception {
-  const AssistantChatException(this.code);
-
-  final String code;
 }

@@ -3,6 +3,8 @@ import { ApiError } from '../errors/ApiError';
 import { FareService } from './fareService';
 import { publicCodeForLine, stationDisplayName } from './stationIdentity';
 import { beginTiming, measurePhase } from '../../infrastructure/observability/requestTiming';
+import { matchStationIdentity } from './stationNameMatching';
+import { loadTimetableGraph } from './timetableGraph';
 
 type RouteStepKind = 'board' | 'transfer' | 'continue' | 'arrive';
 
@@ -114,6 +116,11 @@ export class RouteService {
       include,
     });
     if (!station) {
+      const catalogue = await prisma.station.findMany({
+        where: identityScope, include: { ...include, aliases: true },
+      });
+      const matched = matchStationIdentity(identifier, catalogue);
+      if (matched) return matched;
       throw new ApiError(404, `Station not found: ${identifier}`, 'STATION_NOT_FOUND');
     }
     return station;
@@ -137,16 +144,8 @@ export class RouteService {
       );
     }
 
-    const connections = await measurePhase('graph_load', () => prisma.routeConnection.findMany({
-      include: {
-        fromNode: {
-          include: { station: { include: { publicCodes: true } }, line: true },
-        },
-        toNode: {
-          include: { station: { include: { publicCodes: true } }, line: true },
-        },
-      },
-    }));
+    const connections = await measurePhase('graph_load', loadTimetableGraph);
+    const graphNodes = [...new Map(connections.flatMap((edge) => [edge.fromNode, edge.toNode]).map((node) => [node.id, node])).values()];
     const finishDijkstra = beginTiming('dijkstra');
     const adjacency = new Map<string, typeof connections>();
     for (const connection of connections) {
@@ -159,12 +158,12 @@ export class RouteService {
     const previous = new Map<string, (typeof connections)[number]>();
     const visited = new Set<string>();
     const queue: QueueItem[] = [];
-    for (const node of fromStation.nodes) {
+    for (const node of graphNodes.filter((node) => node.stationId === fromStation.id)) {
       const cost = { minutes: 0, transfers: 0 };
       distance.set(node.id, cost);
       pushQueue(queue, { id: node.id, cost }, preference);
     }
-    const destinationIds = new Set(toStation.nodes.map((node) => node.id));
+    const destinationIds = new Set(graphNodes.filter((node) => node.stationId === toStation.id).map((node) => node.id));
     let reachedId: string | null = null;
 
     while (queue.length > 0) {
@@ -312,7 +311,7 @@ export class RouteService {
       currency: fare.currency,
       passengerCount: fare.passengerCount,
       stops: stationSequence.length - 1,
-      serviceInfo: 'Layanan normal',
+      serviceInfo: 'Rute terjadwal; bukan status operasional real-time',
       hasTransit: transferConnections.length > 0,
       transferCount: transferConnections.length,
       preference,

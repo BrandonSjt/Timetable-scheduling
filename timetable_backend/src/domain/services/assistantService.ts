@@ -49,9 +49,10 @@ const isEnglishLang = (lang?: string | null) => (lang ?? 'id').toLowerCase().sta
 
 const trimRoutePart = (value: string) =>
   value
+    .replace(/^(?:stasiun|station)\s+/i, '')
     .replace(/[,.!?].*$/, '')
     .replace(
-      /\s+(?:hari ini|kira(?:-|\s)?kira|naiknya|gimana|bagaimana|apa|ya|dong|tolong|nih|sih|darimana|gitu)(?:\s+.*)?$/i,
+      /\s+(?:hari ini|kira(?:-|\s)?kira|naik(?:nya)?|gimana|bagaimana|apa|ya|dong|tolong|nih|sih|darimana|gitu)(?:\s+.*)?$/i,
       '',
     )
     .trim();
@@ -195,7 +196,7 @@ const extractOrigin = (message: string) => {
 };
 
 const extractDestination = (message: string) => {
-  const match = message.trim().match(/\b(?:ke|menuju)\s+(.+?)[?.!]*$/i);
+  const match = message.trim().match(/\b(?:ke|menuju|turun\s+di|sampai\s+di)\s+(.+?)(?:\s+(?:berangkat(?:nya)?\s+)?dari\s+.+)?[?.!]*$/i);
   return match ? trimRoutePart(match[1]) : null;
 };
 
@@ -214,7 +215,7 @@ const bareStationCandidate = (value: string) => {
 export const extractRouteRequest = (
   message: string,
   history: AssistantHistoryTurn[] = [],
-) => {
+): { from: string; to: string } | null => {
   const text = message.trim();
   const destinationFirst = text.match(
     /\b(?:mau\s+)?(?:ke|menuju)\s+(.+?)\s+\bdari\s+(.+?)[?.!]*$/i,
@@ -235,10 +236,20 @@ export const extractRouteRequest = (
   }
 
   const to = extractDestination(message);
+  const currentFrom = extractOrigin(message);
+  if (to && currentFrom) return { from: currentFrom, to };
+  if (!to && currentFrom && history.length > 0) {
+    for (const turn of [...history].reverse()) {
+      if (turn.role !== 'user') continue;
+      const previous = extractRouteRequest(turn.text, history.slice(0, history.indexOf(turn)));
+      const previousTo = previous?.to ?? extractDestination(turn.text);
+      if (previousTo) return { from: currentFrom, to: previousTo };
+    }
+  }
   if (to) {
     for (const turn of [...history].reverse()) {
       if (turn.role != 'user') continue;
-      const from = extractOrigin(turn.text);
+      const from = extractRouteRequest(turn.text, history.slice(0, history.indexOf(turn)))?.from ?? extractOrigin(turn.text);
       if (from) return { from, to };
     }
     return null;
@@ -246,17 +257,22 @@ export const extractRouteRequest = (
 
   // Bare station name follow-up: assistant asked for destination, user answers with plain station name
   if (bareStationCandidate(text)) {
-    for (let i = history.length - 1; i >= 0; i--) {
-      const turn = history[i];
-      if (turn.role !== 'assistant') continue;
-      if (!asksForDestination(turn.text)) continue;
+    const lastAssistant = [...history].reverse().find((turn) => turn.role === 'assistant');
+    if (lastAssistant && /(?:berangkat\s+dari\s+stasiun|stasiun.*(?:berangkat|depart)|asal.*mana|berangkat.*mana)/i.test(lastAssistant.text)) {
+      for (const turn of [...history].reverse()) {
+        if (turn.role !== 'user') continue;
+        const destination = extractRouteRequest(turn.text, history.slice(0, history.indexOf(turn)))?.to ?? extractDestination(turn.text);
+        if (destination) return { from: text, to: destination };
+      }
+      return null;
+    }
+    if (lastAssistant && asksForDestination(lastAssistant.text)) {
       for (let j = history.length - 1; j >= 0; j--) {
         const u = history[j];
         if (u.role !== 'user') continue;
-        const from = extractOrigin(u.text);
+        const from = extractRouteRequest(u.text, history.slice(0, j))?.from ?? extractOrigin(u.text);
         if (from) return { from, to: text.trim() };
       }
-      break;
     }
   }
 
@@ -265,7 +281,7 @@ export const extractRouteRequest = (
 
 // ——— Jadwal ———
 
-export const SCHEDULE_INTENT = /\b(?:jadwal|keberangkatan)\b|\bjam\s+(?:berapa|berangkat)\b|\bkapan\s+berangkat\b/i;
+export const SCHEDULE_INTENT = /\b(?:jadwal(?:nya)?|keberangkatan)\b|\bjam\s+(?:berapa|berangkat)\b|\bkapan\s+berangkat\b/i;
 
 export const extractScheduleRequest = (
   message: string,
@@ -276,6 +292,8 @@ export const extractScheduleRequest = (
   if (route) return route;
   const from = extractOrigin(message);
   if (from) return { from };
+  const named = message.match(/^\s*(?:tolong\s+)?jadwal\s+(?:kereta\s+)?(?:stasiun\s+)?(.+)$/i);
+  if (named && !/^(?:nya|kereta|berapa|hari|besok|sekarang)\b/i.test(named[1])) return { from: trimRoutePart(named[1]) };
   // fallback: if message contains schedule intent + a destination-like bare mention
   const to = extractDestination(message);
   if (to) {
@@ -284,6 +302,13 @@ export const extractScheduleRequest = (
       const f = extractOrigin(turn.text);
       if (f) return { from: f, to };
     }
+  }
+  for (const turn of [...history].reverse()) {
+    if (turn.role !== 'user') continue;
+    const prior = extractRouteRequest(turn.text, history.slice(0, history.indexOf(turn)));
+    if (prior) return prior;
+    const origin = extractOrigin(turn.text);
+    if (origin) return { from: origin };
   }
   return null;
 };
@@ -296,6 +321,8 @@ export type AssistantScheduleDeparture = {
   platform: string;
   trainType: string;
   directToDestination: boolean;
+  calendarCode?: string;
+  dayOffset?: number;
 };
 
 const formatMinute = (value: number) =>
@@ -305,6 +332,7 @@ const fetchDepartures = async (
   originStation: { id: string; isKrl: boolean },
   destinationStation?: { id: string } | null,
   limit = 6,
+  leg?: { targetId: string; lineSlug: string | null },
 ): Promise<AssistantScheduleDeparture[]> => {
   try {
     let activeDataset: { id: string } | null = null;
@@ -316,13 +344,14 @@ const fetchDepartures = async (
         stationId: originStation.id,
         isPassThrough: false,
         departureMinute: { not: null as unknown as null },
-        service: { datasetId: activeDataset.id },
+        service: { datasetId: activeDataset.id, ...(leg?.lineSlug ? { lineSlug: leg.lineSlug === 'bogor_nambo' ? 'bogor' : leg.lineSlug } : {}) },
       };
       const departuresRaw = await prisma.trainStopTime.findMany({
         where: stopWhere as never,
         include: {
           service: {
             include: {
+              calendar: { select: { code: true } },
               // Full stop list to derive route display names
               stops: {
                 where: { arrivalMinute: { not: null } },
@@ -332,20 +361,21 @@ const fetchDepartures = async (
                   departureMinute: true,
                   station: { select: { name: true, officialName: true } },
                   stationId: true,
+                  sequence: true,
                 },
               },
             },
           },
         },
         orderBy: { departureMinute: 'asc' },
-        take: limit,
       });
-      if (departuresRaw.length > 0) {
+      const eligible = departuresRaw.filter((row) => row.service.stops.some((stop) => stop.sequence > row.sequence && (!leg || stop.stationId === leg.targetId))).slice(0, limit);
+      if (eligible.length > 0) {
         const mapped = await Promise.all(
-          departuresRaw.map(async (row) => {
+          eligible.map(async (row) => {
             const service = (row as { service: {
               lineSlug: string; direction: string; trainNumber: string;
-              stops: Array<{ station: { name: string; officialName: string | null }; stationId: string; arrivalMinute: number | null }>;
+              stops: Array<{ station: { name: string; officialName: string | null }; stationId: string; arrivalMinute: number | null; sequence: number }>;
             }}).service;
             const first = service.stops[0];
             const last = service.stops.at(-1);
@@ -363,7 +393,7 @@ const fetchDepartures = async (
             } catch { /* ignore */ }
             const depMin = (row as { departureMinute: number | null }).departureMinute;
             const directToDestination = destinationStation
-              ? service.stops.some((s) => s.stationId === destinationStation!.id)
+              ? service.stops.some((s) => s.stationId === destinationStation!.id && s.sequence > row.sequence)
               : false;
             return {
               departureTime: formatMinute(depMin!),
@@ -373,14 +403,19 @@ const fetchDepartures = async (
               platform,
               trainType: 'KRL',
               directToDestination,
+              calendarCode: row.service.calendar.code,
+              dayOffset: Math.floor(depMin! / 1440),
             } as AssistantScheduleDeparture;
           }),
         );
         return mapped;
       }
+      return [];
     }
-  } catch {
-    // ignore dataset failure — fall through to legacy
+    if (originStation.isKrl) throw new ApiError(503, 'Jadwal resmi belum tersedia di server', 'TIMETABLE_UNAVAILABLE');
+  } catch (error) {
+    // A database failure is not an empty schedule and must never become demo data.
+    throw error;
   }
 
   try {
@@ -397,17 +432,10 @@ const fetchDepartures = async (
       destination: s.route.split(' - ').at(-1)?.trim() ?? s.route,
       platform: s.platform ?? '',
       trainType: s.trainType,
-      directToDestination: destinationStation
-        ? (() => {
-            const lowerRoute = s.route.toLowerCase();
-            const name = destinationStation as unknown as { name?: string; officialName?: string | null };
-            // heuristic: route string contains destination word; keep simple
-            return false; // legacy heuristic can't reliably tell; treat as not-direct
-          })()
-        : false,
+      directToDestination: false, // Legacy route strings cannot prove stop order.
     }));
-  } catch {
-    return [];
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -507,9 +535,8 @@ const resolveScheduleStations = async (
   if (scheduleRequest.to) {
     try {
       destinationStation = (await RouteService.resolveStation(scheduleRequest.to)) as unknown as { id: string };
-    } catch {
-      destinationStation = null;
-      throw new ApiError(404, `Station not found: ${scheduleRequest.to}`, 'STATION_NOT_FOUND');
+    } catch (error) {
+      throw error;
     }
   }
   return { originStation, destinationStation };
@@ -523,15 +550,15 @@ const buildDeterministicScheduleList = (
   const en = isEnglishLang(lang);
   if (departures.length === 0) return buildNoScheduleMessage(stationName, lang);
   const header = en
-    ? `Here are the next departures from ${stationName} 🚆`
-    : `Berikut keberangkatan berikutnya dari ${stationName} 🚆`;
+    ? `Some scheduled departures from ${stationName} (WIB) 🚆`
+    : `Beberapa jadwal keberangkatan dari ${stationName} (WIB) 🚆`;
   const lines = departures
     .slice(0, 5)
-    .map((d) => `• ${d.departureTime} — ${d.trainName} ke ${d.destination}${d.platform ? ` (peron ${d.platform})` : ''}`)
+    .map((d) => `• ${d.departureTime}${d.dayOffset ? ' (+1 hari)' : ''} — ${d.trainName} ke ${d.destination}${d.platform ? ` (peron ${d.platform})` : ''}${d.calendarCode === 'WEEKDAY' ? ' · hari kerja, kecuali libur nasional' : ''}`)
     .join('\n');
   const footer = en
-    ? 'Please check the station board for real-time updates.'
-    : 'Cek papan informasi stasiun untuk pembaruan real-time ya.';
+    ? 'PDF timetable, not real-time or a list of upcoming trains. Open Schedule and choose your station/day for the full list; check the station board for changes.'
+    : 'Ini jadwal PDF, bukan real-time atau daftar kereta yang akan datang saat ini. Buka Jadwal dan pilih stasiun/hari untuk daftar lengkap; cek papan stasiun bila ada perubahan.';
   return `${header}\n${lines}\n\n${footer}`;
 };
 
@@ -543,47 +570,20 @@ export class AssistantService {
       try {
         const { originStation, destinationStation } = await resolveScheduleStations(scheduleRequest);
         const originName = stationDisplayName(originStation as unknown as { name: string; officialName?: string | null });
-        const departures = await fetchDepartures(originStation, destinationStation);
+        const route = scheduleRequest.to ? await RouteService.planRoute(scheduleRequest.from, scheduleRequest.to) : undefined;
+        const sequence = route?.stationSequence ?? [];
+        const firstLine = sequence[0]?.line;
+        const changeIndex = sequence.findIndex((station) => station.line.id !== firstLine?.id);
+        const target = changeIndex > 0 ? sequence[changeIndex - 1] : sequence.at(-1);
+        const departures = await fetchDepartures(originStation, destinationStation, 6, target && firstLine ? { targetId: target.stationId, lineSlug: firstLine.slug } : undefined);
         if (departures.length === 0) {
           return { text: buildNoScheduleMessage(originName, lang) };
         }
-        // Deterministic fallback when key absent (hemat kuota) — still warm via deterministic list
-        const apiKeySchedule = process.env.GEMINI_API_KEY?.trim();
-        if (!apiKeySchedule || apiKeySchedule.length < 10) {
-          const directNote =
-            scheduleRequest.to && !departures.some((d) => d.directToDestination)
-              ? (isEnglishLang(lang)
-                  ? `\n\nNo direct service to ${scheduleRequest.to}; transfer needed.`
-                  : `\n\nTidak ada yang langsung ke ${scheduleRequest.to}; perlu transit.`)
-              : '';
-          return {
-            text: `${buildDeterministicScheduleList(originName, departures, lang)}${directNote}`,
-          };
-        }
-        const scheduleCtx = { stationName: originName, departures, destination: scheduleRequest.to ?? null };
-        const ai = new GoogleGenAI({ apiKey: apiKeySchedule });
-        const request = ai.models.generateContent({
-          model: ASSISTANT_MODEL,
-          contents: buildAssistantPrompt(message, undefined, history, scheduleCtx, lang),
-          config: { temperature: 0.3, maxOutputTokens: 384 },
-        });
-        let response;
-        try {
-          response = await Promise.race([
-            request,
-            new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new AssistantProviderError('AI_TIMEOUT', 'Layanan AI timeout.')), 12_000),
-            ),
-          ]);
-        } catch (error) {
-          if (error instanceof AssistantProviderError) throw error;
-          const txt = String(error).toLowerCase();
-          if (txt.includes('quota') || txt.includes('429')) throw new AssistantProviderError('AI_QUOTA', 'Kuota AI sedang habis.');
-          throw new AssistantProviderError('AI_UNAVAILABLE', 'Layanan AI sedang tidak tersedia.');
-        }
-        const reply = response.text?.trim();
-        if (!reply) throw new AssistantProviderError('AI_EMPTY_RESPONSE', 'AI tidak mengirim jawaban.');
-        return { text: reply };
+        const routeNote = route ? `\n\n${route.steps.filter((step) => step.kind !== 'arrive').map((step) => `${step.text}: ${step.detailNote}`).join('\n')}` : '';
+        return {
+          text: `${buildDeterministicScheduleList(originName, departures, lang)}${routeNote}`,
+          ...(route ? { route: { from: route.from, to: route.to } } : {}),
+        };
       } catch (error) {
         if (error instanceof ApiError && error.code === 'STATION_NOT_FOUND') {
           const failed = extractFailedStation(error);
@@ -640,6 +640,19 @@ export class AssistantService {
       }
     }
 
+    // Route facts are already known: don't spend scarce Gemini quota or let
+    // provider outages prevent a verified route from reaching the user.
+    if (route) {
+      const intro = isEnglishLang(lang)
+        ? `Here's your route from ${route.from} to ${route.to} 🚆`
+        : `Bisa, ini rute dari ${route.from} ke ${route.to} 🚆`;
+      const steps = route.steps.map((step, index) => `${index + 1}. ${step.text}\n   ${step.detailNote} · ${step.durationText}`).join('\n');
+      const summary = isEnglishLang(lang)
+        ? `Estimated travel: ${route.travelTime} minutes · Fare: Rp${route.fare.toLocaleString('id-ID')}`
+        : `Estimasi perjalanan ${route.travelTime} menit · Tarif Rp${route.fare.toLocaleString('id-ID')}`;
+      return { text: `${intro}\n\n${steps}\n\n${summary}`, route: { from: route.from, to: route.to } };
+    }
+
     // ——— Butuh Gemini (route fakta / obrolan bebas) ———
     const apiKey = process.env.GEMINI_API_KEY?.trim();
     if (!apiKey || apiKey.length < 10) {
@@ -672,9 +685,6 @@ export class AssistantService {
     const reply = response.text?.trim();
     if (!reply) {
       throw new AssistantProviderError('AI_EMPTY_RESPONSE', 'AI tidak mengirim jawaban.');
-    }
-    if (route) {
-      return { text: reply, route: { from: route.from, to: route.to } };
     }
     return { text: reply };
   }

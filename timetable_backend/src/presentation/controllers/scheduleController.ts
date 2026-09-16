@@ -8,6 +8,7 @@ import {
 } from '../../domain/services/stationIdentity';
 import { resolvePlatformRule } from '../../domain/services/platformRuleService';
 import { beginTiming, measurePhase } from '../../infrastructure/observability/requestTiming';
+import { RouteService } from '../../domain/services/routeService';
 
 const querySchema = z.object({
   stationId: z.string().uuid().optional(),
@@ -31,30 +32,67 @@ const formatMinute = (value: number) =>
 export const getSchedules = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = querySchema.safeParse(req.query);
-    if (!parsed.success || (!parsed.data.stationId && !parsed.data.station)) {
+    if (!parsed.success) {
       throw new ApiError(
         400,
-        'stationId or station name/code is required',
+        'Invalid schedule filters',
         'VALIDATION_ERROR',
         parsed.success ? undefined : parsed.error.issues,
       );
     }
     const { stationId, station, trainType, isWeekend, departureFrom, departureTo, page, limit } = parsed.data;
-    const finishCatalog = beginTiming('schedule_catalog');
-    const timetableStation = await prisma.station.findFirst({
-      where: stationId
-        ? { id: stationId }
-        : {
-            OR: [
-              { slug: station!.toLowerCase() },
-              { operationalCode: { equals: station!, mode: 'insensitive' } },
-              { name: { equals: station!, mode: 'insensitive' } },
-              { officialName: { equals: station!, mode: 'insensitive' } },
-              { aliases: { some: { normalized: normalize(station!) } } },
-              { publicCodes: { some: { code: { equals: station! } } } },
-            ],
+    // Without a station, list every PDF service once at its initial station.
+    // Station queries below continue listing all timed departures at that station.
+    if (!stationId && !station && trainType !== 'LRT' && trainType !== 'MRT') {
+      const dataset = await prisma.timetableDataset.findFirst({ where: { isActive: true } });
+      if (!dataset) throw new ApiError(503, 'No active KRL timetable dataset', 'TIMETABLE_UNAVAILABLE');
+      const where = {
+        datasetId: dataset.id,
+        calendar: { code: { in: isWeekend === 'true' ? ['DAILY'] : ['DAILY', 'WEEKDAY'] } },
+        ...(departureFrom || departureTo ? { stops: { some: {
+          sequence: 1,
+          departureMinute: {
+            ...(departureFrom ? { gte: toMinute(departureFrom) } : {}),
+            ...(departureTo ? { lte: toMinute(departureTo) } : {}),
           },
-    });
+        } } } : {}),
+      };
+      const [services, total] = await prisma.$transaction([
+        prisma.trainService.findMany({
+          where, skip: (page - 1) * limit, take: limit,
+          orderBy: [{ trainNumber: 'asc' }, { id: 'asc' }],
+          include: {
+            calendar: { select: { code: true } },
+            stops: {
+              where: { isPassThrough: false, departureMinute: { not: null } },
+              orderBy: { sequence: 'asc' },
+              include: { station: { select: { id: true, name: true, officialName: true, slug: true, operationalCode: true } } },
+            },
+          },
+        }),
+        prisma.trainService.count({ where }),
+      ]);
+      res.json({ success: true, data: services.map((service) => {
+        const first = service.stops[0];
+        const last = service.stops.at(-1);
+        if (!first || !last) throw new ApiError(500, 'Timetable service has no timed stops', 'TIMETABLE_INVALID');
+        const departure = first.departureMinute!;
+        return {
+          id: service.id, trainName: `KA ${service.trainNumber}`, trainNumber: service.trainNumber,
+          continuationTrainNumber: service.continuationTrainNumber,
+          route: `${stationDisplayName(first.station)} - ${stationDisplayName(last.station)}`,
+          departureTime: formatMinute(departure), arrivalTime: formatMinute(last.arrivalMinute ?? departure),
+          dayOffset: Math.floor(departure / 1440), platform: '', trainType: 'KRL',
+          isWeekend: isWeekend === 'true', calendarCode: service.calendar.code, lineSlug: service.lineSlug,
+          station: { ...first.station, name: stationDisplayName(first.station) },
+        };
+      }), meta: { page, limit, total, datasetVersion: dataset.version, scope: 'services' } });
+      return;
+    }
+    const finishCatalog = beginTiming('schedule_catalog');
+    const timetableStation = stationId || station
+      ? await RouteService.resolveStation(stationId ?? station!)
+      : null;
     const activeDataset =
       timetableStation?.isKrl && trainType !== 'LRT' && trainType !== 'MRT'
         ? await prisma.timetableDataset.findFirst({ where: { isActive: true } })
@@ -93,7 +131,7 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
               },
             },
           },
-          orderBy: { departureMinute: 'asc' },
+          orderBy: [{ departureMinute: 'asc' }, { id: 'asc' }],
           skip: (page - 1) * limit,
           take: limit,
         }),
@@ -101,7 +139,7 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
       ]));
       res.json({
         success: true,
-        data: await measurePhase('schedule_format', () => Promise.all(departures.map(async ({ service, departureMinute }) => {
+        data: await measurePhase('schedule_format', () => Promise.all(departures.map(async ({ id: stopId, service, departureMinute }) => {
           const first = service.stops[0];
           const last = service.stops.at(-1);
           const display = (value: typeof first | undefined) => value?.station.officialName ?? value?.station.name ?? '';
@@ -113,7 +151,7 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
             destination,
           });
           return {
-            id: service.id,
+            id: stopId,
             trainName: `KA ${service.trainNumber}`,
             trainNumber: service.trainNumber,
             continuationTrainNumber: service.continuationTrainNumber,
@@ -140,8 +178,8 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
     }
 
     const where = {
-      ...(stationId ? { stationId } : {}),
-      ...(station
+        ...(timetableStation ? { stationId: timetableStation.id } : {}),
+      ...(!timetableStation && station
         ? {
             station: {
               OR: [

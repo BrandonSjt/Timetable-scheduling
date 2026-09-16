@@ -1,5 +1,10 @@
 enum AssistantChatRole { user, assistant }
 
+class AssistantChatException implements Exception {
+  const AssistantChatException(this.code);
+  final String code;
+}
+
 class AssistantChatTurn {
   const AssistantChatTurn({required this.role, required this.text});
 

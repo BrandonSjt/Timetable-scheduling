@@ -9,6 +9,73 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get scheduleAllServicesNote =>
+      'All Stations lists one schedule per train journey. Choose a station to see all its departures.';
+
+  @override
+  String get scheduleStationCatalogError =>
+      'The station list could not be loaded. Try again to see all options.';
+
+  @override
+  String get mapYouAreHere => 'You are here';
+
+  @override
+  String get mapLocationLoading => 'Finding your location…';
+
+  @override
+  String get mapLocationUnconfirmed =>
+      'Station not confirmed. Move closer or try the location button.';
+
+  @override
+  String get mapLocationUnavailable =>
+      'Current location unavailable. Try the location button again.';
+
+  @override
+  String get assistantAiQuota =>
+      'The AI quota is busy. Please wait a moment and try again.';
+
+  @override
+  String get assistantAiTimeout =>
+      'The AI did not respond in time. Please try sending again.';
+
+  @override
+  String get assistantAiNotConfigured =>
+      'The AI service has not been configured on the server.';
+
+  @override
+  String get assistantVoiceUnavailable =>
+      'Speech recognition is unavailable. Check microphone permission and speech services in settings, or type a message.';
+
+  @override
+  String get assistantVoicePermissionDenied =>
+      'Microphone permission was denied. Enable it in app settings or type a message.';
+
+  @override
+  String get assistantVoiceLanguageUnavailable =>
+      'This speech language is unavailable on your device. Check speech language settings or type a message.';
+
+  @override
+  String get assistantVoiceWakeWordUnavailable =>
+      'Not available yet. Tap the microphone to speak.';
+
+  @override
+  String get assistantVoicePlaybackUnavailable =>
+      'The answer cannot be read aloud right now. You can still read it in the chat.';
+
+  @override
+  String get assistantVoiceReadAnswer => 'Read answer aloud';
+
+  @override
+  String get assistantVoiceStopReading => 'Stop reading';
+
+  @override
+  String get assistantVoiceAnswerReady => 'Answer ready';
+
+  @override
+  String get assistantVoiceAnswerReadyDescription =>
+      'Read the answer in chat or choose to hear it aloud.';
+
+  @override
   String get languagePageTitle => 'Language';
 
   @override
@@ -2135,7 +2202,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String mapNearStation(String station) {
-    return 'You are near $station Station';
+    return 'You are here · Near $station Station';
   }
 
   @override

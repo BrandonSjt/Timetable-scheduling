@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:async';
+import 'helpers/fake_assistant_chat.dart';
 import 'package:timetable/features/assistant/domain/entities/assistant_conversation_item.dart';
 import 'package:timetable/features/assistant/domain/repositories/assistant_chat_repository.dart';
 import 'package:timetable/features/assistant/presentation/controllers/assistant_conversation_controller.dart';
@@ -23,6 +25,59 @@ class _CapturingChatRepository implements AssistantChatRepository {
 }
 
 void main() {
+  test(
+    'ordinary train question is sent to backend, not intercepted as ticket command',
+    () async {
+      final alarms = TravelAlarmController();
+      final repository = FakeAssistantChatRepository();
+      final chat = AssistantConversationController(
+        alarmController: alarms,
+        chatRepository: repository,
+      );
+      addTearDown(chat.dispose);
+      addTearDown(alarms.dispose);
+      await chat.submitText('Aku mau naik kereta dari Bekasi ke Jakarta Kota');
+      expect(repository.messages, hasLength(1));
+      expect(chat.items.last.kind, AssistantConversationItemKind.message);
+    },
+  );
+
+  test(
+    'overlapping submissions are ignored before appending and dispose drops pending result',
+    () async {
+      final alarms = TravelAlarmController();
+      final repository = FakeAssistantChatRepository()
+        ..pending = Completer<AssistantChatAnswer>();
+      final chat = AssistantConversationController(
+        alarmController: alarms,
+        chatRepository: repository,
+      );
+      addTearDown(alarms.dispose);
+      final first = chat.submitText('Dari Bekasi ke Jakarta Kota');
+      await chat.submitText('duplicate');
+      expect(repository.messages, hasLength(1));
+      expect(chat.items, hasLength(1));
+      chat.dispose();
+      repository.pending!.complete(FakeAssistantChatRepository.answer);
+      expect(await first, isNull);
+      expect(chat.items, hasLength(1));
+    },
+  );
+
+  test('provider quota error has an informative reply', () async {
+    final alarms = TravelAlarmController();
+    final repository = FakeAssistantChatRepository()
+      ..error = const AssistantChatException('AI_QUOTA');
+    final chat = AssistantConversationController(
+      alarmController: alarms,
+      chatRepository: repository,
+    );
+    addTearDown(chat.dispose);
+    addTearDown(alarms.dispose);
+    expect(await chat.submitText('Halo'), isNull);
+    expect(chat.lastErrorCode, 'AI_QUOTA');
+    expect(chat.items.last.text, contains('Kuota AI'));
+  });
   test('typed command activates every alarm and appends ordered messages', () {
     final alarms = TravelAlarmController()
       ..completePurchase(from: 'Setiabudi', to: 'Manggarai');
@@ -175,13 +230,10 @@ void main() {
     await chat.submitText('Tujuannya ke Jakarta Kota');
 
     expect(repository.message, 'Tujuannya ke Jakarta Kota');
-    expect(
-      repository.history.map((turn) => (turn.role, turn.text)),
-      [
-        (AssistantChatRole.user, 'Aku mau naik dari Pondok Ranji'),
-        (AssistantChatRole.assistant, 'Siap, mau ke stasiun mana?'),
-      ],
-    );
+    expect(repository.history.map((turn) => (turn.role, turn.text)), [
+      (AssistantChatRole.user, 'Aku mau naik dari Pondok Ranji'),
+      (AssistantChatRole.assistant, 'Siap, mau ke stasiun mana?'),
+    ]);
   });
 
   test('typed chat bounds temporary context to six prior turns', () async {

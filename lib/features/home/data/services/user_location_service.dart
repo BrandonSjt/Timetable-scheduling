@@ -13,10 +13,17 @@ enum UserLocationStatus {
 }
 
 class UserCoordinates {
-  const UserCoordinates({required this.latitude, required this.longitude});
+  const UserCoordinates({
+    required this.latitude,
+    required this.longitude,
+    this.accuracyMeters,
+    this.timestamp,
+  });
 
   final double latitude;
   final double longitude;
+  final double? accuracyMeters;
+  final DateTime? timestamp;
 }
 
 class UserLocationResult {
@@ -49,6 +56,8 @@ abstract interface class LocationGateway {
   Future<AppLocationPermission> requestPermission();
   Future<UserCoordinates?> getCurrentPosition();
   Future<UserCoordinates?> getLastKnownPosition();
+  Stream<UserCoordinates> watchPosition();
+  Stream<bool> watchServiceEnabled();
 }
 
 class GeolocatorLocationGateway implements LocationGateway {
@@ -74,6 +83,8 @@ class GeolocatorLocationGateway implements LocationGateway {
     return UserCoordinates(
       latitude: position.latitude,
       longitude: position.longitude,
+      accuracyMeters: position.accuracy,
+      timestamp: position.timestamp,
     );
   }
 
@@ -84,8 +95,31 @@ class GeolocatorLocationGateway implements LocationGateway {
     return UserCoordinates(
       latitude: position.latitude,
       longitude: position.longitude,
+      accuracyMeters: position.accuracy,
+      timestamp: position.timestamp,
     );
   }
+
+  @override
+  Stream<UserCoordinates> watchPosition() =>
+      Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 0,
+        ),
+      ).map(
+        (position) => UserCoordinates(
+          latitude: position.latitude,
+          longitude: position.longitude,
+          accuracyMeters: position.accuracy,
+          timestamp: position.timestamp,
+        ),
+      );
+
+  @override
+  Stream<bool> watchServiceEnabled() => Geolocator.getServiceStatusStream().map(
+    (status) => status == ServiceStatus.enabled,
+  );
 
   static AppLocationPermission _mapPermission(LocationPermission permission) {
     return switch (permission) {
@@ -106,6 +140,26 @@ class UserLocationService {
 
   final LocationGateway gateway;
   final Duration timeout;
+
+  Future<UserLocationStatus> prepare({bool requestPermission = true}) async {
+    try {
+      if (!await gateway.isLocationServiceEnabled().timeout(timeout)) {
+        return UserLocationStatus.servicesDisabled;
+      }
+      var permission = await gateway.checkPermission().timeout(timeout);
+      if (permission == AppLocationPermission.denied && requestPermission) {
+        permission = await gateway.requestPermission();
+      }
+      return switch (permission) {
+        AppLocationPermission.denied => UserLocationStatus.permissionDenied,
+        AppLocationPermission.deniedForever =>
+          UserLocationStatus.permissionDeniedForever,
+        _ => UserLocationStatus.success,
+      };
+    } on Object {
+      return UserLocationStatus.unavailable;
+    }
+  }
 
   Future<UserLocationResult> locate() async {
     try {

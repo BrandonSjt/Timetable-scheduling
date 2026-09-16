@@ -9,9 +9,11 @@ class AssistantVoicePanel extends StatelessWidget {
     super.key,
     required this.state,
     required this.onTap,
+    this.transcript,
   });
 
   final AssistantInteractionState state;
+  final String? transcript;
   final VoidCallback? onTap;
 
   @override
@@ -49,6 +51,24 @@ class AssistantVoicePanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
+          if (transcript != null &&
+              transcript!.isNotEmpty &&
+              (state == AssistantInteractionState.listening ||
+                  state == AssistantInteractionState.processing)) ...[
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                transcript!,
+                key: const Key('assistant-transcript-preview'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           Semantics(
             button: true,
             enabled: onTap != null,
@@ -172,8 +192,8 @@ class _VoicePresentation {
         color: AppColors.statusGreen,
       ),
       AssistantInteractionState.confirmation => _VoicePresentation(
-        prompt: l10n.voiceNeedsConfirmation,
-        description: l10n.voiceChooseActionBeforeRoute,
+        prompt: l10n.assistantVoiceAnswerReady,
+        description: l10n.assistantVoiceAnswerReadyDescription,
         semanticLabel: l10n.voiceStartNewConversation,
         icon: Icons.mic_rounded,
         color: AppColors.primaryBlue,

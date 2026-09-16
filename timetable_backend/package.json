@@ -9,6 +9,8 @@
     "smoke:production": "node scripts/smoke-production.mjs",
     "benchmark": "node scripts/benchmark.mjs",
     "timetable:import": "tsx prisma/importTimetable.ts",
+    "timetable:audit": "tsx scripts/audit-timetable.ts",
+    "timetable:audit-api": "tsx scripts/audit-timetable-api.ts",
     "start": "node dist/app.js",
     "dev": "tsx watch src/app.ts"
   },
