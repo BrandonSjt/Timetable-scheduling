@@ -6,8 +6,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: timetable_db
-    ports:
-      - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+    networks:
+      - database
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -38,6 +38,9 @@ services:
       - GEMINI_VISION_MODEL=${GEMINI_VISION_MODEL:-gemini-3.5-flash-lite}
     ports:
       - "${HOST_BIND_IP:-0.0.0.0}:${HOST_PORT:-3000}:3000"
+    networks:
+      - frontend
+      - database
     depends_on:
       setup:
         condition: service_completed_successfully
@@ -58,6 +61,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - database
+
+networks:
+  frontend:
+  database:
+    internal: true
 
 volumes:
   pgdata:
