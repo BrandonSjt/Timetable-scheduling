@@ -3,8 +3,10 @@
 Docker Compose runs PostgreSQL, initializes the database, then starts the API.
 The API listens on port `3000` inside its container. The public host port is
 `HOST_PORT=3000` by default; set `HOST_PORT=8080` to publish port 8080 instead.
-`HOST_BIND_IP=0.0.0.0` binds that port on all host interfaces. PostgreSQL stays
-bound to `127.0.0.1` on `DB_HOST_PORT=5433` by default.
+`HOST_BIND_IP=0.0.0.0` binds that port on all host interfaces. PostgreSQL has no
+host port. The API and database use the private `database` network, and the API
+connects to PostgreSQL by its Compose service name at `db:5432`. The API also
+uses the `frontend` network for outbound provider requests.
 
 ## First deployment
 

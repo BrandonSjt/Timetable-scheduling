@@ -15,22 +15,23 @@ Express/TypeScript backend aligned with the Flutter project in `KAIACCES/timetab
 
 The fare engine is currently a product estimate (`Rp3.000` base plus route bands). Replace it with an official operator fare source before production sales.
 
-## Local setup
+## Local setup with Docker Compose
 
 ```powershell
-npm install
 Copy-Item .env.example .env
 # Set POSTGRES_PASSWORD, JWT_SECRET, and TICKET_QR_SECRET in .env first.
-# For local npm commands, put the same PostgreSQL password in DATABASE_URL.
-docker compose up -d db
-npx prisma migrate deploy
-npx prisma generate
-npx prisma db seed
-npm run timetable:import -- prisma/data/commuter-2026-02.json
-npm run dev
+docker compose up -d --build --wait --wait-timeout 300
 ```
 
-The bundled PostgreSQL container is published on `localhost:5433`. API documentation is available at [http://localhost:3000/api-docs](http://localhost:3000/api-docs), and health status at `GET /health`.
+Compose initializes the database and starts the API. Only the backend port is
+published to the host. PostgreSQL is reachable from the backend and setup
+containers as `db:5432` on a private Docker network. API documentation is
+available at [http://localhost:3000/api-docs](http://localhost:3000/api-docs),
+and health status at `GET /health`.
+
+To run `npm` and Prisma commands directly on the host, install a separate local
+PostgreSQL instance and set `.env` `DATABASE_URL` to its host address and port.
+The bundled Compose database is not accessible from the host.
 
 For server deployment with Docker Compose, configurable host port, one-time
 database setup, and HTTPS guidance, see [Deployment](docs/DEPLOYMENT.md).
