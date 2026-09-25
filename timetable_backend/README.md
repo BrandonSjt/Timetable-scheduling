@@ -20,6 +20,8 @@ The fare engine is currently a product estimate (`Rp3.000` base plus route bands
 ```powershell
 npm install
 Copy-Item .env.example .env
+# Set POSTGRES_PASSWORD, JWT_SECRET, and TICKET_QR_SECRET in .env first.
+# For local npm commands, put the same PostgreSQL password in DATABASE_URL.
 docker compose up -d db
 npx prisma migrate deploy
 npx prisma generate
@@ -29,6 +31,9 @@ npm run dev
 ```
 
 The bundled PostgreSQL container is published on `localhost:5433`. API documentation is available at [http://localhost:3000/api-docs](http://localhost:3000/api-docs), and health status at `GET /health`.
+
+For server deployment with Docker Compose, configurable host port, one-time
+database setup, and HTTPS guidance, see [Deployment](docs/DEPLOYMENT.md).
 
 For Android Emulator use `http://10.0.2.2:3000` as the Flutter base URL. A physical phone must use the development computer's LAN address, for example `http://192.168.1.20:3000`; allow port 3000 through the local firewall only on trusted networks.
 
