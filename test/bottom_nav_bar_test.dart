@@ -33,6 +33,31 @@ Widget _localized(
 void main() {
   final indicator = find.byKey(const ValueKey('bottom-nav-active-indicator'));
 
+  testWidgets('four short rounded side separators replace the boxed borders', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_localized(const AppBottomNavBar(currentIndex: 3)));
+    for (var index = 0; index < 4; index++) {
+      final finder = find.byKey(ValueKey('bottom-nav-item-separator-$index'));
+      expect(finder, findsOneWidget);
+      final decoration =
+          tester.widget<Container>(finder).decoration! as BoxDecoration;
+      expect(decoration.color, AppColors.textHint.withValues(alpha: 0.4));
+      expect(decoration.borderRadius, BorderRadius.circular(1));
+      expect(tester.getSize(finder), const Size(1, 28));
+    }
+    expect(
+      find.byKey(const ValueKey('bottom-nav-item-separator-4')),
+      findsNothing,
+    );
+    for (var index = 0; index < 5; index++) {
+      expect(
+        find.byKey(ValueKey('bottom-nav-item-border-$index')),
+        findsNothing,
+      );
+    }
+  });
+
   testWidgets('navbar has no full-width top border', (tester) async {
     await tester.pumpWidget(_localized(const AppBottomNavBar(currentIndex: 0)));
 
@@ -47,41 +72,38 @@ void main() {
     expect((container.decoration! as BoxDecoration).border, isNull);
   });
 
-  testWidgets('short rounded indicator follows only the active tab', (
-    tester,
-  ) async {
-    const labels = ['Beranda', 'Jadwal', 'Tiket', 'Asisten', 'Akun'];
-    for (var index = 0; index < labels.length; index++) {
-      await tester.pumpWidget(_localized(AppBottomNavBar(currentIndex: index)));
-      await tester.pumpAndSettle();
+  testWidgets(
+    'active tab keeps purple icon and label without a top indicator',
+    (tester) async {
+      const labels = ['Beranda', 'Jadwal', 'Tiket', 'Asisten', 'Akun'];
+      for (var index = 0; index < labels.length; index++) {
+        await tester.pumpWidget(
+          _localized(AppBottomNavBar(currentIndex: index)),
+        );
+        await tester.pumpAndSettle();
 
-      expect(indicator, findsOneWidget);
-      expect(tester.getSize(indicator), const Size(32, 3));
-      expect(
-        tester.getCenter(indicator).dx,
-        tester.getCenter(find.text(labels[index])).dx,
-      );
-      expect(
-        tester.getTopLeft(indicator).dy,
-        tester.getTopLeft(find.byType(AppBottomNavBar)).dy,
-      );
-      final decoration =
-          tester.widget<DecoratedBox>(indicator).decoration as BoxDecoration;
-      expect(decoration.color, AppColors.primaryPurple);
-      expect(decoration.borderRadius, BorderRadius.circular(2));
+        expect(indicator, findsNothing);
+        final activeLabel = tester.widget<Text>(find.text(labels[index]));
+        expect(activeLabel.style!.color, AppColors.primaryPurple);
+        expect(activeLabel.style!.fontWeight, FontWeight.w700);
 
-      final icons = find.descendant(
-        of: find.byType(AppBottomNavBar),
-        matching: find.byType(Icon),
-      );
-      final iconY = tester.getCenter(icons.first).dy;
-      for (var i = 0; i < labels.length; i++) {
-        expect(tester.getCenter(icons.at(i)).dy, iconY);
+        final icons = find.descendant(
+          of: find.byType(AppBottomNavBar),
+          matching: find.byType(Icon),
+        );
+        final iconY = tester.getCenter(icons.first).dy;
+        for (var i = 0; i < labels.length; i++) {
+          expect(tester.getCenter(icons.at(i)).dy, iconY);
+          expect(
+            tester.widget<Icon>(icons.at(i)).color,
+            i == index ? AppColors.primaryPurple : AppColors.textHint,
+          );
+        }
       }
-    }
-  });
+    },
+  );
 
-  testWidgets('indicator fits small screens, large text, and every locale', (
+  testWidgets('navbar fits small screens, large text, and every locale', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(320, 640);
@@ -101,11 +123,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull, reason: locale.toString());
-      expect(indicator, findsOneWidget);
-      expect(
-        tester.getCenter(indicator).dx,
-        tester.getCenter(find.byIcon(Icons.confirmation_num_rounded)).dx,
-      );
+      expect(indicator, findsNothing);
       expect(tester.getSize(find.byType(AppBottomNavBar)).height, 124);
       final targets = find.descendant(
         of: find.byType(AppBottomNavBar),
@@ -172,10 +190,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('timetable route'), findsOneWidget);
-    expect(indicator, findsOneWidget);
-    expect(
-      tester.getCenter(indicator).dx,
-      tester.getCenter(find.text('Jadwal')).dx,
-    );
+    expect(indicator, findsNothing);
+    expect(find.byIcon(Icons.calendar_month_rounded), findsOneWidget);
   });
 }

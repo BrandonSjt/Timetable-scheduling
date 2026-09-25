@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,6 +10,7 @@ import '../controllers/assistant_conversation_controller.dart';
 import '../models/assistant_copy.dart';
 import '../../../travel_alarm/presentation/models/travel_alarm_copy.dart';
 import '../../data/repositories/assistant_chat_repository_impl.dart';
+import '../../domain/repositories/assistant_chat_repository.dart';
 import '../widgets/assistant_composer.dart';
 import '../widgets/assistant_conversation_timeline.dart';
 import '../widgets/assistant_quick_actions.dart';
@@ -58,8 +57,8 @@ class _AssistantPageState extends State<AssistantPage>
           alarmController: _alarmController,
           chatRepository: AssistantChatRepositoryImpl(),
         );
+    _controller.onTranscript = _submitMessage;
     _lastConversationItemCount = _conversationController.items.length;
-    _controller.setTranscriptSubmitter(_submitVoiceTranscript);
     WidgetsBinding.instance.addObserver(this);
     _controller.addListener(_handleVoiceControllerChange);
     _conversationController.addListener(_handleConversationChange);
@@ -72,14 +71,13 @@ class _AssistantPageState extends State<AssistantPage>
     _controller.removeListener(_handleVoiceControllerChange);
     _conversationController.removeListener(_handleConversationChange);
     _alarmController.removeListener(_handleAlarmChange);
-    _controller.clearTranscriptSubmitter();
+    _controller.cancelConversation();
+    _controller.onTranscript = null;
+    if (_controller.wakeWordEnabled) {
+      _controller.toggleWakeWord(false);
+    }
     if (_ownsController) {
       _controller.dispose();
-    } else {
-      unawaited(() async {
-        await _controller.toggleWakeWord(false);
-        await _controller.pauseForLifecycle();
-      }());
     }
     if (_ownsConversationController) {
       _conversationController.dispose();
@@ -96,10 +94,8 @@ class _AssistantPageState extends State<AssistantPage>
     super.didChangeDependencies();
     final l10n = AppLocalizations.of(context)!;
     final copy = AssistantCopy.fromL10n(l10n);
-    _controller.configure(
-      copy,
-      languageCode: Localizations.localeOf(context).languageCode,
-    );
+    _controller.configure(copy);
+    _controller.languageCode = Localizations.localeOf(context).languageCode;
     _conversationController.configure(copy);
     _alarmController.configure(TravelAlarmCopy.fromL10n(l10n));
   }
@@ -108,12 +104,36 @@ class _AssistantPageState extends State<AssistantPage>
     if (mounted) setState(() {});
   }
 
-  Future<String?> _submitVoiceTranscript(String transcript) {
-    if (!mounted) return Future<String?>.value();
-    return _conversationController.submitText(
-      transcript,
-      lang: Localizations.localeOf(context).languageCode,
+  Future<String?> _submitMessage(String text) async {
+    final reply = await _conversationController.submitText(
+      text,
+      lang: _controller.languageCode,
     );
+    if (!mounted) return null;
+    if (reply != null) _controller.setResponse(reply);
+    if (reply == null && _conversationController.lastErrorCode != null) {
+      throw AssistantChatException(_conversationController.lastErrorCode!);
+    }
+    return reply;
+  }
+
+  void _submitTypedMessage(String text) async {
+    _controller.stopSpeaking();
+    try {
+      await _submitMessage(text);
+    } on AssistantChatException {
+      // Provider error is already rendered in the shared chat timeline.
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // An Android permission dialog may temporarily make the app inactive.
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      _controller.cancelConversation();
+    }
   }
 
   void _handleConversationChange() {
@@ -133,20 +153,6 @@ class _AssistantPageState extends State<AssistantPage>
   @override
   void didChangeMetrics() {
     _scheduleScrollToLatest(onlyWhenNearBottom: true);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      unawaited(_controller.resumeFromLifecycle());
-      return;
-    }
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused ||
-        state == AppLifecycleState.hidden ||
-        state == AppLifecycleState.detached) {
-      unawaited(_controller.pauseForLifecycle());
-    }
   }
 
   void _scheduleScrollToLatest({bool onlyWhenNearBottom = false}) {
@@ -185,6 +191,7 @@ class _AssistantPageState extends State<AssistantPage>
   }
 
   VoidCallback? get _voiceAction {
+    if (_conversationController.isSending) return null;
     return switch (_controller.state) {
       AssistantInteractionState.ready ||
       AssistantInteractionState.confirmation ||
@@ -249,8 +256,23 @@ class _AssistantPageState extends State<AssistantPage>
                     const SizedBox(height: 12),
                     AssistantVoicePanel(
                       state: _controller.state,
+                      transcript: _controller.userTranscript,
                       onTap: _voiceAction,
                     ),
+                    if (_controller.errorCode != null) ...[
+                      const SizedBox(height: 10),
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          _voiceErrorText(context),
+                          key: const Key('assistant-voice-error'),
+                          style: const TextStyle(
+                            color: AppColors.statusRed,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
                     if (_conversationController.items.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       AssistantConversationTimeline(
@@ -262,6 +284,51 @@ class _AssistantPageState extends State<AssistantPage>
                         onConfirmRoute: _confirmRoute,
                         onRepeatRoute: _controller.repeatResponse,
                         onCancelRoute: _controller.cancelConversation,
+                      ),
+                    ],
+                    if (_conversationController.isSending) ...[
+                      const SizedBox(height: 12),
+                      Semantics(
+                        liveRegion: true,
+                        label: AppLocalizations.of(
+                          context,
+                        )!.voiceRequestBeingProcessed,
+                        child: const LinearProgressIndicator(
+                          key: Key('assistant-chat-loading'),
+                          color: AppColors.primaryPurple,
+                        ),
+                      ),
+                    ],
+                    if (_controller.assistantResponse != null) ...[
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          OutlinedButton.icon(
+                            key: const Key('assistant-read-answer'),
+                            onPressed: _inputBusy
+                                ? null
+                                : _controller.repeatResponse,
+                            icon: const Icon(Icons.volume_up_outlined),
+                            label: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.assistantVoiceReadAnswer,
+                            ),
+                          ),
+                          if (_controller.state ==
+                              AssistantInteractionState.speaking)
+                            TextButton.icon(
+                              onPressed: _controller.stopSpeaking,
+                              icon: const Icon(Icons.stop_rounded),
+                              label: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.assistantVoiceStopReading,
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                     const SizedBox(height: 20),
@@ -310,10 +377,8 @@ class _AssistantPageState extends State<AssistantPage>
               ),
             ),
             AssistantComposer(
-              onSubmit: (text) => _conversationController.submitText(
-                text,
-                lang: Localizations.localeOf(context).languageCode,
-              ),
+              enabled: !_inputBusy,
+              onSubmit: _submitTypedMessage,
               onMicrophoneTap: _voiceAction,
               microphoneSemanticsLabel: _voiceSemanticsLabel(context),
             ),
@@ -322,6 +387,26 @@ class _AssistantPageState extends State<AssistantPage>
         ),
       ),
     );
+  }
+
+  bool get _inputBusy =>
+      _conversationController.isSending ||
+      _controller.state == AssistantInteractionState.listening ||
+      _controller.state == AssistantInteractionState.processing;
+
+  String _voiceErrorText(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (_controller.errorCode) {
+      'error_permission' ||
+      'error_permission_denied' => l10n.assistantVoicePermissionDenied,
+      'VOICE_LANGUAGE_UNAVAILABLE' => l10n.assistantVoiceLanguageUnavailable,
+      'VOICE_PLAYBACK_UNAVAILABLE' => l10n.assistantVoicePlaybackUnavailable,
+      'AI_QUOTA' => l10n.assistantAiQuota,
+      'AI_TIMEOUT' => l10n.assistantAiTimeout,
+      'AI_NOT_CONFIGURED' => l10n.assistantAiNotConfigured,
+      'AI_UNAVAILABLE' => l10n.assistantUnavailable,
+      _ => l10n.assistantVoiceUnavailable,
+    };
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -400,7 +485,7 @@ class _AssistantPageState extends State<AssistantPage>
       label: l10n.wakeWordMode,
       value: enabled ? l10n.active : l10n.inactive,
       toggled: enabled,
-      onTap: () => unawaited(_controller.toggleWakeWord(!enabled)),
+      enabled: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
         decoration: BoxDecoration(
@@ -436,7 +521,7 @@ class _AssistantPageState extends State<AssistantPage>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    enabled ? l10n.wakeWordActiveText : l10n.wakeWordPageOnly,
+                    l10n.assistantVoiceWakeWordUnavailable,
                     style: TextStyle(
                       color: enabled
                           ? AppColors.textPrimary
@@ -452,8 +537,7 @@ class _AssistantPageState extends State<AssistantPage>
               child: Switch(
                 key: const Key('wake-word-switch'),
                 value: enabled,
-                onChanged: (value) =>
-                    unawaited(_controller.toggleWakeWord(value)),
+                onChanged: null,
                 activeThumbColor: AppColors.statusGreen,
               ),
             ),

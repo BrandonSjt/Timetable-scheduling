@@ -15,10 +15,8 @@ class AssistantCopy {
     required this.destinationAlarmDisabled,
     required this.allAlarmsActive,
     required this.trainArrivesIn,
-    required this.voiceDestinationPrompt,
-    required this.voiceUnavailable,
-    required this.voiceNoSpeech,
-  });
+    String Function(String)? chatError,
+  }) : _chatError = chatError;
 
   factory AssistantCopy.fromL10n(AppLocalizations l10n) => AssistantCopy(
     unknownDestination: l10n.assistantUnknownDestination,
@@ -33,9 +31,12 @@ class AssistantCopy {
     destinationAlarmDisabled: l10n.assistantDestinationAlarmDisabled,
     allAlarmsActive: l10n.assistantAllAlarmsActive,
     trainArrivesIn: l10n.travelAlarmTrainArrivesIn,
-    voiceDestinationPrompt: l10n.assistantVoiceDestinationPrompt,
-    voiceUnavailable: l10n.assistantVoiceUnavailable,
-    voiceNoSpeech: l10n.assistantVoiceNoSpeech,
+    chatError: (code) => switch (code) {
+      'AI_QUOTA' => l10n.assistantAiQuota,
+      'AI_TIMEOUT' => l10n.assistantAiTimeout,
+      'AI_NOT_CONFIGURED' => l10n.assistantAiNotConfigured,
+      _ => l10n.assistantUnavailable,
+    },
   );
 
   factory AssistantCopy.indonesian() =>
@@ -53,7 +54,6 @@ class AssistantCopy {
   final String destinationAlarmDisabled;
   final String allAlarmsActive;
   final String Function(int minutes) trainArrivesIn;
-  final String voiceDestinationPrompt;
-  final String voiceUnavailable;
-  final String voiceNoSpeech;
+  final String Function(String)? _chatError;
+  String chatError(String code) => _chatError?.call(code) ?? unavailable;
 }

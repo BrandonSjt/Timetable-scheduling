@@ -8,16 +8,21 @@ import '../../domain/entities/train_schedule.dart';
 import '../../domain/services/schedule_status.dart';
 import '../controllers/timetable_controller.dart';
 import '../widgets/schedule_card.dart';
+import '../../../search_station/data/datasources/station_remote_data_source.dart';
 
 class TimetablePage extends StatefulWidget {
-  const TimetablePage({super.key});
+  const TimetablePage({super.key, this.controller, this.stationDataSource});
+
+  final TimetableController? controller;
+  final StationRemoteDataSource? stationDataSource;
 
   @override
   State<TimetablePage> createState() => _TimetablePageState();
 }
 
 class _TimetablePageState extends State<TimetablePage> {
-  final TimetableController _controller = TimetableController();
+  late final TimetableController _controller =
+      widget.controller ?? TimetableController();
   late Future<List<TrainSchedule>> _schedulesFuture;
   late DateTime _now;
   Timer? _statusRefreshTimer;
@@ -30,36 +35,30 @@ class _TimetablePageState extends State<TimetablePage> {
       false; // false = Hari Kerja (Weekday), true = Akhir Pekan (Weekend)
 
   // Daftar Stasiun yang tersedia di peta skematik
-  final List<String> _stations = const [
-    'Semua Stasiun',
-    'Manggarai',
-    'Tanah Abang',
-    'Jakarta Kota',
-    'Jatinegara',
-    'Bekasi',
-    'Cikarang',
-    'Bogor',
-    'Depok',
-    'Citayam',
-    'Nambo',
-    'Rangkasbitung',
-    'Parung Panjang',
-    'Tangerang',
-    'Duri',
-    'Batu Ceper',
-    'Tanjung Priok',
-    'Setiabudi',
-    'Dukuh Atas',
-    'Bundaran HI',
-    'Lebak Bulus',
-    'Blok M',
-    'Cawang',
-    'Halim',
-    'Jati Mulya',
-    'Harjamukti',
-    'Pegangsaan Dua',
-    'Velodrome',
-  ];
+  List<String> _stations = ['Semua Stasiun'];
+  bool _stationCatalogUnavailable = false;
+  Future<void>? _stationCatalogRequest;
+
+  Future<void> _loadStationCatalog() => _stationCatalogRequest ??=
+      _fetchStationCatalog().whenComplete(() => _stationCatalogRequest = null);
+
+  Future<void> _fetchStationCatalog() async {
+    try {
+      final stations =
+          await (widget.stationDataSource ?? StationRemoteDataSource())
+              .getStations();
+      if (!mounted) return;
+      setState(() {
+        _stations = [
+          'Semua Stasiun',
+          ...stations.map((s) => s.name).toSet().toList()..sort(),
+        ];
+        _stationCatalogUnavailable = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _stationCatalogUnavailable = true);
+    }
+  }
 
   // Daftar Jenis Kereta
   final List<String> _trainTypes = const ['Semua', 'KRL', 'LRT', 'MRT'];
@@ -69,6 +68,7 @@ class _TimetablePageState extends State<TimetablePage> {
     super.initState();
     _now = DateTime.now();
     _loadSchedules();
+    unawaited(_loadStationCatalog());
     _statusRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) setState(() => _now = DateTime.now());
     });
@@ -81,6 +81,7 @@ class _TimetablePageState extends State<TimetablePage> {
   }
 
   void _loadSchedules() {
+    if (_stationCatalogUnavailable) unawaited(_loadStationCatalog());
     setState(() {
       _schedulesFuture = _controller.loadSchedules(
         station: _selectedStationFilter,
@@ -103,7 +104,9 @@ class _TimetablePageState extends State<TimetablePage> {
     }
   }
 
-  void _showStationPickerSheet() {
+  Future<void> _showStationPickerSheet() async {
+    if (_stations.length == 1) await _loadStationCatalog();
+    if (!mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -124,7 +127,12 @@ class _TimetablePageState extends State<TimetablePage> {
                 color: AppColors.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                12,
+                20,
+                20 + MediaQuery.viewPaddingOf(context).bottom,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -163,6 +171,24 @@ class _TimetablePageState extends State<TimetablePage> {
                     ],
                   ),
                   const SizedBox(height: 12),
+                  if (_stationCatalogUnavailable)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(l10n.scheduleStationCatalogError),
+                        ),
+                        TextButton.icon(
+                          onPressed: () async {
+                            await _loadStationCatalog();
+                            if (context.mounted) setSheetState(() {});
+                          },
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: Text(l10n.actionRetry),
+                        ),
+                      ],
+                    ),
                   // Search Box di Bottom Sheet
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -205,46 +231,49 @@ class _TimetablePageState extends State<TimetablePage> {
                       itemBuilder: (context, index) {
                         final station = filteredStations[index];
                         final isSelected = _selectedStationFilter == station;
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          leading: Icon(
-                            station == 'Semua Stasiun'
-                                ? Icons.train_rounded
-                                : Icons.location_on_outlined,
-                            color: isSelected
-                                ? AppColors.primaryBlue
-                                : AppColors.textSecondary,
-                            size: 20,
-                          ),
-                          title: Text(
-                            station,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: isSelected
-                                  ? FontWeight.w800
-                                  : FontWeight.w600,
+                        return Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            leading: Icon(
+                              station == 'Semua Stasiun'
+                                  ? Icons.train_rounded
+                                  : Icons.location_on_outlined,
                               color: isSelected
                                   ? AppColors.primaryBlue
-                                  : AppColors.textPrimary,
+                                  : AppColors.textSecondary,
+                              size: 20,
                             ),
+                            title: Text(
+                              station,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                                color: isSelected
+                                    ? AppColors.primaryBlue
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                            trailing: isSelected
+                                ? const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: AppColors.primaryBlue,
+                                    size: 20,
+                                  )
+                                : null,
+                            onTap: () {
+                              setState(() {
+                                _selectedStationFilter = station;
+                              });
+                              _loadSchedules();
+                              Navigator.pop(context);
+                            },
                           ),
-                          trailing: isSelected
-                              ? const Icon(
-                                  Icons.check_circle_rounded,
-                                  color: AppColors.primaryBlue,
-                                  size: 20,
-                                )
-                              : null,
-                          onTap: () {
-                            setState(() {
-                              _selectedStationFilter = station;
-                            });
-                            _loadSchedules();
-                            Navigator.pop(context);
-                          },
                         );
                       },
                     ),
@@ -655,7 +684,9 @@ class _TimetablePageState extends State<TimetablePage> {
                                     s.stationName.toLowerCase().contains(q);
                               }).toList())
                         ..sort(
-                          (a, b) => a.departureTime.compareTo(b.departureTime),
+                          (a, b) => a.dayOffset.compareTo(b.dayOffset) != 0
+                              ? a.dayOffset.compareTo(b.dayOffset)
+                              : a.departureTime.compareTo(b.departureTime),
                         );
 
                   if (filteredSchedules.isEmpty) {
@@ -720,7 +751,7 @@ class _TimetablePageState extends State<TimetablePage> {
                               SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  l10n.scheduleDatasetNote,
+                                  '${l10n.scheduleDatasetNote}${_selectedStationFilter == 'Semua Stasiun' ? '\n${l10n.scheduleAllServicesNote}' : ''}',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: AppColors.textSecondary,

@@ -44,11 +44,16 @@ void main() {
     expect(find.byKey(const Key('locate-user-progress')), findsOneWidget);
 
     completer.complete(
-      const UserCoordinates(latitude: -6.2102, longitude: 106.8499),
+      UserCoordinates(
+        latitude: -6.2102,
+        longitude: 106.8499,
+        accuracyMeters: 5,
+        timestamp: DateTime.now(),
+      ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Anda berada di dekat Stasiun Manggarai'), findsOneWidget);
+    expect(find.text('Kamu di sini · Dekat Stasiun Manggarai'), findsOneWidget);
     expect(find.textContaining('titik stasiun terdekat'), findsOneWidget);
   });
 
@@ -80,6 +85,16 @@ void main() {
 }
 
 class MapLocationGateway implements LocationGateway {
+  @override
+  Stream<UserCoordinates> watchPosition() => Stream.multi((controller) {
+    currentPosition.then((value) {
+      if (!controller.isClosed && value != null) controller.add(value);
+    });
+  });
+
+  @override
+  Stream<bool> watchServiceEnabled() => const Stream.empty();
+
   MapLocationGateway({
     this.permission = AppLocationPermission.whileInUse,
     Future<UserCoordinates?>? currentPosition,

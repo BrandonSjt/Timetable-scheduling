@@ -9,6 +9,61 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get scheduleAllServicesNote => '所有车站为每趟列车显示一条时刻。选择车站可查看该站的全部发车时刻。';
+
+  @override
+  String get scheduleStationCatalogError => '未能加载车站列表。请重试以查看全部选项。';
+
+  @override
+  String get mapYouAreHere => '您在这里';
+
+  @override
+  String get mapLocationLoading => '正在查找您的位置…';
+
+  @override
+  String get mapLocationUnconfirmed => '尚无法确认车站。请靠近车站或尝试定位按钮。';
+
+  @override
+  String get mapLocationUnavailable => '当前定位不可用。请重试定位按钮。';
+
+  @override
+  String get assistantAiQuota => 'AI 配额暂时已满。请稍等后重试。';
+
+  @override
+  String get assistantAiTimeout => 'AI 未及时响应。请重新发送。';
+
+  @override
+  String get assistantAiNotConfigured => '服务器尚未配置 AI 服务。';
+
+  @override
+  String get assistantVoiceUnavailable => '语音输入不可用。请检查麦克风权限后重试。';
+
+  @override
+  String get assistantVoicePermissionDenied => '麦克风权限被拒绝。请在应用设置中开启权限，或输入文字。';
+
+  @override
+  String get assistantVoiceLanguageUnavailable =>
+      '设备暂不支持此语音识别语言。请检查语音语言设置，或输入文字。';
+
+  @override
+  String get assistantVoiceWakeWordUnavailable => '暂不支持。请点击麦克风说话。';
+
+  @override
+  String get assistantVoicePlaybackUnavailable => '暂时无法朗读回答。你仍可在聊天中阅读文字。';
+
+  @override
+  String get assistantVoiceReadAnswer => '朗读回答';
+
+  @override
+  String get assistantVoiceStopReading => '停止朗读';
+
+  @override
+  String get assistantVoiceAnswerReady => '回答已准备好';
+
+  @override
+  String get assistantVoiceAnswerReadyDescription => '在聊天中阅读回答，或选择语音朗读。';
+
+  @override
   String get languagePageTitle => '语言';
 
   @override
@@ -1783,9 +1838,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get assistantVoiceDestinationPrompt => '你好，你想去哪里？';
 
   @override
-  String get assistantVoiceUnavailable => '语音输入不可用。请检查麦克风权限后重试。';
-
-  @override
   String get assistantVoiceNoSpeech => '我没有听到你的目的地。请再说一次。';
 
   @override
@@ -2073,7 +2125,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String mapNearStation(String station) {
-    return '您位于 $station 站附近';
+    return '您在这里 · $station 站附近';
   }
 
   @override
@@ -2323,6 +2375,61 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   AppLocalizationsZhHans() : super('zh_Hans');
 
   @override
+  String get scheduleAllServicesNote => '所有车站为每趟列车显示一条时刻。选择车站可查看该站的全部发车时刻。';
+
+  @override
+  String get scheduleStationCatalogError => '未能加载车站列表。请重试以查看全部选项。';
+
+  @override
+  String get mapYouAreHere => '您在这里';
+
+  @override
+  String get mapLocationLoading => '正在查找您的位置…';
+
+  @override
+  String get mapLocationUnconfirmed => '尚无法确认车站。请靠近车站或尝试定位按钮。';
+
+  @override
+  String get mapLocationUnavailable => '当前定位不可用。请重试定位按钮。';
+
+  @override
+  String get assistantAiQuota => 'AI 配额暂时已满。请稍等后重试。';
+
+  @override
+  String get assistantAiTimeout => 'AI 未及时响应。请重新发送。';
+
+  @override
+  String get assistantAiNotConfigured => '服务器尚未配置 AI 服务。';
+
+  @override
+  String get assistantVoiceUnavailable => '语音输入不可用。请检查麦克风权限后重试。';
+
+  @override
+  String get assistantVoicePermissionDenied => '麦克风权限被拒绝。请在应用设置中开启权限，或输入文字。';
+
+  @override
+  String get assistantVoiceLanguageUnavailable =>
+      '设备暂不支持此语音识别语言。请检查语音语言设置，或输入文字。';
+
+  @override
+  String get assistantVoiceWakeWordUnavailable => '暂不支持。请点击麦克风说话。';
+
+  @override
+  String get assistantVoicePlaybackUnavailable => '暂时无法朗读回答。你仍可在聊天中阅读文字。';
+
+  @override
+  String get assistantVoiceReadAnswer => '朗读回答';
+
+  @override
+  String get assistantVoiceStopReading => '停止朗读';
+
+  @override
+  String get assistantVoiceAnswerReady => '回答已准备好';
+
+  @override
+  String get assistantVoiceAnswerReadyDescription => '在聊天中阅读回答，或选择语音朗读。';
+
+  @override
   String get languagePageTitle => '语言';
 
   @override
@@ -4097,9 +4204,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get assistantVoiceDestinationPrompt => '你好，你想去哪里？';
 
   @override
-  String get assistantVoiceUnavailable => '语音输入不可用。请检查麦克风权限后重试。';
-
-  @override
   String get assistantVoiceNoSpeech => '我没有听到你的目的地。请再说一次。';
 
   @override
@@ -4387,7 +4491,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String mapNearStation(String station) {
-    return '您位于 $station 站附近';
+    return '您在这里 · $station 站附近';
   }
 
   @override

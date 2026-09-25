@@ -21,11 +21,11 @@
 
 **Interfaces:** Input: `HEAD` and `riqqi15/dev1-riyadh`. Output: a merge commit containing both parents.
 
-- [ ] Run `git status --porcelain` and confirm the checkout is clean.
-- [ ] Run `git merge --no-ff --no-commit -X theirs riqqi15/dev1-riyadh`.
-- [ ] Inspect `git diff --check`, unresolved paths, and changes to the benchmark/observability files.
-- [ ] Resolve remaining conflicts with Riqqi's voice behavior and compatible backend timing in mind.
-- [ ] Commit the merge only after validation tasks pass.
+- [x] Run `git status --porcelain` and confirm the checkout is clean.
+- [x] Run `git merge --no-ff --no-commit -X theirs riqqi15/dev1-riyadh`.
+- [x] Inspect `git diff --check`, unresolved paths, and changes to the benchmark/observability files.
+- [x] Resolve remaining conflicts with Riqqi's voice behavior and compatible backend timing in mind.
+- [x] Commit the merge only after validation tasks pass.
 
 ### Task 2: Validate backend integration
 
@@ -33,10 +33,10 @@
 
 **Interfaces:** Keep public API responses, benchmark timing phases, and station/timetable queries valid.
 
-- [ ] Run `npm run build` in `timetable_backend`; record compiler failures.
-- [ ] Run backend unit tests without changing database configuration.
-- [ ] Repair source-code failures with focused tests; rerun build and tests.
-- [ ] Confirm `scripts/benchmark.mjs`, timing middleware, and package script still exist.
+- [x] Run `npm run build` in `timetable_backend`; record compiler failures.
+- [x] Run backend unit tests without changing database configuration.
+- [x] Repair source-code failures with focused tests; rerun build and tests.
+- [x] Confirm `scripts/benchmark.mjs`, timing middleware, and package script still exist.
 
 ### Task 3: Validate Flutter integration and close merge
 
@@ -44,8 +44,10 @@
 
 **Interfaces:** Riqqi's speech recognizer/controller contract must match page and test callers.
 
-- [ ] Run dependency resolution and `flutter analyze` if Flutter is installed; otherwise record the tool limitation.
-- [ ] Run focused assistant and timetable tests when the Flutter toolchain is available.
-- [ ] Inspect merged Dart files for stale wake-word calls or duplicate voice handling.
-- [ ] Confirm `git merge-base --is-ancestor` succeeds for both source branch tips.
-- [ ] Confirm a clean worktree and report any tests that require the production database.
+- [x] Run dependency resolution and `flutter analyze` if Flutter is installed; otherwise record the tool limitation.
+- [x] Run focused assistant and timetable tests when the Flutter toolchain is available.
+- [x] Inspect merged Dart files for stale wake-word calls or duplicate voice handling.
+- [x] Confirm `git merge-base --is-ancestor` succeeds for both source branch tips.
+- [x] Confirm a clean worktree and report tests that require a configured dataset database.
+
+Backend tests: 89/98 passed; nine database-backed tests require `DATABASE_URL`. Flutter tests: 271/271 passed. Flutter package download succeeded, though Windows symlink setup returned a warning; analysis and tests passed with `--no-pub`.

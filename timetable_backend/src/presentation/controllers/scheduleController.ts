@@ -7,7 +7,7 @@ import {
   stationDisplayName,
 } from '../../domain/services/stationIdentity';
 import { beginTiming, measurePhase } from '../../infrastructure/observability/requestTiming';
-import { findStationInCatalog, getStationCatalog } from '../../domain/services/stationCatalogService';
+import { RouteService } from '../../domain/services/routeService';
 import { getTimetableReadModel, queryTimetableReadModel } from '../../domain/services/timetableReadModel';
 
 const querySchema = z.object({
@@ -32,21 +32,70 @@ const formatMinute = (value: number) =>
 export const getSchedules = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = querySchema.safeParse(req.query);
-    if (!parsed.success || (!parsed.data.stationId && !parsed.data.station)) {
+    if (!parsed.success) {
       throw new ApiError(
         400,
-        'stationId or station name/code is required',
+        'Invalid schedule filters',
         'VALIDATION_ERROR',
         parsed.success ? undefined : parsed.error.issues,
       );
     }
     const { stationId, station, trainType, isWeekend, departureFrom, departureTo, page, limit } = parsed.data;
+    // Without a station, list every PDF service once at its initial station.
+    // Station queries below continue listing all timed departures at that station.
+    if (!stationId && !station && trainType !== 'LRT' && trainType !== 'MRT') {
+      const dataset = await prisma.timetableDataset.findFirst({ where: { isActive: true } });
+      if (!dataset) throw new ApiError(503, 'No active KRL timetable dataset', 'TIMETABLE_UNAVAILABLE');
+      const where = {
+        datasetId: dataset.id,
+        calendar: { code: { in: isWeekend === 'true' ? ['DAILY'] : ['DAILY', 'WEEKDAY'] } },
+        ...(departureFrom || departureTo ? { stops: { some: {
+          sequence: 1,
+          departureMinute: {
+            ...(departureFrom ? { gte: toMinute(departureFrom) } : {}),
+            ...(departureTo ? { lte: toMinute(departureTo) } : {}),
+          },
+        } } } : {}),
+      };
+      const [services, total] = await prisma.$transaction([
+        prisma.trainService.findMany({
+          where, skip: (page - 1) * limit, take: limit,
+          orderBy: [{ trainNumber: 'asc' }, { id: 'asc' }],
+          include: {
+            calendar: { select: { code: true } },
+            stops: {
+              where: { isPassThrough: false, departureMinute: { not: null } },
+              orderBy: { sequence: 'asc' },
+              include: { station: { select: { id: true, name: true, officialName: true, slug: true, operationalCode: true } } },
+            },
+          },
+        }),
+        prisma.trainService.count({ where }),
+      ]);
+      res.json({ success: true, data: services.map((service) => {
+        const first = service.stops[0];
+        const last = service.stops.at(-1);
+        if (!first || !last) throw new ApiError(500, 'Timetable service has no timed stops', 'TIMETABLE_INVALID');
+        const departure = first.departureMinute!;
+        return {
+          id: service.id, trainName: `KA ${service.trainNumber}`, trainNumber: service.trainNumber,
+          continuationTrainNumber: service.continuationTrainNumber,
+          route: `${stationDisplayName(first.station)} - ${stationDisplayName(last.station)}`,
+          departureTime: formatMinute(departure), arrivalTime: formatMinute(last.arrivalMinute ?? departure),
+          dayOffset: Math.floor(departure / 1440), platform: '', trainType: 'KRL',
+          isWeekend: isWeekend === 'true', calendarCode: service.calendar.code, lineSlug: service.lineSlug,
+          station: { ...first.station, name: stationDisplayName(first.station) },
+        };
+      }), meta: { page, limit, total, datasetVersion: dataset.version, scope: 'services' } });
+      return;
+    }
     const finishCatalog = beginTiming('schedule_catalog');
-    const [catalog, readModel] = await Promise.all([
-      getStationCatalog(),
-      trainType !== 'LRT' && trainType !== 'MRT' ? getTimetableReadModel() : null,
-    ]);
-    const timetableStation = findStationInCatalog(catalog, stationId ?? station!);
+    const timetableStation = stationId || station
+      ? await RouteService.resolveStation(stationId ?? station!)
+      : null;
+    const readModel = timetableStation?.isKrl && trainType !== 'LRT' && trainType !== 'MRT'
+      ? await getTimetableReadModel()
+      : null;
     finishCatalog();
 
     const expectsCommuterTimetable = timetableStation?.isKrl
@@ -71,39 +120,34 @@ export const getSchedules = async (req: Request, res: Response, next: NextFuncti
       res.json({
         success: true,
         data: result.departures.map((departure) => ({
-          id: departure.id,
-          trainName: `KA ${departure.trainNumber}`,
-          trainNumber: departure.trainNumber,
-          continuationTrainNumber: departure.continuationTrainNumber,
-          route: departure.route,
-          departureTime: formatMinute(departure.departureMinute),
-          arrivalTime: formatMinute(departure.arrivalMinute),
-          dayOffset: Math.floor(departure.departureMinute / 1440),
-          platform: departure.platform,
-          trainType: 'KRL',
-          isWeekend: isWeekend === 'true',
-          calendarCode: departure.calendarCode,
-          lineSlug: departure.lineSlug,
-          station: {
-            id: timetableStation.id,
-            slug: timetableStation.slug,
-            name: stationDisplayName(timetableStation),
-            operationalCode: timetableStation.operationalCode,
-          },
+            id: departure.id,
+            trainName: `KA ${departure.trainNumber}`,
+            trainNumber: departure.trainNumber,
+            continuationTrainNumber: departure.continuationTrainNumber,
+            route: departure.route,
+            departureTime: formatMinute(departure.departureMinute),
+            arrivalTime: formatMinute(departure.arrivalMinute),
+            dayOffset: Math.floor(departure.departureMinute / 1440),
+            platform: departure.platform,
+            trainType: 'KRL',
+            isWeekend: isWeekend === 'true',
+            calendarCode: departure.calendarCode,
+            lineSlug: departure.lineSlug,
+            station: {
+              id: timetableStation.id,
+              slug: timetableStation.slug,
+              name: stationDisplayName(timetableStation),
+              operationalCode: timetableStation.operationalCode,
+            },
         })),
-        meta: {
-          page,
-          limit,
-          total: result.total,
-          datasetVersion: readModel.datasetVersion,
-        },
+        meta: { page, limit, total: result.total, datasetVersion: readModel.datasetVersion },
       });
       return;
     }
 
     const where = {
-      ...(stationId ? { stationId } : {}),
-      ...(station
+        ...(timetableStation ? { stationId: timetableStation.id } : {}),
+      ...(!timetableStation && station
         ? {
             station: {
               OR: [

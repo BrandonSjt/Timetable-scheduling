@@ -81,6 +81,12 @@ class LocationException implements Exception {
 }
 
 class FakeLocationGateway implements LocationGateway {
+  @override
+  Stream<UserCoordinates> watchPosition() => const Stream.empty();
+
+  @override
+  Stream<bool> watchServiceEnabled() => const Stream.empty();
+
   FakeLocationGateway({
     this.serviceEnabled = true,
     this.checkedPermission = AppLocationPermission.whileInUse,

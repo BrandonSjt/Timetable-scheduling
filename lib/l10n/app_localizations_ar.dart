@@ -9,6 +9,73 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get scheduleAllServicesNote =>
+      'تعرض جميع المحطات جدولاً واحداً لكل رحلة قطار. اختر محطة لعرض جميع رحلات المغادرة منها.';
+
+  @override
+  String get scheduleStationCatalogError =>
+      'تعذر تحميل قائمة المحطات. حاول مرة أخرى لعرض جميع الخيارات.';
+
+  @override
+  String get mapYouAreHere => 'أنت هنا';
+
+  @override
+  String get mapLocationLoading => 'جارٍ تحديد موقعك…';
+
+  @override
+  String get mapLocationUnconfirmed =>
+      'لم يتم تأكيد المحطة. اقترب أو جرّب زر الموقع.';
+
+  @override
+  String get mapLocationUnavailable =>
+      'الموقع الحالي غير متاح. جرّب زر الموقع مرة أخرى.';
+
+  @override
+  String get assistantAiQuota =>
+      'حصة الذكاء الاصطناعي مشغولة. انتظر قليلاً ثم حاول مجددًا.';
+
+  @override
+  String get assistantAiTimeout =>
+      'لم يرد الذكاء الاصطناعي في الوقت المحدد. حاول الإرسال مجددًا.';
+
+  @override
+  String get assistantAiNotConfigured =>
+      'لم يتم إعداد خدمة الذكاء الاصطناعي على الخادم.';
+
+  @override
+  String get assistantVoiceUnavailable =>
+      'الإدخال الصوتي غير متاح. تحقق من إذن الميكروفون وحاول مرة أخرى.';
+
+  @override
+  String get assistantVoicePermissionDenied =>
+      'تم رفض إذن الميكروفون. فعّله في إعدادات التطبيق أو اكتب رسالة.';
+
+  @override
+  String get assistantVoiceLanguageUnavailable =>
+      'لغة التعرف على الكلام غير متاحة على جهازك. تحقق من إعدادات اللغة أو اكتب رسالة.';
+
+  @override
+  String get assistantVoiceWakeWordUnavailable =>
+      'غير متاح بعد. اضغط على الميكروفون للتحدث.';
+
+  @override
+  String get assistantVoicePlaybackUnavailable =>
+      'لا يمكن قراءة الإجابة بصوت عالٍ الآن. ما زال بإمكانك قراءتها في الدردشة.';
+
+  @override
+  String get assistantVoiceReadAnswer => 'قراءة الإجابة بصوت عالٍ';
+
+  @override
+  String get assistantVoiceStopReading => 'إيقاف القراءة';
+
+  @override
+  String get assistantVoiceAnswerReady => 'الإجابة جاهزة';
+
+  @override
+  String get assistantVoiceAnswerReadyDescription =>
+      'اقرأ الإجابة في الدردشة أو اختر سماعها بصوت عالٍ.';
+
+  @override
   String get languagePageTitle => 'لغة';
 
   @override
@@ -1835,10 +1902,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assistantVoiceDestinationPrompt => 'مرحبًا، إلى أين تريد السفر؟';
 
   @override
-  String get assistantVoiceUnavailable =>
-      'الإدخال الصوتي غير متاح. تحقق من إذن الميكروفون وحاول مرة أخرى.';
-
-  @override
   String get assistantVoiceNoSpeech => 'لم أسمع وجهتك. يرجى قولها مرة أخرى.';
 
   @override
@@ -2133,7 +2196,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String mapNearStation(String station) {
-    return 'أنت بالقرب من محطة $station';
+    return 'أنت هنا · بالقرب من محطة $station';
   }
 
   @override

@@ -103,6 +103,114 @@ abstract class AppLocalizations {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
   ];
 
+  /// No description provided for @scheduleAllServicesNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua Stasiun menampilkan satu jadwal per perjalanan KA. Pilih stasiun untuk seluruh keberangkatan di stasiun tersebut.'**
+  String get scheduleAllServicesNote;
+
+  /// No description provided for @scheduleStationCatalogError.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar stasiun belum berhasil dimuat. Coba lagi untuk melihat semua pilihan.'**
+  String get scheduleStationCatalogError;
+
+  /// No description provided for @mapYouAreHere.
+  ///
+  /// In id, this message translates to:
+  /// **'Kamu di sini'**
+  String get mapYouAreHere;
+
+  /// No description provided for @mapLocationLoading.
+  ///
+  /// In id, this message translates to:
+  /// **'Mencari lokasi kamu…'**
+  String get mapLocationLoading;
+
+  /// No description provided for @mapLocationUnconfirmed.
+  ///
+  /// In id, this message translates to:
+  /// **'Stasiun belum dapat dipastikan. Dekati stasiun atau coba tombol lokasi.'**
+  String get mapLocationUnconfirmed;
+
+  /// No description provided for @mapLocationUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi terkini belum tersedia. Coba tombol lokasi lagi.'**
+  String get mapLocationUnavailable;
+
+  /// No description provided for @assistantAiQuota.
+  ///
+  /// In id, this message translates to:
+  /// **'Kuota AI sedang penuh. Tunggu sebentar lalu coba lagi ya.'**
+  String get assistantAiQuota;
+
+  /// No description provided for @assistantAiTimeout.
+  ///
+  /// In id, this message translates to:
+  /// **'AI belum merespons tepat waktu. Coba kirim lagi ya.'**
+  String get assistantAiTimeout;
+
+  /// No description provided for @assistantAiNotConfigured.
+  ///
+  /// In id, this message translates to:
+  /// **'Layanan AI belum dikonfigurasi di server.'**
+  String get assistantAiNotConfigured;
+
+  /// No description provided for @assistantVoiceUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Fitur suara tidak tersedia. Periksa izin mikrofon lalu coba lagi.'**
+  String get assistantVoiceUnavailable;
+
+  /// No description provided for @assistantVoicePermissionDenied.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin mikrofon ditolak. Aktifkan izin di pengaturan aplikasi atau ketik pesan.'**
+  String get assistantVoicePermissionDenied;
+
+  /// No description provided for @assistantVoiceLanguageUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Bahasa pengenalan suara belum tersedia di perangkat. Periksa pengaturan bahasa suara atau ketik pesan.'**
+  String get assistantVoiceLanguageUnavailable;
+
+  /// No description provided for @assistantVoiceWakeWordUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum tersedia. Ketuk mikrofon untuk berbicara.'**
+  String get assistantVoiceWakeWordUnavailable;
+
+  /// No description provided for @assistantVoicePlaybackUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Jawaban belum bisa dibacakan. Kamu tetap bisa melihat teksnya di chat.'**
+  String get assistantVoicePlaybackUnavailable;
+
+  /// No description provided for @assistantVoiceReadAnswer.
+  ///
+  /// In id, this message translates to:
+  /// **'Bacakan jawaban'**
+  String get assistantVoiceReadAnswer;
+
+  /// No description provided for @assistantVoiceStopReading.
+  ///
+  /// In id, this message translates to:
+  /// **'Hentikan suara'**
+  String get assistantVoiceStopReading;
+
+  /// No description provided for @assistantVoiceAnswerReady.
+  ///
+  /// In id, this message translates to:
+  /// **'Jawaban siap'**
+  String get assistantVoiceAnswerReady;
+
+  /// No description provided for @assistantVoiceAnswerReadyDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat jawaban di chat atau pilih untuk membacakannya.'**
+  String get assistantVoiceAnswerReadyDescription;
+
   /// No description provided for @languagePageTitle.
   ///
   /// In id, this message translates to:
@@ -3439,12 +3547,6 @@ abstract class AppLocalizations {
   /// **'Halo, kamu mau melakukan perjalanan ke mana?'**
   String get assistantVoiceDestinationPrompt;
 
-  /// No description provided for @assistantVoiceUnavailable.
-  ///
-  /// In id, this message translates to:
-  /// **'Fitur suara tidak tersedia. Periksa izin mikrofon lalu coba lagi.'**
-  String get assistantVoiceUnavailable;
-
   /// No description provided for @assistantVoiceNoSpeech.
   ///
   /// In id, this message translates to:
@@ -3958,7 +4060,7 @@ abstract class AppLocalizations {
   /// No description provided for @mapNearStation.
   ///
   /// In id, this message translates to:
-  /// **'Anda berada di dekat Stasiun {station}'**
+  /// **'Kamu di sini · Dekat Stasiun {station}'**
   String mapNearStation(String station);
 
   /// No description provided for @mapNearestMarkerNote.

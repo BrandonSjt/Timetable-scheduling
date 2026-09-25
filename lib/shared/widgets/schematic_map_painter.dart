@@ -1781,6 +1781,8 @@ class SchematicMapPainter extends CustomPainter {
   final Set<String>? visibleLineIds;
   final Set<String>? highlightedSegmentIds;
   final String? nearestStation;
+  final String? nearestStationLabel;
+  final TextDirection locationTextDirection;
 
   SchematicMapPainter({
     this.showColors = false,
@@ -1789,6 +1791,8 @@ class SchematicMapPainter extends CustomPainter {
     this.visibleLineIds,
     this.highlightedSegmentIds,
     this.nearestStation,
+    this.nearestStationLabel,
+    this.locationTextDirection = TextDirection.ltr,
   });
 
   @override
@@ -1808,14 +1812,14 @@ class SchematicMapPainter extends CustomPainter {
     _drawAllLabels(canvas);
     // 7. Draw line route identity badges
     _drawLineBadges(canvas);
+    _drawNearestStationLabel(canvas);
   }
 
-  void _drawNearestStationMarker(Canvas canvas) {
-    if (nearestStation == null) return;
+  ({RRect node, double labelTop})? _nearestStationGeometry() {
+    if (nearestStation == null) return null;
     final station = _findStation(nearestStation!);
-    if (station == null) return;
+    if (station == null) return null;
 
-    var center = station.position;
     final pairedId =
         kMergedStationPairs[station.id] ??
         kMergedStationPairs.entries
@@ -1824,26 +1828,89 @@ class SchematicMapPainter extends CustomPainter {
             .firstOrNull;
     final paired = pairedId == null ? null : _findStation(pairedId);
     if (paired != null) {
-      center = Offset(
-        (center.dx + paired.position.dx) / 2,
-        (center.dy + paired.position.dy) / 2,
+      final rect = mergedStationHubRect(station, paired);
+      final primary = kMergedStationPairs.containsKey(station.id)
+          ? station
+          : paired;
+      final horizontal =
+          (station.position.dx - paired.position.dx).abs() <
+          (station.position.dy - paired.position.dy).abs();
+      // Match the existing top/zigzag code badges, not a generic circle.
+      final topBadge = horizontal || primary.id == 'jakarta_kota_bk';
+      final clearance = primary.id == 'duri_c'
+          ? 34.0
+          : topBadge
+          ? 31.0
+          : 12.0;
+      return (
+        node: RRect.fromRectAndRadius(rect, const Radius.circular(12)),
+        labelTop: rect.top - clearance,
       );
     }
-
-    canvas.drawCircle(
-      center,
-      23,
-      Paint()..color = const Color(0xFF1976D2).withValues(alpha: 0.16),
+    if (_majorTransitIds.contains(station.id)) {
+      final rect = _majorHubRect(station);
+      final top = station.code.isEmpty
+          ? rect.top
+          : min(rect.top, _codeBadgeRect(station).top);
+      return (
+        node: RRect.fromRectAndRadius(rect, const Radius.circular(12)),
+        labelTop: top - 12,
+      );
+    }
+    final isEmphasized =
+        selectedStation == station.id ||
+        selectedStation == station.name ||
+        fromStation == station.id ||
+        fromStation == station.name;
+    final radius = isEmphasized
+        ? max(stationNodeRadius(station), station.code.isEmpty ? 10.0 : 13.0)
+        : stationNodeRadius(station);
+    final rect = Rect.fromCircle(center: station.position, radius: radius);
+    return (
+      node: RRect.fromRectAndRadius(rect, Radius.circular(radius)),
+      labelTop: rect.top - 12,
     );
-    canvas.drawCircle(
-      center,
-      19,
+  }
+
+  void _drawNearestStationMarker(Canvas canvas) {
+    final geometry = _nearestStationGeometry();
+    if (geometry == null) return;
+    // Outline the actual node; never paint over its station name/code.
+    canvas.drawRRect(
+      geometry.node.inflate(4),
       Paint()
         ..color = const Color(0xFF1976D2)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 4,
+        ..strokeWidth = 5,
     );
-    canvas.drawCircle(center, 4, Paint()..color = const Color(0xFF1976D2));
+  }
+
+  void _drawNearestStationLabel(Canvas canvas) {
+    final geometry = _nearestStationGeometry();
+    if (geometry == null || nearestStationLabel == null) return;
+    final center = geometry.node.outerRect.center;
+    final text = TextPainter(
+      text: TextSpan(
+        text: nearestStationLabel,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      textDirection: locationTextDirection,
+    )..layout();
+    final rect = Rect.fromLTWH(
+      center.dx - text.width / 2 - 12,
+      geometry.labelTop - text.height - 16,
+      text.width + 24,
+      text.height + 16,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+      Paint()..color = const Color(0xFF1976D2),
+    );
+    text.paint(canvas, rect.topLeft + const Offset(12, 8));
   }
 
   // ── DRAW LINES ──────────────────────────────────────────────────
@@ -3172,7 +3239,9 @@ class SchematicMapPainter extends CustomPainter {
         oldDelegate.fromStation != fromStation ||
         oldDelegate.visibleLineIds != visibleLineIds ||
         oldDelegate.highlightedSegmentIds != highlightedSegmentIds ||
-        oldDelegate.nearestStation != nearestStation;
+        oldDelegate.nearestStation != nearestStation ||
+        oldDelegate.nearestStationLabel != nearestStationLabel ||
+        oldDelegate.locationTextDirection != locationTextDirection;
   }
 }
 

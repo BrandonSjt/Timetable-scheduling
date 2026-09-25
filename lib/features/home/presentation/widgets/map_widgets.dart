@@ -17,6 +17,10 @@ class MapView extends StatefulWidget {
   final String? nearestStationId;
   final VoidCallback? onLocateUser;
   final bool isLocating;
+  final String? focusStationId;
+  final int focusRequest;
+  final String? locationStatusLabel;
+  final String? nearestStationLabel;
 
   const MapView({
     super.key,
@@ -29,6 +33,10 @@ class MapView extends StatefulWidget {
     this.nearestStationId,
     this.onLocateUser,
     this.isLocating = false,
+    this.focusStationId,
+    this.focusRequest = 0,
+    this.locationStatusLabel,
+    this.nearestStationLabel,
   });
 
   @override
@@ -53,6 +61,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   Animation<Matrix4>? _animationMatrix;
   String? _prevSelectedStation;
   bool _hasInitialized = false;
+  int _previousFocusRequest = 0;
 
   @override
   void initState() {
@@ -224,6 +233,15 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
         final viewportSize = Size(constraints.maxWidth, constraints.maxHeight);
 
         // Pantau perubahan stasiun terpilih untuk digeser ke tengah layar
+        if (widget.focusRequest != _previousFocusRequest) {
+          _previousFocusRequest = widget.focusRequest;
+          final stationId = widget.focusStationId;
+          if (stationId != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _centerOnStation(stationId, viewportSize);
+            });
+          }
+        }
         if (widget.selectedStation != _prevSelectedStation) {
           final tempPrev = _prevSelectedStation;
           _prevSelectedStation = widget.selectedStation;
@@ -280,6 +298,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                         visibleLineIds: widget.visibleLineIds,
                         highlightedSegmentIds: widget.highlightedSegmentIds,
                         nearestStation: widget.nearestStationId,
+                        nearestStationLabel: widget.nearestStationLabel,
+                        locationTextDirection: Directionality.of(context),
                       ),
                     ),
                   ),
@@ -301,6 +321,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
                     _LocationButton(
                       isLoading: widget.isLocating,
                       onTap: widget.onLocateUser!,
+                      isVerified: widget.nearestStationId != null,
+                      statusLabel: widget.locationStatusLabel,
                     ),
                   ],
                 ],
@@ -322,19 +344,28 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
 }
 
 class _LocationButton extends StatelessWidget {
-  const _LocationButton({required this.isLoading, required this.onTap});
+  const _LocationButton({
+    required this.isLoading,
+    required this.onTap,
+    required this.isVerified,
+    this.statusLabel,
+  });
 
   final bool isLoading;
   final VoidCallback onTap;
+  final bool isVerified;
+  final String? statusLabel;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
       label: AppLocalizations.of(context)!.mapLocateMe,
+      value: statusLabel,
+      liveRegion: true,
       child: GestureDetector(
         key: const Key('locate-user-button'),
-        onTap: isLoading ? null : onTap,
+        onTap: onTap,
         child: Container(
           width: 42,
           height: 42,
@@ -342,7 +373,8 @@ class _LocationButton extends StatelessWidget {
             color: isLoading ? AppColors.primaryBlueLight : AppColors.surface,
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColors.primaryBlue.withValues(alpha: 0.35),
+              color: (isVerified ? const Color(0xFF1976D2) : AppColors.textHint)
+                  .withValues(alpha: 0.35),
             ),
             boxShadow: [
               BoxShadow(
@@ -360,9 +392,11 @@ class _LocationButton extends StatelessWidget {
                     strokeWidth: 2.5,
                   ),
                 )
-              : const Icon(
+              : Icon(
                   Icons.my_location_rounded,
-                  color: AppColors.primaryBlue,
+                  color: isVerified
+                      ? const Color(0xFF1976D2)
+                      : AppColors.textHint,
                   size: 21,
                 ),
         ),

@@ -20,6 +20,8 @@ class AssistantConversationController extends ChangeNotifier {
   final List<AssistantConversationItem> _items = [];
   int _nextId = 0;
   bool _isSending = false;
+  bool _disposed = false;
+  String? lastErrorCode;
   AssistantCopy _copy;
 
   void configure(AssistantCopy copy) => _copy = copy;
@@ -32,7 +34,8 @@ class AssistantConversationController extends ChangeNotifier {
 
   Future<String?> submitText(String rawText, {String? lang}) async {
     final text = rawText.trim();
-    if (text.isEmpty) return null;
+    if (text.isEmpty || _isSending || _disposed) return null;
+    lastErrorCode = null;
 
     _append(
       author: AssistantMessageAuthor.user,
@@ -49,6 +52,7 @@ class AssistantConversationController extends ChangeNotifier {
           history: _historyBeforeCurrent(),
           lang: lang,
         );
+        if (_disposed) return null;
         _append(
           author: AssistantMessageAuthor.assistant,
           kind: AssistantConversationItemKind.message,
@@ -56,14 +60,17 @@ class AssistantConversationController extends ChangeNotifier {
           routeFrom: answer.routeFrom,
           routeTo: answer.routeTo,
         );
-        return answer.reply;
+      } on AssistantChatException catch (error) {
+        lastErrorCode = error.code;
+        if (!_disposed) _appendAssistant(copy.chatError(error.code));
       } on Exception {
-        _appendAssistant(copy.unavailable);
-        return copy.unavailable;
+        lastErrorCode = 'AI_UNAVAILABLE';
+        if (!_disposed) _appendAssistant(copy.unavailable);
       } finally {
         _isSending = false;
-        notifyListeners();
       }
+      if (!_disposed) notifyListeners();
+      return lastErrorCode == null && !_disposed ? _items.last.text : null;
     }
     if (!handled) {
       _appendAssistant(copy.unknownCommand);
@@ -135,7 +142,7 @@ class AssistantConversationController extends ChangeNotifier {
       return true;
     }
 
-    if (normalized.contains('datang') || normalized.contains('berapa menit')) {
+    if (_asksArrival(normalized)) {
       _appendAssistant(
         copy.trainArrivesIn(alarmController.state.minutesUntilTrain),
       );
@@ -145,10 +152,13 @@ class AssistantConversationController extends ChangeNotifier {
   }
 
   bool _requiresTicket(String text) {
-    return text.contains('alarm') ||
-        text.contains('kereta') ||
-        text.contains('berapa menit');
+    return text.contains('alarm') || _asksArrival(text);
   }
+
+  bool _asksArrival(String text) =>
+      text.contains('kereta saya datang') ||
+      (text.contains('berapa menit') &&
+          (text.contains('kereta') || text.contains('datang')));
 
   bool _isAlarmCommand(String text) {
     return text.contains('alarm') ||
@@ -215,5 +225,11 @@ class AssistantConversationController extends ChangeNotifier {
         routeTo: routeTo,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

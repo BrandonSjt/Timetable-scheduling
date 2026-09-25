@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../widgets/map_widgets.dart';
+import '../widgets/station_located_map.dart';
 
 class _DepartureInfo {
   final String lineType;
@@ -339,6 +339,8 @@ class _HomePageState extends State<HomePage> {
     return Theme(
       data: ThemeData(unselectedWidgetColor: AppColors.textHint),
       child: CheckboxListTile(
+        key: ValueKey('home-filter-${lineIds.first}'),
+        minTileHeight: 48,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         title: Row(
           children: [
@@ -384,231 +386,233 @@ class _HomePageState extends State<HomePage> {
     return Drawer(
       backgroundColor: AppColors.background,
       child: SafeArea(
-        bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.only(top: 8),
-          children: [
-            // Filter Area/Kota (Region Selector)
-            ExpansionTile(
-              leading: const Icon(
-                Icons.location_city_rounded,
-                color: AppColors.primaryBlue,
+        child: ListTileTheme(
+          data: const ListTileThemeData(minTileHeight: 48),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+            children: [
+              // Filter Area/Kota (Region Selector)
+              ExpansionTile(
+                leading: const Icon(
+                  Icons.location_city_rounded,
+                  color: AppColors.primaryBlue,
+                ),
+                title: Text(
+                  l10n.filterArea,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                initiallyExpanded: true,
+                shape: const Border(),
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                    title: Text(
+                      l10n.areaJabodetabek,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    trailing: const Icon(
+                      Icons.check,
+                      color: AppColors.primaryBlue,
+                      size: 20,
+                    ),
+                    onTap: () {
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                    title: Text(
+                      l10n.homeAreaCentral,
+                      style: TextStyle(color: AppColors.textHint),
+                    ),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                    title: Text(
+                      l10n.homeAreaSouth,
+                      style: TextStyle(color: AppColors.textHint),
+                    ),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                    title: Text(
+                      l10n.homeAreaWest,
+                      style: TextStyle(color: AppColors.textHint),
+                    ),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                    title: Text(
+                      l10n.homeAreaEast,
+                      style: TextStyle(color: AppColors.textHint),
+                    ),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                    title: Text(
+                      l10n.homeAreaNorth,
+                      style: TextStyle(color: AppColors.textHint),
+                    ),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                    title: Text(
+                      l10n.homeAreaGreaterJakarta,
+                      style: TextStyle(color: AppColors.textHint),
+                    ),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.filterAreaComingSoon)),
+                      );
+                    },
+                  ),
+                ],
               ),
-              title: Text(
-                l10n.filterArea,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              initiallyExpanded: true,
-              shape: const Border(),
-              children: [
-                ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: Text(
-                    l10n.areaJabodetabek,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  trailing: const Icon(
-                    Icons.check,
-                    color: AppColors.primaryBlue,
-                    size: 20,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context); // Close drawer
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: Text(
-                    l10n.homeAreaCentral,
-                    style: TextStyle(color: AppColors.textHint),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
-                    );
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: Text(
-                    l10n.homeAreaSouth,
-                    style: TextStyle(color: AppColors.textHint),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
-                    );
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: Text(
-                    l10n.homeAreaWest,
-                    style: TextStyle(color: AppColors.textHint),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
-                    );
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: Text(
-                    l10n.homeAreaEast,
-                    style: TextStyle(color: AppColors.textHint),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
-                    );
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: Text(
-                    l10n.homeAreaNorth,
-                    style: TextStyle(color: AppColors.textHint),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
-                    );
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.only(left: 72, right: 16),
-                  title: Text(
-                    l10n.homeAreaGreaterJakarta,
-                    style: TextStyle(color: AppColors.textHint),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.filterAreaComingSoon)),
-                    );
-                  },
-                ),
-              ],
-            ),
 
-            const Divider(color: AppColors.cardBorder),
+              const Divider(color: AppColors.cardBorder),
 
-            // Filter Jalur (Line Filter)
-            ExpansionTile(
-              leading: const Icon(
-                Icons.train_rounded,
-                color: AppColors.primaryBlue,
-              ),
-              title: Text(
-                l10n.filterLine,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              initiallyExpanded: true,
-              shape: const Border(),
-              children: [
-                // Header KRL
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      l10n.homeLineKRL,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+              // Filter Jalur (Line Filter)
+              ExpansionTile(
+                leading: const Icon(
+                  Icons.train_rounded,
+                  color: AppColors.primaryBlue,
+                ),
+                title: Text(
+                  l10n.filterLine,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                initiallyExpanded: true,
+                shape: const Border(),
+                children: [
+                  // Header KRL
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        l10n.homeLineKRL,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _buildFilterOption(l10n.homeFilterBogor, [
-                  'bogor',
-                  'bogor_nambo',
-                ], AppColors.lineBogor),
-                _buildFilterOption(l10n.homeFilterCikarang, [
-                  'cikarang_loop',
-                  'cikarang_east',
-                ], AppColors.lineCikarang),
-                _buildFilterOption(l10n.homeFilterRangkas, [
-                  'rangkasbitung',
-                ], AppColors.lineRangkasbitung),
-                _buildFilterOption(l10n.homeFilterTangerang, [
-                  'tangerang',
-                ], AppColors.lineTangerang),
-                _buildFilterOption(l10n.homeFilterPriok, [
-                  'tanjung_priok',
-                ], AppColors.lineTanjungPriok),
+                  _buildFilterOption(l10n.homeFilterBogor, [
+                    'bogor',
+                    'bogor_nambo',
+                  ], AppColors.lineBogor),
+                  _buildFilterOption(l10n.homeFilterCikarang, [
+                    'cikarang_loop',
+                    'cikarang_east',
+                  ], AppColors.lineCikarang),
+                  _buildFilterOption(l10n.homeFilterRangkas, [
+                    'rangkasbitung',
+                  ], AppColors.lineRangkasbitung),
+                  _buildFilterOption(l10n.homeFilterTangerang, [
+                    'tangerang',
+                  ], AppColors.lineTangerang),
+                  _buildFilterOption(l10n.homeFilterPriok, [
+                    'tanjung_priok',
+                  ], AppColors.lineTanjungPriok),
 
-                const Divider(color: AppColors.cardBorder, height: 16),
+                  const Divider(color: AppColors.cardBorder, height: 16),
 
-                // Header MRT
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      l10n.homeLineMRTJ,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                  // Header MRT
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        l10n.homeLineMRTJ,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _buildFilterOption(l10n.homeFilterMRTNorthSouth, [
-                  'mrt',
-                ], AppColors.lineMRT),
+                  _buildFilterOption(l10n.homeFilterMRTNorthSouth, [
+                    'mrt',
+                  ], AppColors.lineMRT),
 
-                const Divider(color: AppColors.cardBorder, height: 16),
+                  const Divider(color: AppColors.cardBorder, height: 16),
 
-                // Header LRT Jabodebek
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      l10n.homeLineLRTJabo,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                  // Header LRT Jabodebek
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        l10n.homeLineLRTJabo,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _buildFilterOption(l10n.homeFilterLRTBekasi, [
-                  'lrt_bekasi',
-                ], AppColors.lineLRTBekasi),
-                _buildFilterOption(l10n.homeFilterLRTCibubur, [
-                  'lrt_cibubur',
-                ], AppColors.lineLRTCibubur),
+                  _buildFilterOption(l10n.homeFilterLRTBekasi, [
+                    'lrt_bekasi',
+                  ], AppColors.lineLRTBekasi),
+                  _buildFilterOption(l10n.homeFilterLRTCibubur, [
+                    'lrt_cibubur',
+                  ], AppColors.lineLRTCibubur),
 
-                const Divider(color: AppColors.cardBorder, height: 16),
+                  const Divider(color: AppColors.cardBorder, height: 16),
 
-                // Header LRT Jakarta
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      l10n.homeLineLRTJakarta,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                  // Header LRT Jakarta
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        l10n.homeLineLRTJakarta,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _buildFilterOption(l10n.homeFilterLRTPegangsaan, [
-                  'lrt_jakarta',
-                ], AppColors.lineLRTJakarta),
+                  _buildFilterOption(l10n.homeFilterLRTPegangsaan, [
+                    'lrt_jakarta',
+                  ], AppColors.lineLRTJakarta),
 
-                const SizedBox(height: 16),
-              ],
-            ),
-          ],
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -825,7 +829,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     // Peta mengisi seluruh area tengah
                     Positioned.fill(
-                      child: MapView(
+                      child: StationLocatedMap(
                         showColors: true,
                         selectedStation: currentStation,
                         fromStation: _fromStation,

@@ -9,6 +9,73 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
+  String get scheduleAllServicesNote =>
+      'Semua Stasiun menampilkan satu jadwal per perjalanan KA. Pilih stasiun untuk seluruh keberangkatan di stasiun tersebut.';
+
+  @override
+  String get scheduleStationCatalogError =>
+      'Daftar stasiun belum berhasil dimuat. Coba lagi untuk melihat semua pilihan.';
+
+  @override
+  String get mapYouAreHere => 'Kamu di sini';
+
+  @override
+  String get mapLocationLoading => 'Mencari lokasi kamu…';
+
+  @override
+  String get mapLocationUnconfirmed =>
+      'Stasiun belum dapat dipastikan. Dekati stasiun atau coba tombol lokasi.';
+
+  @override
+  String get mapLocationUnavailable =>
+      'Lokasi terkini belum tersedia. Coba tombol lokasi lagi.';
+
+  @override
+  String get assistantAiQuota =>
+      'Kuota AI sedang penuh. Tunggu sebentar lalu coba lagi ya.';
+
+  @override
+  String get assistantAiTimeout =>
+      'AI belum merespons tepat waktu. Coba kirim lagi ya.';
+
+  @override
+  String get assistantAiNotConfigured =>
+      'Layanan AI belum dikonfigurasi di server.';
+
+  @override
+  String get assistantVoiceUnavailable =>
+      'Fitur suara tidak tersedia. Periksa izin mikrofon lalu coba lagi.';
+
+  @override
+  String get assistantVoicePermissionDenied =>
+      'Izin mikrofon ditolak. Aktifkan izin di pengaturan aplikasi atau ketik pesan.';
+
+  @override
+  String get assistantVoiceLanguageUnavailable =>
+      'Bahasa pengenalan suara belum tersedia di perangkat. Periksa pengaturan bahasa suara atau ketik pesan.';
+
+  @override
+  String get assistantVoiceWakeWordUnavailable =>
+      'Belum tersedia. Ketuk mikrofon untuk berbicara.';
+
+  @override
+  String get assistantVoicePlaybackUnavailable =>
+      'Jawaban belum bisa dibacakan. Kamu tetap bisa melihat teksnya di chat.';
+
+  @override
+  String get assistantVoiceReadAnswer => 'Bacakan jawaban';
+
+  @override
+  String get assistantVoiceStopReading => 'Hentikan suara';
+
+  @override
+  String get assistantVoiceAnswerReady => 'Jawaban siap';
+
+  @override
+  String get assistantVoiceAnswerReadyDescription =>
+      'Lihat jawaban di chat atau pilih untuk membacakannya.';
+
+  @override
   String get languagePageTitle => 'Bahasa';
 
   @override
@@ -1856,10 +1923,6 @@ class AppLocalizationsId extends AppLocalizations {
       'Halo, kamu mau melakukan perjalanan ke mana?';
 
   @override
-  String get assistantVoiceUnavailable =>
-      'Fitur suara tidak tersedia. Periksa izin mikrofon lalu coba lagi.';
-
-  @override
   String get assistantVoiceNoSpeech =>
       'Saya belum mendengar tujuanmu. Coba ucapkan lagi.';
 
@@ -2158,7 +2221,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String mapNearStation(String station) {
-    return 'Anda berada di dekat Stasiun $station';
+    return 'Kamu di sini · Dekat Stasiun $station';
   }
 
   @override

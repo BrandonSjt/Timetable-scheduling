@@ -21,6 +21,60 @@ class NearestKrlStationResult {
 }
 
 abstract final class NearestKrlStation {
+  static const nearbyRadiusMeters = 300.0;
+  static const maxAccuracyMeters = 100.0;
+  static const maxPositionAge = Duration(seconds: 30);
+
+  static NearestKrlStationResult? findNearby({
+    required double latitude,
+    required double longitude,
+    required double? accuracyMeters,
+    required DateTime? timestamp,
+    required DateTime now,
+    required List<StationGeoPoint> stations,
+    double radiusMeters = nearbyRadiusMeters,
+  }) {
+    if (!latitude.isFinite ||
+        !longitude.isFinite ||
+        latitude.abs() > 90 ||
+        longitude.abs() > 180 ||
+        accuracyMeters == null ||
+        !accuracyMeters.isFinite ||
+        accuracyMeters < 0 ||
+        accuracyMeters > maxAccuracyMeters ||
+        timestamp == null ||
+        timestamp.isAfter(now) ||
+        now.difference(timestamp) >= maxPositionAge ||
+        !radiusMeters.isFinite ||
+        radiusMeters <= 0) {
+      return null;
+    }
+
+    final closest = find(
+      latitude: latitude,
+      longitude: longitude,
+      stations: stations,
+    );
+    if (closest == null ||
+        closest.distanceMeters + accuracyMeters > radiusMeters) {
+      return null;
+    }
+    final second = find(
+      latitude: latitude,
+      longitude: longitude,
+      stations: stations
+          .where(
+            (s) => s.schematicStationId != closest.station.schematicStationId,
+          )
+          .toList(),
+    );
+    if (second != null &&
+        second.distanceMeters - closest.distanceMeters <= 2 * accuracyMeters) {
+      return null;
+    }
+    return closest;
+  }
+
   static NearestKrlStationResult? find({
     required double latitude,
     required double longitude,

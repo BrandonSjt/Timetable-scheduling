@@ -268,6 +268,20 @@ test('jadwal intent detection', () => {
   });
 });
 
+test('casual area clarification, bare station answer and schedule follow-up retain both endpoints', () => {
+  const history: AssistantHistoryTurn[] = [
+    { role: 'user', text: 'Halo, aku mau ke Jakarta Kota dari Bintaro, naiknya apa ya?' },
+    { role: 'assistant', text: 'Kamu berangkat dari stasiun KRL mana? Misalnya Pondok Ranji atau Jurangmangu?' },
+    { role: 'user', text: 'Jurangmangu' },
+    { role: 'assistant', text: 'Bisa, ini rutenya menuju Jakarta Kota.' },
+  ];
+  assert.deepEqual(extractRouteRequest('Jurangmangu', history.slice(0, 2)), { from: 'Jurangmangu', to: 'Jakarta Kota' });
+  assert.deepEqual(extractRouteRequest('kalau ke Bogor?', history), { from: 'Jurangmangu', to: 'Bogor' });
+  assert.deepEqual(extractScheduleRequest('jadwalnya?', history), { from: 'Jurangmangu', to: 'Jakarta Kota' });
+  assert.deepEqual(extractScheduleRequest('jadwal Bekasi'), { from: 'Bekasi' });
+  assert.deepEqual(extractRouteRequest('aku mau turun di Rangkasbitung berangkat dari Tanah Abang'), { from: 'Tanah Abang', to: 'Rangkasbitung' });
+});
+
 test('buildScheduleContext formats departures', () => {
   const dep: AssistantScheduleDeparture[] = [
     { departureTime: '06:12', trainName: 'KA 001', route: 'Pondok Ranji - Jakarta Kota', destination: 'Jakarta Kota', platform: '1', trainType: 'KRL', directToDestination: true },
@@ -341,11 +355,26 @@ test('structured reply includes route when planRoute succeeds', async () => {
   const originalPlan = RouteService.planRoute;
   // @ts-ignore
   RouteService.planRoute = async () => ({ ...routeFixture });
-  // Stub generateContent to avoid real API
-  const { GoogleGenAI: G } = await import('../src/domain/services/assistantService');
-  // Mock generative path via monkey-patching model's generateContent would be complex; instead verify route extraction locally
-  // Instead: verify extract works and that controller schema would accept route; limit to checking deterministic route shape
-  assert.deepEqual(extractRouteRequest('dari Bekasi ke Jakarta Kota'), { from: 'Bekasi', to: 'Jakarta Kota' });
+  try {
+    const result = await new AssistantService().reply('dari Bekasi ke Jakarta Kota');
+    assert.deepEqual(result.route, { from: 'Bekasi', to: 'Jakarta Kota' });
+    assert.match(result.text, /70 menit/);
+    assert.match(result.text, /5\.000/);
+    assert.match(result.text, /Naik dari Bekasi/);
+    delete process.env.GEMINI_API_KEY;
+    assert.deepEqual((await new AssistantService().reply('dari Bekasi ke Jakarta Kota')).route, result.route);
+  } finally {
+    RouteService.planRoute = originalPlan;
+    if (prevKey == null) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = prevKey;
+  }
   RouteService.planRoute = originalPlan;
   process.env.GEMINI_API_KEY = prevKey;
+});
+
+test('session follows destination-first and replacement origin/destination requests', () => {
+  assert.deepEqual(extractRouteRequest('dari Jurangmangu', [{ role: 'user', text: 'Aku mau ke Jakarta Kota' }]), { from: 'Jurangmangu', to: 'Jakarta Kota' });
+  assert.deepEqual(extractRouteRequest('kalau dari Bekasi?', [{ role: 'user', text: 'dari Jurangmangu ke Jakarta Kota' }]), { from: 'Bekasi', to: 'Jakarta Kota' });
+  assert.deepEqual(extractRouteRequest('ke Bogor', [{ role: 'user', text: 'dari Jurangmangu ke Jakarta Kota' }]), { from: 'Jurangmangu', to: 'Bogor' });
+  assert.deepEqual(extractRouteRequest('halo, dari stasiun Jurang Mangu ke stasiun Jakarta Kota naik apa ya?'), { from: 'Jurang Mangu', to: 'Jakarta Kota' });
 });

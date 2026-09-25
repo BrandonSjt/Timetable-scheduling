@@ -8,10 +8,12 @@ class AssistantComposer extends StatefulWidget {
     super.key,
     required this.onSubmit,
     required this.onMicrophoneTap,
+    this.enabled = true,
     this.microphoneSemanticsLabel = 'Mulai percakapan suara',
   });
 
   final ValueChanged<String> onSubmit;
+  final bool enabled;
   final VoidCallback? onMicrophoneTap;
   final String microphoneSemanticsLabel;
 
@@ -29,6 +31,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
   }
 
   void _submit([String? _]) {
+    if (!widget.enabled) return;
     final value = _textController.text.trim();
     if (value.isEmpty) return;
     widget.onSubmit(value);
@@ -54,6 +57,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
               Expanded(
                 child: TextField(
                   key: const Key('assistant-message-field'),
+                  enabled: widget.enabled,
                   controller: _textController,
                   minLines: 1,
                   maxLines: 4,
@@ -100,7 +104,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
               _ComposerIconButton(
                 semanticsLabel: l10n.assistantSendMessage,
                 icon: Icons.send_rounded,
-                onPressed: _submit,
+                onPressed: widget.enabled ? _submit : null,
                 foregroundColor: AppColors.textOnPrimary,
                 backgroundColor: AppColors.primaryBlue,
               ),

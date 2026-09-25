@@ -90,6 +90,7 @@ class AppBottomNavBar extends StatelessWidget {
           for (final item in items)
             Expanded(
               child: _NavItem(
+                index: item.index,
                 icon: item.icon,
                 activeIcon: item.activeIcon,
                 label: item.label,
@@ -105,6 +106,7 @@ class AppBottomNavBar extends StatelessWidget {
 
 /// Item navigasi individual (ikon + label)
 class _NavItem extends StatelessWidget {
+  final int index;
   final IconData icon;
   final IconData activeIcon;
   final String label;
@@ -112,6 +114,7 @@ class _NavItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _NavItem({
+    required this.index,
     required this.icon,
     required this.activeIcon,
     required this.label,
@@ -133,44 +136,55 @@ class _NavItem extends StatelessWidget {
           child: Stack(
             alignment: Alignment.topCenter,
             children: [
-              if (isActive)
-                const Positioned(
+              if (index < 4)
+                PositionedDirectional(
                   top: 0,
-                  width: 32,
-                  height: 3,
-                  child: DecoratedBox(
-                    key: ValueKey('bottom-nav-active-indicator'),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryPurple,
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                  bottom: 0,
+                  end: 0,
+                  width: 1,
+                  child: Center(
+                    child: Container(
+                      key: ValueKey('bottom-nav-item-separator-$index'),
+                      width: 1,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: AppColors.textHint.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
                     ),
                   ),
                 ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isActive ? activeIcon : icon,
-                    color: isActive
-                        ? AppColors.primaryBlue
-                        : AppColors.textHint,
-                    size: 24,
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+              Positioned.fill(
+                top: 7,
+                bottom: 7,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isActive ? activeIcon : icon,
                       color: isActive
                           ? AppColors.primaryBlue
                           : AppColors.textHint,
-                      letterSpacing: 0.1,
+                      size: 24,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: isActive
+                            ? FontWeight.w700
+                            : FontWeight.w400,
+                        color: isActive
+                            ? AppColors.primaryBlue
+                            : AppColors.textHint,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
